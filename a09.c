@@ -246,7 +246,7 @@
 #define MAXTEXTS     1024
 #define MAXRELOCS    32768
 #define MAXIDLEN     32
-#define MAXLISTBYTES 7
+#define MAXLISTBYTES 8
 #define FNLEN        256
 #define LINELEN      1024
 
