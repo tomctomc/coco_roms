@@ -27,7 +27,7 @@ The files here are:
 
 
 
-When you run make, by default the a09 assembler is compiled and is then used to build the rom files.  After this has been done, you should have all of the following files (named as specified for use with [mame](http://www.mamedev.org).  The Makefile includes expected SHA-1 hashes for the roms and compares them all after assembling.
+When you run make, by default the a09 assembler is compiled and is then used to build the rom files.  After this has been done, you should have all of the following files (named as specified for use with [mame](http://www.mamedev.org)).  The Makefile includes expected SHA-1 hashes for the roms and compares them all after assembling.
 
 
 ### Built Files
