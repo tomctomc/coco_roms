@@ -20,7 +20,7 @@ AUTO_EXTBAS_BUILD= ${A09} -Bauto_tmp -Y$@       auto_symbols_bas.asm    extbas.a
    EXTBAS10_BUILD= ${A09} -B$@ -L${@:.rom=.lst} auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=10
    EXTBAS11_BUILD= ${A09} -B$@ -L${@:.rom=.lst} auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=11
    EXTBAS20_BUILD= ${A09} -B$@ -L${@:.rom=.lst} auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=20
-     DISK10_BUILD= ${A09} -B$@ -L${@:.rom=.lst} auto_symbols_extbas.asm disk10.asm   -DVERDISK=10
+     DISK10_BUILD= ${A09} -B$@ -L${@:.rom=.lst} auto_symbols_extbas.asm disk.asm     -DVERDISK=10
      DISK11_BUILD= ${A09} -B$@ -L${@:.rom=.lst} auto_symbols_extbas.asm disk.asm     -DVERDISK=11
    SUPBAS20_BUILD= ${A09} -B$@ -L${@:.rom=.lst} auto_symbols_extbas.asm supbas.asm   -DCOCOPAL=0
   SUPBAS20P_BUILD= ${A09} -B$@ -L${@:.rom=.lst} auto_symbols_extbas.asm supbas.asm   -DCOCOPAL=1
