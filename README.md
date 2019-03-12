@@ -1,7 +1,7 @@
 
 ## TRS-80 Color Computer ROM source code
 
-This is a collection of 6809 assembly language sources (and the source code for a 6809 assembler) which allow one to fully build all "rom" images for variations of the TRS-80 Color Computer.  The built rom images can be used with emulators such as mame [mame](www.mamedev.org) that can fully simulate a running TRS-80 Color computer.  The Makefile includes expected SHA-1 hashes for the roms and compares them all after assembling to ensure they match bit-for-bit the original contents of the machine ROMs.
+This is a collection of 6809 assembly language sources (and the source code for a 6809 assembler) which allow one to fully build all "rom" images for variations of the TRS-80 Color Computer.  The built rom images can be used with emulators such as mame [mame](http://www.mamedev.org) that can fully simulate a running TRS-80 Color computer.  The Makefile includes expected SHA-1 hashes for the roms and compares them all after assembling to ensure they match bit-for-bit the original contents of the machine ROMs.
 
 Most of this has been collected from internet sources.  Of particular note is the ["Unravelled" series of books](http://techheap.packetizer.com/computers/coco/unravelled_series/) which was the original source (pun intended) for most of the assembly code.
 
@@ -27,7 +27,7 @@ The files here are:
 
 
 
-When you run make, by default the a09 assembler is compiled and is then used to build the rom files.  After this has been done, you should have all of the following files (named as specified for use with [mame](www.mamedev.org).  The Makefile includes expected SHA-1 hashes for the roms and compares them all after assembling.
+When you run make, by default the a09 assembler is compiled and is then used to build the rom files.  After this has been done, you should have all of the following files (named as specified for use with [mame](http://www.mamedev.org).  The Makefile includes expected SHA-1 hashes for the roms and compares them all after assembling.
 
 
 ### Built Files
