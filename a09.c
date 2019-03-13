@@ -52,8 +52,6 @@
     fcw
     fdb
     fcc
-    fcs
-    fill
     rmb
     reg
     end
@@ -104,7 +102,6 @@
     M68*| H63 | M00   MC6809 / HD6309 / MC6800 mode
     TXT | NTX*        Print text table
     LPA | LNP*        Listing in f9dasm patch format
-    CCB | CCB*        TRS-80 Color Computer .bin format binary output (single record)
     * denotes default value
 
     
@@ -230,13 +227,12 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <time.h>
-#include <unistd.h>
 
 /*****************************************************************************/
 /* Definitions                                                               */
 /*****************************************************************************/
 
-#define VERSION      "1.28 (tomc)"
+#define VERSION      "1.28"
 #define VERSNUM      "$011C"            /* can be queried as &VERSION        */
 
 #define UNIX 0                          /* set to != 0 for UNIX specials     */
@@ -246,7 +242,7 @@
 #define MAXTEXTS     1024
 #define MAXRELOCS    32768
 #define MAXIDLEN     32
-#define MAXLISTBYTES 8
+#define MAXLISTBYTES 7
 #define FNLEN        256
 #define LINELEN      1024
 
@@ -364,8 +360,6 @@ struct oprecord
 #define PSEUDO_IFD           42
 #define PSEUDO_IFND          43
 #define PSEUDO_BINARY        44
-#define PSEUDO_FCS           45
-#define PSEUDO_FILL          46
 
 struct oprecord optable09[]=
   {
@@ -503,7 +497,6 @@ struct oprecord optable09[]=
   { "COMW",    OPCAT_6309 |
                OPCAT_TWOBYTE,     0x1053 },
   { "COMMON",  OPCAT_PSEUDO,      PSEUDO_COMMON },
-  { "COND",    OPCAT_PSEUDO,      PSEUDO_IF },
   { "CPD",     OPCAT_DBLREG2BYTE, 0x1083 },
   { "CPX",     OPCAT_DBLREG1BYTE, 0x8c },
   { "CPY",     OPCAT_DBLREG2BYTE, 0x108c },
@@ -556,10 +549,8 @@ struct oprecord optable09[]=
   { "EXTERN",  OPCAT_PSEUDO,      PSEUDO_EXT },
   { "FCB",     OPCAT_PSEUDO,      PSEUDO_FCB },
   { "FCC",     OPCAT_PSEUDO,      PSEUDO_FCC },
-  { "FCS",     OPCAT_PSEUDO,      PSEUDO_FCS },
   { "FCW",     OPCAT_PSEUDO,      PSEUDO_FCW },
   { "FDB",     OPCAT_PSEUDO,      PSEUDO_FCW },
-  { "FILL",    OPCAT_PSEUDO,      PSEUDO_FILL },
   { "GLOBAL",  OPCAT_PSEUDO,      PSEUDO_PUB },
   { "IF",      OPCAT_PSEUDO,      PSEUDO_IF },
   { "IFC",     OPCAT_PSEUDO,      PSEUDO_IFC },
@@ -888,7 +879,6 @@ struct oprecord optable00[]=
   { "COM",     OPCAT_ACCADDR,     0x03 },
   { "COMA",    OPCAT_ONEBYTE,     0x43 },
   { "COMB",    OPCAT_ONEBYTE,     0x53 },
-  { "COND",    OPCAT_PSEUDO,      PSEUDO_IF },
   { "CPX",     OPCAT_DBLREG1BYTE, 0x8c },
   { "DAA",     OPCAT_ONEBYTE,     0x19 },
   { "DEC",     OPCAT_ACCADDR,     0x0a },
@@ -916,10 +906,8 @@ struct oprecord optable00[]=
   { "EXTERN",  OPCAT_PSEUDO,      PSEUDO_EXT },
   { "FCB",     OPCAT_PSEUDO,      PSEUDO_FCB },
   { "FCC",     OPCAT_PSEUDO,      PSEUDO_FCC },
-  { "FCS",     OPCAT_PSEUDO,      PSEUDO_FCS },
   { "FCW",     OPCAT_PSEUDO,      PSEUDO_FCW },
   { "FDB",     OPCAT_PSEUDO,      PSEUDO_FCW },
-  { "FILL",    OPCAT_PSEUDO,      PSEUDO_FILL },
   { "GLOBAL",  OPCAT_PSEUDO,      PSEUDO_PUB },
   { "IF",      OPCAT_PSEUDO,      PSEUDO_IF },
   { "IFC",     OPCAT_PSEUDO,      PSEUDO_IFC },
@@ -1213,7 +1201,6 @@ long relhdrfoff;                        /* FLEX Relocatable Global Hdr Offset*/
 #define OPTION_TXT    0x00100000L       /* print text table                  */
 #define OPTION_LIS    0x00200000L       /* print assembler output listing    */
 #define OPTION_LPA    0x00400000L       /* listing in f9dasm patch format    */
-#define OPTION_CCB    0x00800000L       /* output coco single-record binary  */
 
 struct
   {
@@ -1266,8 +1253,6 @@ struct
   { "NOL",           0, OPTION_LIS },
   { "LPA",  OPTION_LPA, OPTION_NUM | OPTION_CLL }, // LPA inhibits NUM / CLL!
   { "NLP",           0, OPTION_LPA },
-  { "CCB",  OPTION_CCB,          0 }, // Color Computer ".bin" single record binary output
-  { "NCB",           0, OPTION_CCB }, // Color Computer ".bin" single record binary output
   };
 
 unsigned long dwOptions =               /* options flags, init to default    */
@@ -1358,22 +1343,11 @@ char *warningmsg[] =
 char listing = LIST_OFF;                /* listing flag                      */
 
 /*****************************************************************************/
-/* Symbols Definitions                                                       */
-/*****************************************************************************/
-
-#define SYMBOLS_OFF  0x00               /* symbols is generally off          */
-#define SYMBOLS_ON   0x01               /* symbols is generally on           */
-
-char symbols = SYMBOLS_OFF;             /* symbols flag                      */
-
-/*****************************************************************************/
 /* Global variables                                                          */
 /*****************************************************************************/
 
 FILE *listfile = NULL;                  /* list file                         */
-FILE *symbolsfile = NULL;                  /* list file                         */
 FILE *objfile = NULL;                   /* object file                       */
-char symbolsname[FNLEN + 1];            /* list file name                    */
 char listname[FNLEN + 1];               /* list file name                    */
 char objname[FNLEN + 1];                /* object file name                  */
 char srcname[FNLEN + 1];                /* source file name                  */
@@ -1432,7 +1406,6 @@ char mode;                              /* adressing mode:                   */
 
 char opsize;                            /* desired operand size :            */
                                         /* 0=dunno,1=5, 2=8, 3=16            */
-char explicit_opsize;                   /* flag that assembly source explicitly requested a particular size (via a leading < or >) */
 long operand;
 unsigned char postbyte;
 
@@ -1935,46 +1908,6 @@ if (texts[lp->value])
 return lp->value;
 }
 
-/**
- * this will define a symbol value as an integer constant
- * or text based on the contents of the value (all digits
- * will yield a constant, anything else text).  this is
- * to allow command line symbol definitions to be numeric
- * if desired (for version number conditional assemblies, etc).
- */
-int set_constant_or_text( char *name, char *value )
-{
-    char *p = value;
-    int is_constant = 1;
-    while( *p ) {
-        if( !isdigit(*p) ) {
-            is_constant = 0;
-            break;
-        }
-        p++;
-    }
-    if( is_constant ) {
-        struct symrecord *lp = findsym(namebuf, 1);
-        int len;
-        int special = 0;
-
-        if (!lp) {
-          error |= ERR_LABEL_UNDEF;
-          return -1;
-          }
-        if (lp->cat != SYMCAT_EMPTY &&
-            lp->cat != SYMCAT_TEXT) {
-          error |= ERR_LABEL_MULT;
-          return -1;
-          }
-          lp->cat = SYMCAT_CONSTANT;
-          lp->value = atoi(value);
-    }
-    else {
-        settext( name, value );
-    }
-}
-
 /*****************************************************************************/
 /* outsymtable : prints the symbol table                                     */
 /*****************************************************************************/
@@ -2224,7 +2157,6 @@ while (1)
       (c >= 'a' && c <= 'z') ||
       (c == '_'))
     cValid = 1;
-  if (c == '.') { cValid = 1; } // allow '.' to be in symbol names (color basic uses X.X type names)
   if (dwOptions & OPTION_GAS)           /* for GNU AS compatibility,         */
     {                                   /* the following rules apply:        */
     if ((c == '.') ||                   /* .$ are valid symbol characters    */
@@ -2288,14 +2220,7 @@ long scanhex()
 {
 long t = 0, i = 0;
 
-
-srcptr++; // skip '$'
-// allow negatives ( for example "$-01" )
-int is_negative = 0;
-if( *srcptr == '-' ) {
-    srcptr++;
-    is_negative = 1;
-}
+srcptr++;
 scanname();
 while (unamebuf[i] >= '0' && unamebuf[i] <= 'F')
   {
@@ -2306,10 +2231,6 @@ while (unamebuf[i] >= '0' && unamebuf[i] <= 'F')
   }  
 if (i==0)
   error |= ERR_EXPR;
-
-if( is_negative ) {
-    t = -t;
-}
 return t;
 }
 
@@ -2969,7 +2890,6 @@ void scanoperands09(struct relocrecord *pp)
 char c, *oldsrcptr;
 unsigned char accpost, h63 = 0;
 
-explicit_opsize = 0;
 unknown = 0;
 opsize = 0;
 certain = 1;
@@ -3043,17 +2963,13 @@ switch (toupper(c))
       {
       srcptr++;
       opsize = 1;
-      explicit_opsize = 1;
       }
-    else {
+    else
       opsize = 2;
-      explicit_opsize = 2;
-    }
     goto dodefault;    
   case '>':
     srcptr++;
     opsize = 3;
-      explicit_opsize = 3;
     /* fall thru on purpose */
   default:
   dodefault:
@@ -3067,25 +2983,10 @@ switch (toupper(c))
         skipspace();
       if ((operand == 0) &&             /* special for "0,-[-]indexreg       */
           (!unknown) && (certain) &&    /*         and "0,indexreg[+[+]]     */
-          (opsize < 3) ) {              /* but NOT for ">0,indexreg"!        */
-            // any increment or decrement ('+' or '-') characters remaining in
-            // the operand will trigger the special scan
-            if( srcptr[0] == '-' || srcptr[1] == '+' ) {
-                scanspecial();
-            }
-            else {
-                // allow "0,X" (with no increment/decrement) to explictly
-                // generate a "0 offset" address (as opposed to a "no offset").
-                //
-                // this way:
-                //     0,X    ->    0RR00000   (ZERO OFFSET)
-                //     ,X     ->    1RR00100   (NO OFFSET)
-                //
-                // this allows us to assemble the basic roms bit-for-bit and
-                // also matches the behavior of several other 6809 assemblers
-                scanindexed();
-            }
-      }
+          (opsize < 3) &&               /* but NOT for ">0,indexreg"!        */
+          ((*srcptr == '-') ||
+           (scanindexreg() /* && (srcptr[1] == '+') */ )))
+        scanspecial();
       else
         scanindexed();
       }
@@ -3129,7 +3030,6 @@ void scanoperands00(struct relocrecord *pp)
 {
 char c, *s = srcptr;
 
-explicit_opsize = 0;
 unknown = 0;
 opsize = 0;
 certain = 1;
@@ -3172,17 +3072,13 @@ switch (toupper(c))
       {
       srcptr++;
       opsize = 1;
-      explicit_opsize = 1;
       }
-    else {
+    else
       opsize = 2;
-      explicit_opsize = 2;
-    }
     goto dodefault;    
   case '>':
     srcptr++;
     opsize = 3;
-      explicit_opsize = 3;
     /* fall thru on purpose */
   default:
   dodefault:
@@ -3582,8 +3478,6 @@ hexbuffer[hexcount++] = x;              /* then put byte into buffer         */
 /* outbyte : writes one byte to the output in the selected format            */
 /*****************************************************************************/
 
-static int coco_record_wrote_start  = 0;          // boolean
-static int coco_record_load_address = 0x7fffffff; // where program is loaded
 void outbyte(unsigned char uc, int off)
 {
 int nByte = (loccounter + off) / 8;
@@ -3593,21 +3487,6 @@ if (bUsedBytes[nByte] & nBitMask)       /* if address already used           */
   warning |= WRN_AREA;                  /* set warning code                  */
 else                                    /* otherwise                         */
   bUsedBytes[nByte] |= nBitMask;        /* mark it as used                   */
-
-    if( dwOptions & OPTION_CCB ) {
-        if( !coco_record_wrote_start ) {
-            if( outmode == OUT_BIN ) {
-                int i;
-                for( i = 0; i<5; i++ ) {
-                    fputc( 0x00, objfile ); // place holder for start record
-                }
-            }
-            coco_record_wrote_start = 1;
-        }
-        if( loccounter + off < coco_record_load_address ) {
-            coco_record_load_address = loccounter + off;
-        }
-    }
 
 switch (outmode)
   {
@@ -3728,7 +3607,6 @@ if (dwOptions & OPTION_LPA)             /* if in patch mode                  */
         break;
       case PSEUDO_FCB :
       case PSEUDO_FCC :
-      case PSEUDO_FCS :
         putlist("data %04X", oldlc);
         if (codeptr > 1)
           putlist("-%04X", oldlc + codeptr - 1);
@@ -3964,9 +3842,8 @@ switch (mode)
   case ADRMODE_PCR :
   case ADRMODE_PIN :
     offs = (unsigned short)operand - loccounter - codeptr - 2;
-    if( (offs < -128 || offs >= 128 || opsize == 3 || unknown || !certain) && !(explicit_opsize > 0 && explicit_opsize < 3) )
+    if (offs < -128 || offs >= 128 || opsize == 3 || unknown || !certain)
       {
-
       if ((!unknown) && opsize == 2)
         error |= ERR_RANGE;
       offs--;
@@ -5131,7 +5008,6 @@ switch (co)
       } while (*srcptr == ',');
     break; 
   case PSEUDO_FCC :                     /* [label] FCC expr[,expr...]        */
-  case PSEUDO_FCS : // like FCC, but last character of string has high bit set (coco)
     setlabel(lp);
     if (!(dwOptions & OPTION_TSC))
       skipspace();
@@ -5140,7 +5016,6 @@ switch (co)
       c = *srcptr++;                    /* arbitrary delimiter character     */
       while (*srcptr != c && *srcptr)
         putbyte(*srcptr++);
-      if( co == PSEUDO_FCS ) codebuf[codeptr-1] |= 0x80; // FCS - set high bit on last character
       if (*srcptr == c)
         srcptr++;
       }
@@ -5164,7 +5039,6 @@ switch (co)
           srcptr++;
           while (*srcptr != c && *srcptr)
             putbyte(*srcptr++);
-          if( co == PSEUDO_FCS ) codebuf[codeptr-1] |= 0x80; // FCS - set high bit on last character
           if (*srcptr == c)
             srcptr++;
           }
@@ -5173,30 +5047,6 @@ switch (co)
         } while (*srcptr == ',');
       }
     break;
-  case PSEUDO_FILL : // FILL $ff,8   ->    FCB $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
-    {
-        unsigned char byteval;
-        int           repeat;
-        setlabel(lp);
-        generating = 1;
-        if( !(dwOptions & OPTION_TSC) ) { skipspace(); }
-        byteval = (unsigned char)scanexpr(0, &p);
-        if( unknown && pass == 2 ) {
-            error |= ERR_LABEL_UNDEF;
-        }
-        if( !(dwOptions & OPTION_TSC) )  { skipspace(); }
-        if( *srcptr != ',' ) {
-            error |= ERR_ILLEGAL_MNEM;
-        }
-        else {
-            srcptr++;
-            repeat = (int) scanexpr(0, &p);
-            while( repeat-- ) {
-                putbyte( byteval );
-            }
-        }
-    }
-    break; 
   case PSEUDO_FCW :                     /* [label] FCW,FDB  expr[,expr...]   */
     setlabel(lp);
     generating = 1;
@@ -5596,7 +5446,6 @@ switch (co)
   case PSEUDO_MACRO :                   /* label MACRO                       */
     if (!lp)                            /* a macro NEEDS a label!            */
       error |= ERR_LABEL_MISSING;
-    if (!lp) { report(); exit(-1); } // missing label should be fatal
     if (lp->cat == SYMCAT_EMPTY)
       {
       if (nMacros < MAXMACROS)          /* if space for another macro defin. */
@@ -6348,7 +6197,6 @@ printf("-R[objname] ........ output to FLEX relocatable object file\n");
 printf("-S[objname] ........ output to Motorola S51-09 file\n");
 printf("-X[objname] ........ output to Intel Hex file\n");
 printf("-L[listname] ....... create listing file \n");
-printf("-Y[symname] ........ output to symbols file (re-assemblable)\n");
 printf("-C ................. suppress code output\n");
 printf("-Dsymbol[=value] ... predefines a symbol\n");
 printf("                     for TSC 6809 Assembler compatibility,\n");
@@ -6431,12 +6279,6 @@ for (i = 1; i < argc; i++)
           j = strlen(argv[i]);          /* advance behind copied name        */
           listing = LIST_ON;            /* remember we're listing            */
           break;
-        case 'y' :                      /* define symbols file               */
-          strcpy(symbolsname,              /* copy in the name                  */
-                  argv[i] + j + 1);
-          j = strlen(argv[i]);          /* advance behind copied name        */
-          symbols = LIST_ON;            /* remember we're listing            */
-          break;
         case 'd' :                      /* define a symbol ?                 */
           srcptr = argv[i] + j + 1;     /* parse in the name                 */
           scanname();
@@ -6446,7 +6288,7 @@ for (i = 1; i < argc; i++)
             srcptr++;                   /* advance behind it                 */
           else                          /* otherwise go to ""                */
             srcptr = argv[i] + strlen(argv[i]);
-          set_constant_or_text(namebuf,srcptr);
+          settext(namebuf, srcptr);     /* define the symbol                 */
           j = strlen(argv[i]);          /* advance behind copied name        */
           break;
         case 'o' :                      /* option                            */
@@ -6603,21 +6445,12 @@ terminate = 0;
 if (!absmode)                           /* in relocating mode                */
   dpsetting = -1;                       /* there IS no Direct Page           */
 
-/* suppress stdout fluff
 printf("A09 Assembler V" VERSION "\n");
-*/
 
 if ((listing & LIST_ON) &&
     ((listfile = fopen(listname, "w")) == 0))
   {
   printf("%s(0) : error 19: Cannot open list file %s\n", srcname, listname);
-  exit(4);
-  }
-
-if ((symbols & SYMBOLS_ON) &&
-    ((symbolsfile = fopen(symbolsname, "w")) == 0))
-  {
-  printf("%s(0) : error 19: Cannot open symbols file %s\n", srcname, symbolsname);
   exit(4);
   }
 
@@ -6712,36 +6545,6 @@ if (warnings)
   nTotWarnings += warnings;
   }
 
-if (symbols & SYMBOLS_ON) {
-    fprintf( symbolsfile, "/**\n * AUTO GENERATED - DO NOT EDIT BY HAND\n */\n\n" );
-    for( i = 0; i < symcounter; i++ ) {
-
-        /* skip empties */
-        if( symtable[i].cat == SYMCAT_EMPTY ) {
-            continue;
-        }
-
-        /* suppress listing of predef texts  */
-        if( (symtable[i].cat == SYMCAT_TEXT      ) &&
-            (symtable[i].value < nPredefinedTexts) ) {
-            continue;
-        }
-
-        /* skip locals */
-        if( symtable[i].cat == SYMCAT_LOCALLABEL ) {
-            continue;
-        }
-
-        switch( symtable[i].cat ) {
-            case SYMCAT_CONSTANT:
-            case SYMCAT_LABEL:
-                fprintf( symbolsfile, "%-15s %-11s $%04x\n", symtable[i].name, "EQU", symtable[i].value );
-                break;
-        }
-    } 
-    fclose( symbolsfile );
-}
-
 if (listing & LIST_ON)
   {
   if (errors || warnings)
@@ -6762,10 +6565,8 @@ if (listing & LIST_ON)
           nTotErrors, nTotWarnings);
   fclose(listfile);
   }
-/* suppress stdout fluff
 else
   printf("Last assembled address: %04X\n", loccounter - 1);
-*/
 
 switch (outmode)                        /* look whether object cleanup needed*/
   {
@@ -6810,28 +6611,6 @@ switch (outmode)                        /* look whether object cleanup needed*/
     writerelhdr(0);                     /* rewrite completed header          */
     break;
   }
-
-    if( dwOptions & OPTION_CCB ) {
-        if( outmode == OUT_BIN) {
-            int coco_record_exec_address = tfradr; // where program is executed
-            int coco_record_length        = loccounter - coco_record_load_address; // code length
-
-            // write the end record
-            fputc( 0xff,                                     objfile ); // end record
-            fputc( 0x00,                                     objfile ); // length MSB
-            fputc( 0x00,                                     objfile ); // length LSB
-            fputc( ( coco_record_exec_address >> 8 ) & 0xff, objfile ); // exec start LSB
-            fputc( ( coco_record_exec_address      ) & 0xff, objfile ); // exec start LSB
-
-            // rewind and write the "real" start record
-            fseek(objfile, 0, SEEK_SET);
-            fputc( 0x00,                                     objfile ); // start record
-            fputc( ( coco_record_length       >> 8 ) & 0xff, objfile ); // length MSB
-            fputc( ( coco_record_length            ) & 0xff, objfile ); // length LSB
-            fputc( ( coco_record_load_address >> 8 ) & 0xff, objfile ); // exec start LSB
-            fputc( ( coco_record_load_address      ) & 0xff, objfile ); // exec start LSB
-        }
-    }
 
 if (objfile)
   fclose(objfile);
