@@ -6850,10 +6850,10 @@ for (i = 1; i < argc; i++)
           listing = LIST_ON;            /* remember we're listing            */
           break;
         case 'y' :                      /* define symbols file               */
-          strcpy(symbolsname,              /* copy in the name                  */
+          strcpy(symbolsname,           /* copy in the name                  */
                   argv[i] + j + 1);
           j = strlen(argv[i]);          /* advance behind copied name        */
-          symbols = LIST_ON;            /* remember we're listing            */
+          symbols = SYMBOLS_ON;         /* flag symbols are wanted           */
           break;
         case 'd' :                      /* define a symbol ?                 */
           srcptr = argv[i] + j + 1;     /* parse in the name                 */
