@@ -1,12 +1,12 @@
 
 ## TRS-80 Color Computer ROM source code
 
-This is a collection of 6809 assembly language sources (and the source code for a 6809 assembler) which allow one to fully build all "rom" images for variations of the TRS-80 Color Computer.  The built rom images can be used with emulators such as mame [mame](http://www.mamedev.org) that can fully simulate a running TRS-80 Color computer.  The Makefile includes expected SHA-1 hashes for the roms and compares them all after assembling to ensure they match bit-for-bit the original contents of the machine ROMs.
+This is a collection of 6809 assembly language sources (and the source code for a 6809 assembler) which allow one to fully build all "rom" images for variations of the TRS-80 Color Computer.  The built rom images can be used with emulators such as [mame](http://www.mamedev.org) that can fully simulate a running TRS-80 Color computer.
 
 Most of this has been collected from internet sources.  Of particular note is the ["Unravelled" series of books](http://techheap.packetizer.com/computers/coco/unravelled_series/) which was the original source (pun intended) for most of the assembly code.
 
 
-The files here are:
+The files included here are:
 
 ### Files
 
@@ -16,18 +16,18 @@ The files here are:
 | a09.c        | a 6809 assembler                         | slightly modified from the original found [here](http://www.hermannseib.com/english/opensource.htm) |
 | Makefile     | instructions for building via make       | (just run "make" to build all rom version permutations)              |
 |              |                                          |                                                                      |
-| cocodefs.asm | symbol definitions for Color Computer    | (memory map and constants - used with assembling all other files)    |
+| cocodefs.asm | symbol definitions for Color Computer    | (memory map and constants - used during assembly)                    |
 |              |                                          |                                                                      |
-| bas.asm      | assembly source for Color Basic          | (VERBAS can be set to 10,11,12,13,20 to assemble different versions) |
-| extbas.asm   | assembly source for Exended Color Basic  | (VEREXTBAS can be set to 10,11,20  to assemble different versions)   |
-| disk.asm     | assembly source for Disk Basic           | (VERDISK can be set to 10,11  to assemble different versions)        |
-| supbas.asm   | assembly source for Super Color Basic    | (version 2.0)                                                        |
+| bas.asm      | assembly source for Color Basic          | (can build versions 1.0, 1.1, 1.2, 1.3, and 2.0)                     |
+| extbas.asm   | assembly source for Exended Color Basic  | (can build versions 1.0, 1.1, and 2.0)                               |
+| disk.asm     | assembly source for Disk Basic           | (can build versions 1.0 and 1.1)                                     |
+| supbas.asm   | assembly source for Super Color Basic    | (can build version 2.0)                                              |
 |              |                                          |                                                                      |
 | README.md    | this README file                         | you are here.                                                        |
 
 
 
-When you run make, by default the a09 assembler is compiled and is then used to build the rom files.  After this has been done, you should have all of the following files (named as specified for use with [mame](http://www.mamedev.org)).  The Makefile includes expected SHA-1 hashes for the roms and compares them all after assembling.
+When you run make, the a09 assembler is compiled and is then used to build the rom files.  Afterwards, you should have all of the following files (named as specified for use with [mame](http://www.mamedev.org)).  The Makefile includes expected SHA-1 hashes for the roms and compares them all (via "sha1sum") after assembling to ensure they match bit-for-bit the original contents of the machine ROMs.
 
 
 ### Built Files
@@ -48,9 +48,9 @@ When you run make, by default the a09 assembler is compiled and is then used to 
 | supbas20.rom         | Super Basic 2.0                          | $C000 to $FFFF in TRS-80 rom                                         |
 | supbas20p.rom        | Super Basic 2.0 (pal)                    | $C000 to $FFFF in TRS-80 rom                                         |
 | coco3.rom            | Full Color Computer 3 ROM image          | (concatenation of extbas20.rom, bas20.rom, supbas20.rom)             |
-| coco3p.rom           | Full Color Computer 3 (PAL) ROM image    | (concatenation of extbas20.rom, bas20.rom, supbas20.rom)             |
+| coco3p.rom           | Full Color Computer 3 (PAL) ROM image    | (concatenation of extbas20.rom, bas20.rom, supbas20p.rom)            |
 |                      |                                          |                                                                      |
-| \*.lst               | assembly listings                        | for each rom, the full listing wih bytecode is provided (for information only) |
+| \*.lst               | assembly listings                        | full listings for each assembled rom (for information only)          |
 |                      |                                          |                                                                      |
 | auto\_\*             | preprocessed files                       | (just used during assembly - you can delete them)                    |
 |                      |                                          |                                                                      |
