@@ -5570,32 +5570,6 @@ switch (co)
         } while (*srcptr == ',');
       }
     break;
-/* tomctomc - FILL has been implemented by the a09 author since 1.28
-  case PSEUDO_FILL : // FILL $ff,8   ->    FCB $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
-    {
-        unsigned char byteval;
-        int           repeat;
-        setlabel(lp);
-        generating = 1;
-        if( !(dwOptions & OPTION_TSC) ) { skipspace(); }
-        byteval = (unsigned char)scanexpr(0, &p);
-        if( unknown && pass == 2 ) {
-            error |= ERR_LABEL_UNDEF;
-        }
-        if( !(dwOptions & OPTION_TSC) )  { skipspace(); }
-        if( *srcptr != ',' ) {
-            error |= ERR_ILLEGAL_MNEM;
-        }
-        else {
-            srcptr++;
-            repeat = (int) scanexpr(0, &p);
-            while( repeat-- ) {
-                putbyte( byteval );
-            }
-        }
-    }
-    break; 
-*/
   case PSEUDO_FCW :                     /* [label] FCW,FDB  expr[,expr...]   */
     setlabel(lp);
     if (!inMacro)
