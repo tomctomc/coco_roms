@@ -108,7 +108,7 @@ supbas20p.rom: auto_symbols_extbas.asm supbas.asm
 	${SUPBAS20P_BUILD}
 
 #
-# coco3.rom is just a single 64k concatentation of:
+# coco3.rom is just a single 32k concatentation of:
 #
 #     extbas20 8000-9FFF  (8k)
 #        bas20 A000-BFFF  (8k)
