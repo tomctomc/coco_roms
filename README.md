@@ -1,7 +1,7 @@
 
 ## TRS-80 Color Computer ROM source code
 
-This is a collection of 6809 assembly language sources (and the source code for a 6809 assembler) which allow one to fully build all "rom" images for variations of the [TRS-80 Color Computer](http://en.wikipedia.org/wiki/TRS-80_Color_Computer).  The built rom images can be used with emulators such as [mame](http://www.mamedev.org) that can fully simulate a running TRS-80 Color Computer.
+This is a collection of 6809 assembly language sources (and the C source code for a 6809 assembler) which allow one to fully build all "rom" images for variations of the [TRS-80 Color Computer](http://en.wikipedia.org/wiki/TRS-80_Color_Computer).  The built rom images can be used with emulators such as [mame](http://www.mamedev.org) that can fully simulate a running TRS-80 Color Computer.
 
 Most of this has been collected from internet sources.  Of particular note is the classic "Unravelled" series of [books](http://techheap.packetizer.com/computers/coco/unravelled_series/) which was the origin of most of the assembly code.
 
