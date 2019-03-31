@@ -239,39 +239,41 @@
                    for details.
    v1.38  18/12/06 corrected 6801/6301 errors in JSR/STD processing
                    as reported by M. Hepperle - thank you!
+   v1.39  19/02/28 Improved gcc / clang compatibility,
+                   based on Steve Byan's pull request here:
+                   https://github.com/Arakula/A09/pull/2
 
 */
 
 /* @see https://stackoverflow.com/questions/2989810/which-cross-platform-preprocessor-defines-win32-or-win32-or-win32
-or http://nadeausoftware.com/articles/2012/01/c_c_tip_how_use_compiler_predefined_macros_detect_operating_system
-*/
-#if !defined(_WIN32) && !defined(_WIN64) && (defined(__unix__) \
-|| defined(__unix) || (defined(__APPLE__) && defined(__MACH__)))
-    /* UNIX-style OS. ------------------------------------------- */
-#define UNIX 1                          /* set to != 0 for UNIX specials     */
-#include <unistd.h>    /* import unlink */
+   or http://nadeausoftware.com/articles/2012/01/c_c_tip_how_use_compiler_predefined_macros_detect_operating_system */
+#if !defined(_WIN32) && !defined(_WIN64) && \
+    (defined(__unix__) || defined(__unix) || \
+     defined(__linux__) || \
+    (defined(__APPLE__) && defined(__MACH__)))
+#define UNIX 1                          /* UNIX specials                     */
 #else
-#define UNIX 0                          /* set to != 0 for UNIX specials     */
+#define UNIX 0                          /* Windows-specific                  */
 #endif
 
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#if !UNIX
-#include <malloc.h>
-#endif
 #include <stdarg.h>
 #include <stdlib.h>
 #include <time.h>
+#if UNIX
 #include <unistd.h>
+#else
+#include <malloc.h>
+#endif
 
 /*****************************************************************************/
 /* Definitions                                                               */
 /*****************************************************************************/
 
-#define VERSION      "1.38 (tomctomc)"
-#define VERSNUM      "$0126"            /* can be queried as &VERSION        */
-
+#define VERSION      "1.39 (tomctomc)"
+#define VERSNUM      "$0127"            /* can be queried as &VERSION        */
 
 #define MAXLABELS    8192
 #define MAXMACROS    1024
@@ -547,7 +549,6 @@ struct oprecord optable09[]=
   { "COMW",    OPCAT_6309 |
                OPCAT_TWOBYTE,     0x1053 },
   { "COMMON",  OPCAT_PSEUDO,      PSEUDO_COMMON },
-  { "COND",    OPCAT_PSEUDO,      PSEUDO_IF },
   { "CPD",     OPCAT_DBLREG2BYTE, 0x1083 },
   { "CPX",     OPCAT_DBLREG1BYTE, 0x8c },
   { "CPY",     OPCAT_DBLREG2BYTE, 0x108c },
@@ -940,7 +941,6 @@ struct oprecord optable00[]=
   { "COM",     OPCAT_ACCADDR,     0x03 },
   { "COMA",    OPCAT_ONEBYTE,     0x43 },
   { "COMB",    OPCAT_ONEBYTE,     0x53 },
-  { "COND",    OPCAT_PSEUDO,      PSEUDO_IF },
   { "CPX",     OPCAT_DBLREG1BYTE, 0x8c },
   { "DAA",     OPCAT_ONEBYTE,     0x19 },
   { "DEC",     OPCAT_ACCADDR,     0x0a },
@@ -1665,7 +1665,7 @@ char symbols = SYMBOLS_OFF;             /* symbols flag                      */
 FILE *listfile = NULL;                  /* list file                         */
 FILE *symbolsfile = NULL;               /* symbols file                      */
 FILE *objfile = NULL;                   /* object file                       */
-char symbolsname[FNLEN + 1];            /* list file name                    */
+char symbolsname[FNLEN + 1];            /* symbols file name                 */
 char listname[FNLEN + 1];               /* list file name                    */
 char objname[FNLEN + 1];                /* object file name                  */
 char srcname[FNLEN + 1];                /* source file name                  */
@@ -4095,7 +4095,7 @@ else if (LINE_IS_MACEXP(curline->lvl))  /* if in macro expansion             */
   putlist("+");                         /* prefix line with +                */
 else if (LINE_IS_INVISIBLE(curline->lvl))
   putlist("-");
-else if (curline->txt)                  /* otherwise                         */
+else if (*curline->txt)                 /* otherwise                         */
   putlist(" ");                         /* prefix line with blank            */
 
 if (codeptr > 0)
