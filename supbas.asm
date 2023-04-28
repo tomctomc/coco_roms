@@ -485,7 +485,7 @@ PATCHTAB        FCB         27              ; NUMBER OF PATCHES
 ; PATCH 23 - 'CLS' ROUTINE
                 FDB         CLS             ; PATCH23 $A910
                 FCB         $03
-                JMP         L8C46           ; $8C46
+                JMP         L8C36+16        ; $8C46
 ; PATCH 24 - CURSOR BLINK
                 FDB         LA1B1           ; PATCH24 $A1B1
                 FCB         $08
