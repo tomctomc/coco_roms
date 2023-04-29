@@ -5986,7 +5986,7 @@ LD335           INCB                        ; ADD A SECTOR TO TEMPORARY SECTOR C
                 BNE         LD335           ; BRANCH IF STILL ROOM FOR MORE SECTORS
 LD33E           STX         ,S              ; SAVE THE NUMBER OF UNCOPIED SECTORS REMAINING IN THE FILE
                 STB         $04,S           ; SAVE THE NUMBER OF SECTORS TO BE COPIED THIS TIME THROUGH LOOP
-                BSR         $D394           ; 'GET' ACCB SECTORS TO RAM BUFFER
+                BSR         LD394           ; 'GET' ACCB SECTORS TO RAM BUFFER
                 LDA         #$FF            ; SET SOURCE/DESTINATION FLAG TO DESTINATION
                 BSR         LD388           ; PRINT PROMPT MESSAGE IF REQUIRED
                 TST         $05,S           ; CHECK THE GRAN TEST FLAG. IF <> 0, IT CONTAINS THE
@@ -6232,7 +6232,7 @@ LD525           LDA         #$53            ; = GET STEP IN COMMAND
                 JSR         LD6DE           ; CHECK DRIVE READY
                 BNE         LD59B           ; BRANCH IF NOT READY - ISSUE AN ERROR
 LD533           JSR         LD6FD           ; WAIT A WHILE
-                BSR         $D5A4           ; BUILD A FORMATTED TRACK IN RAM
+                BSR         LD5A4           ; BUILD A FORMATTED TRACK IN RAM
                 LDY         #FDCREG+3       ; Y POINTS TO 1793 DATA REGISTER
                 ORCC        #$50            ; DISABLE INTERRUPTS
                 LDX         #LD562          ; GET RETURN ADDRESS AND STORE
@@ -6285,7 +6285,7 @@ LD59B           CLR         DRGRAM          ; CLEAR RAM IMAGE OF DSKREG
 D5A1            JMP         LD60E           ; PROCESS DRIVES NOT READY ERROR
 
 ; BUILD A FORMATTED TRACK OF DATA IN RAM STARTING AT DFLBUF.
-                LDX         #DFLBUF         ; START TRACK BUFFER AT DFLBUF
+LD5A4           LDX         #DFLBUF         ; START TRACK BUFFER AT DFLBUF
                 LDD         #$204E          ; GET SET TO WRITE 32 BYTES OF $4E
                 BSR         LD5D5           ; GO WRITE GAP IV
                 CLRB                        ; RESET SECTOR COUNTER
