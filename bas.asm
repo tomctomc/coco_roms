@@ -830,7 +830,7 @@ LA22E           LDA         #$7F            ; COLUMN STROBE
                 LDA         ,U              ; READ KEY DATA
                 COMA                        ;
                 ANDA        #$40            ; SET BIT 6 IF SHIFT KEY DOWN
-                RTS         RETURN
+                RTS                         ; RETURN
 ; READ THE KEYBOARD
 LA238           STB         2,U             ; SAVE NEW COLUMN STROBE VALUE
 LA23A           LDA         ,U              ; READ PIA0, PORT A TO SEE IF KEY IS DOWN
@@ -840,7 +840,7 @@ LA23A           LDA         ,U              ; READ PIA0, PORT A TO SEE IF KEY IS
                 BMI         LA244           ; NO
                 ORA         #$C0            ; YES, FORCE ROW 6 TO BE HIGH - THIS WILL CAUSE
 ; THE SHIFT KEY TO BE IGNORED
-LA244           RTS         RETURN
+LA244           RTS                         ; RETURN
 LA245           LDB         #51             ; CODE FOR AT SIGN
 LA247           LDX         #CONTAB-$36     ; POINT X TO CONTROL CODE TABLE
                 CMPB        #33             ; KEY NUMBER <33?
@@ -1418,7 +1418,7 @@ LA5DA           CLRB                        ;  NOT EOF FLAG = 0
                 COMB                        ;  NO - EOF: SET FLAG = -1 ($FF)
 LA5E4           PULS        A               ; GET DEVICE NUMBER BACK AGAIN
                 STA         DEVNUM          ; RESTORE IT
-LA5E8           SEX         CONVERT         ; ACCB TO 2 DIGIT SIGNED INTEGER
+LA5E8           SEX                         ; CONVERT ACCB TO 2 DIGIT SIGNED INTEGER
                 JMP         >GIVABF         ; CONVERT ACCD TO FLOATING POINT
 ; SKIPF
 SKIPF           BSR         LA5C5           ; SCAN OFF THE BASIC FILE NAME
@@ -1991,7 +1991,7 @@ LA9BB           LDX         >SNDDUR         ; GET INTERRUPT TIMER (SOUND COMMAND
                 BEQ         LA9C5           ; RETURN IF TIMER = 0
                 LEAX        -1,X            ; DECREMENT TIMER IF NOT = 0
                 STX         >SNDDUR         ; SAVE NEW TIMER VALUE
-LA9C5           RTI         RETURN          ; FROM INTERRUPT
+LA9C5           RTI                         ; RETURN FROM INTERRUPT
 ; JOYSTK
 JOYSTK          JSR         >LB70E          ; EVALUATE JOYSTICK ARGUMENT
                 CMPB        #3              ; TWO JOYSTICKS MAXIMUM (HOR & VER FOR EACH)
@@ -3833,7 +3833,7 @@ LB659           LDB         ,X              ; GET LENGTH OF STRING
 LB66F           LEAX        1,X             ; ADD ONE TO POINTER
                 RTS
 LB672           LDX         2,X             ; POINT X TO ADDRESS OF STRING NOT
-                RTS         *ON             ; THE STRING STACK
+                RTS                         ; *ON THE STRING STACK
 ; REMOVE STRING FROM STRING STACK. ENTER WITH X
 ; POINTING TO A STRING DESCRIPTOR - DELETE THE
 ; STRING FROM STACK IF IT IS ON TOP OF THE
@@ -4112,7 +4112,7 @@ LB85C           CLR         ,U+             ; DOUBLE ZERO AT END OF LINE
                 SUBD        #LINHDR         ; LENGTH OF LINE IN ACCD
                 LDX         #LINBUF-1       ; SET THE INPUT POINTER TO ONE BEFORE
                 STX         CHARAD          ; THE START OF THE CRUNCHED LINE
-                RTS         EXIT            ; 'CRUNCH'
+                RTS                         ; EXIT 'CRUNCH'
 LB86B           CMPA        #'?             ; CHECK FOR "?" - PRINT ABBREVIATION
                 BNE         LB873           ; BRANCH IF NOT PRINT ABBREVIATION
                 LDA         #$87            ; GET THE PRINT TOKEN AND SAVE IT
@@ -4765,7 +4765,7 @@ LBCA0           LDB         FP0EXP          ; GET EXPONENT OF
                 LDB         FPA0+3          ; SUBTRACT LS BYTE
                 SUBB        4,X             ; OF (X) FROM LS BYTE OF
                 BNE         LBCC3           ; FPA0, BRANCH IF <>
-                RTS         RETURN          ; IF FP (X) = FPA0
+                RTS                         ; RETURN IF FP (X) = FPA0
 LBCC3           RORB                        ;  SHIFT CARRY TO BIT 7 CARRY SET IF FPA0 < (X)
                 EORB        FP0SGN          ; TOGGLE SIZE COMPARISON BIT IF FPA0 IS NEGATIVE
                 BRA         LBC73           ; GO SET ACCB ACCORDING TO COMPARISON
@@ -4818,7 +4818,7 @@ LBD09           STB         FPA0            ; LOAD MANTISSA OF FPA0 WITH CONTENT
                 STB         FPA0+1
                 STB         FPA0+2
                 STB         FPA0+3
-LBD11           RTS         *
+LBD11           RTS                         ; *
 ; CONVERT ASCII STRING TO FLOATING POINT
 LBD12           LDX         ZERO            ; (X) = 0
                 STX         FP0SGN          ; ZERO OUT FPA0 & THE SIGN FLAG (COEFCT)

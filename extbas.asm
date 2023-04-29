@@ -1145,14 +1145,14 @@ L892C           BSR         L891C           ; GET STORAGE LOC OF EXEC ADDRESS FO
                 JSR         >LB657          ; GET LENGTH & ADDRESS OF STRING VARIABLE
                 LDX         FPA0+2          ; GET POINTER TO STRING DESCRIPTOR
                 LDA         VALTYP          ; GET VARIABLE TYPE
-L8943           RTS         JUMP            ; TO USR ROUTINE (PSHS X ABOVE)
+L8943           RTS                         ; JUMP TO USR ROUTINE (PSHS X ABOVE)
 L8944           LDB         #$B3            ; TOKEN FOR =
                 JSR         >LB26F          ; DO A SYNTAX CHECK FOR =
                 JMP         >LB73D          ; EVALUATE EXPRESSION, RETURN VALUE IN X
 ; EXTENDED BASICS IRQ ROUTINE
 XIRQSV          LDA         PIA0+3          ; GET PIA0, PORT B CONTROL REGISTER
                 BMI         L8952           ; BRANCH IF 60 HZ INTERRUPT
-                RTI         RETURN          ; IF 63.5 MICROSECOND INTERRUPT
+                RTI                         ; RETURN IF 63.5 MICROSECOND INTERRUPT
 L8952           LDA         PIA0+2          ; RESET PIA INTERRUPT FLAG
 L8955           LDX         TIMVAL          ; GET REAL TIME CLOCK
                 LEAX        $01,X           ; INCREMENT IT
@@ -2763,7 +2763,7 @@ L9434           JSR         >L9444          ; DRAW A HORIZ LINE
                 BCC         L9430           ; BRANCH IF START HOR > END HOR
                 LEAX        $01,X           ; MOVE HOR COORD DOWN ONE
                 BRA         L9432           ; KEEP DRAWING LINES
-L9443           RTS         WASTED          ; BYTE - SHOULD USE L946B INSTEAD
+L9443           RTS                         ; WASTED BYTE - SHOULD USE L946B INSTEAD
 ; DRAW A HORIZONTAL LINE FROM HOREND TO HORBEG
 ; AT VER COORD VERBEG; COLOR IN ALLCOL
 L9444           LDX         HORBEG          ; GET STARTING COORDS
@@ -3438,7 +3438,7 @@ L98B1           PULS        A,U             ; RESTORE PIXEL MASK AND HOR DIFF
                 LEAS        $02,S           ; GET X OFF THE STACK
                 DEC         VEREND+1        ; DECR VERT ROW CTR
                 BNE         L9873           ; BRANCH IF NOT DONE
-                RTS         RETURN          ; FROM GET/PUT COMMAND
+                RTS                         ; RETURN FROM GET/PUT COMMAND
 L98CC           JSR         >LB357          ; EVAL ALPHA EXPR, RETURN DESCRIPTOR PTR IN X
                 LDB         ,-X             ; STRIP OFF THE VARIABLE
                 LDA         ,-X             ; NAME (2 ALPHA-NUMERIC CHARACTERS) AND
@@ -3452,7 +3452,7 @@ L98D7           CMPX        ARYEND          ; COMPARE TO END OF ARRAYS
                 LEAX        D,X             ; ADD TO POINTER
                 BRA         L98D7           ; KEEP SEARCHING FOR MATCH
 L98E8           LEAX        $02,X           ; MOVE POINTER TO OFFSET TO NEXT ARRAY
-                RTS         WASTED          ; BYTE
+                RTS                         ; WASTED BYTE
 L98EB           RTS
 ; PAINT
 PAINT           CMPA        #'@             ; CHECK FOR @ SIGN
@@ -3981,7 +3981,7 @@ L9C3E           CLRA                        ;  CLEAR ACCA
 ; THE RTI WILL NOW NOT RETURN TO WHERE IT WAS
 ; INTERRUPTED FROM - IT WILL RETURN TO THE MAIN PLAY
 ; COMMAND INTERPRETATION LOOP.
-L9C5A           RTI         RETURN
+L9C5A           RTI                         ; RETURN
 ; TABLE OF NUMERICAL NOTE VALUES FOR LETTER NOTES
 L9C5B           FCB         10,12,1,3,5,6,8 ; NOTES A,B,C,D,E,F,G
 ; TABLE OF DELAYS FOR OCTAVE 1
@@ -4389,7 +4389,7 @@ L9F9A           INCB                        ;  INCR SUBARC CTR
                 ANDA        #$07            ; KEEP IN RANGE OF 0-7; ONCE ACCA = B, THIS WILL MAKE ACCA = 0,
 ; SO THE END POINT WILL BE (0,0) AND THE CIRCLE ROUTINE WILL END.
 L9FA3           JMP         >L9EFD          ; KEEP DRAWING CIRCLE
-L9FA6           RTS         EXIT            ; CIRCLE ROUTINE
+L9FA6           RTS                         ; EXIT CIRCLE ROUTINE
 ; MULTIPLY RADIUS BY SIN/COS VALUE AND RETURN OFFSET IN X
 L9FA7           LDX         VCF             ; GET RADIUS
                 LDD         ,U              ; GET SIN/COS TABLE MODIFIER

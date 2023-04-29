@@ -1675,7 +1675,7 @@ ERNO            CLRA                        ;  CLEAR THE MS BYTE OF ACCD
                 LDB         >H.ERROR        ; GET THE ERROR NUMBER
                 CMPB        #$FF            ; IS IT A REAL ERROR
                 BNE         SE4F4           ; BRANCH IF YES
-                SEX         NOW             ; ACCD = $FFFF IF NOT A REAL ERROR
+                SEX                         ; NOW ACCD = $FFFF IF NOT A REAL ERROR
                 BRA         SE4FA           ; CONVERT ACCD TO FLOATING POINT
 SE4F4           CMPB        #$F1            ; CHECK FOR ERROR NUMBER $F1
                 BNE         SE4F9           ; BRANCH IF NOT ERROR $F1
@@ -2032,7 +2032,7 @@ SE7AD           LDU         #HORBEG         ; POINT U TO EVALUATED COORDINATES' 
 ; THE 'NORMALIZATION' ($9320) ROUTINE FROM EXTENDED BASIC WENT HERE - IT IS NOT NEEDED
 ; IN ENHANCED BASIC SO IT WAS REPLACED WITH AN RTS.
 SE7B0           RTS
-                RTS         WASTED          ; BYTE
+                RTS                         ; WASTED BYTE
 ; EVALUATE TWO EXPRESSIONS - NORMALLY A HORIZONTAL AND VERTICAL COORDINATE
 ; PERFORM COORDINATE SYNTAX RANGE CHECKS ON THE EXPRESSIONS
 SE7B2           JSR         LB734           ; EVALUATE TWO EXPRESSIONS; RETURN 1ST VALUE IN BINVAL, SECOND IN ACCB
@@ -2526,7 +2526,7 @@ SEB53           INCB                        ;  INC SUBARC COUNTER
                 ANDA        #$07            ; KEEP IN RANGE OF 0-7; ONCE ACCA=ACCB, THIS WILL MAKE ACCA=0
 ; SO THE END POINT WILL BE (0,0) AND THE CIRCLE ROUTINE WILL END
 SEB5C           JMP         >SEAB3          ; KEEP DRAWING THE CIRCLE
-SEB5F           RTS         EXIT            ; CIRCLE ROUTINE
+SEB5F           RTS                         ; EXIT CIRCLE ROUTINE
 ; GET MAXIMUM VALUE OF HORIZONTAL & VERTICAL COORDINATES NORMALIZED FOR
 ; PROPER GRAPHICS MODE. RETURN VALUES: HORIZONTAL IN VD3, VERTICAL IN VD5
 SEB60           LDU         #VD3            ; POINT U TO STORAGE AREA
@@ -2972,7 +2972,7 @@ SEEAB           JSR         ,Y              ; PERFORM THE APPROPRIATE MOVEMENT A
                 BNE         SEEA7           ; LOOP UNTIL ALL ROWS MOVED
                 JSR         SELTASK0        ; SELECT TASK REGISTER 0 AS THE ACTIVE TASK
                 JSR         SETMMU          ; SET UP THE MMU REGISTERS
-                RTS         WHY             ; NOT MAKE THE JSR ABOVE A JMP
+                RTS                         ; WHY NOT MAKE THE JSR ABOVE A JMP
 ; HGET'S BYTE MOVEMENT ROUTINE
 SEEC0           LDA         ,X+             ; GET A BBYTE FROM THE HI-RES SCREEN
                 BSR         SEEC7           ; POINT U TO PROPER BUFFER LOCATION
@@ -3185,7 +3185,7 @@ SF045           PSHS        Y,A             ; SAVE THE PRINT BUFFER POINTER AND 
                 TFR         B,A             ; PUT THE NEXT TWO PIXELS' DATA INTO ACCA
                 JSR         >SF00A          ; DISPLAY THE LAST TWO PIXELS
                 PULS        Y               ; RESTORE THE PRINT BUFFER POINTER
-                RTS         WASTED;         ; THIS AND ABOVE INSTRUCTION SHOULD BE PULS Y,PC
+                RTS                         ; WASTED THIS AND ABOVE INSTRUCTION SHOULD BE PULS Y,PC
 ; 16 COLOR PIXEL MASKS - DOUBLE BYTE WIDE
 SF06C           FDB         $0000,$000F,$00F0
                 FDB         $00FF,$0F00,$0F0F

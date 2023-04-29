@@ -1163,7 +1163,7 @@ DVEC2           TST         DEVNUM          ; CHECK DEVICE NUMBER AND
 DVEC11          TST         DEVNUM          ; CHECK DEVICE NUMBER AND RETURN
                 BLE         LC8AF           ; IF NOT A DISK FILE
                 LEAS        $02,S           ; PURGE RETURN ADDRESS OFF OF THE STACK - DON'T
-LC8AF           RTS         =               ; DO A BREAK CHECK IF DISK FILE
+LC8AF           RTS                         ; = DO A BREAK CHECK IF DISK FILE
 ; COMMAND INTERPRETATION RAM HOOK
 DVEC20          LEAS        $02,S           ; PURGE RETURN ADDRESS OFF OF THE STACK
 LC8B2           ANDCC       #$AF            ; ENABLE IRQ & FIRQ
@@ -1735,7 +1735,7 @@ LCD08           LEAX        DIRLEN,X        ; MOVE X TO NEXT DIRECTORY ENTRY
                 INCB                        ;  BUMP COUNT
                 CMPB        #SECMAX         ; SECMAX SECTORS IN DIRECTORY TRACK
                 BLS         LCCBB           ; GET NEXT SECTOR
-LCD17           RTS         FINISHED
+LCD17           RTS                         ; FINISHED
 LCD18           JSR         PUTCHR          ; SEND CHARACTER TO CONSOLE OUT
 LCD1B           JMP         >LB9AC          ; SEND BLANK TO CONSOLE OUT
 ; ENTER WITH ACCB POINTING TO FIRST GRANULE IN A FILE; RETURN THE NUMBER OF
@@ -3297,7 +3297,7 @@ LD8CD           JMP         >L8955          ; JUMP TO EXTENDED BASIC'S IRQ HANDL
                 FCB         $D8,$BD,$9F,$E2,$34,$06,$BD,$9F,$E2,$DD,$D9,$35,$06,$34,$06,$9E
 
 ; THIS IS THE CODE FOR THE DOS COMMAND
-DOSCOM          SWI3        DO              ; A SOFTWARE INTERRUPT (#3)
+DOSCOM          SWI3                        ; DO A SOFTWARE INTERRUPT (#3)
                 CLR         TMPLOC          ; RESET SECTOR COUNTER
                 LDD         #DOSBUF         ; RAM LOAD ADDRESS FOR SECTOR DATA
                 PSHS        B,A             ; SAVE RAM LOAD ADDRESS
@@ -4524,7 +4524,7 @@ DVEC2           TST         DEVNUM          ; CHECK DEVICE NUMBER AND
 DVEC11          TST         DEVNUM          ; CHECK DEVICE NUMBER AND RETURN
                 BLE         LC85F           ; IF NOT A DISK FILE
                 LEAS        $02,S           ; = PURGE RETURN ADDRESS OFF OF THE STACK - DON'T
-LC85F           RTS         =               ; DO A BREAK CHECK IF DISK FILE
+LC85F           RTS                         ; = DO A BREAK CHECK IF DISK FILE
 
 ; EOF RAM HOOK
 DVEC14          LEAS        $02,S           ; PURGE RETURN ADDRESS OFF OF THE STACK
@@ -5062,7 +5062,7 @@ LCC2E           LEAX        DIRLEN,X        ; MOVE X TO NEXT DIRECTORY ENTRY
                 INCB                        ; BUMP COUNT
                 CMPB        #SECMAX         ; SECMAX SECTORS IN DIRECTORY TRACK
                 BLS         LCBE1           ; GET NEXT SECTOR
-LCC3D           RTS         FINISHED
+LCC3D           RTS                         ; FINISHED
 LCC3E           JSR         PUTCHR          ; SEND CHARACTER TO CONSOLE OUT
 LCC41           JMP         LB9AC           ; SEND BLANK TO CONSOLE OUT
 
@@ -5620,8 +5620,8 @@ LD067           LDU         $02,Y           ; LOAD U WITH THE ADDRESS OF THE FIE
                 ADDB        ,Y              ; ADD THE LENGTH OF THE FIELD STRING TO THE INVERSE
                 ADCA        #$00            ; OF THE NUMBER OF BYTES TO BE MOVED
                 LEAU        D,U             ; =ADD RESULT TO START OF FIELD STRING. NOW U
-                =WILL       POINT           ; TO (-NUMBER OF BYTES TO MOVE)
-                =FROM       THE             ; RIGHT SIDE OF THE FIELD STRING
+                                            ; =WILL POINT TO (-NUMBER OF BYTES TO MOVE)
+                                            ; =FROM THE RIGHT SIDE OF THE FIELD STRING
                 PULS        B               ; GET THE NUMBER OF BYTES TO MOVE
 LD07B           JMP         LA59A           ; MOVE ACCB BYTES FROM X TO U (DATA TO FIELD STRING)
 LD07E           PULS        A,PC            ; PULL LSET/RSET FLAG OFF OF STACK AND RETURN
