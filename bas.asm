@@ -308,7 +308,7 @@ LA0CE           CMPX        EXBAS           ; SEE IF EXTENDED ROM IS THERE
                 JMP         >$8002          ; CPYROM copy rom to ram (coco3)
                 PSHS        X,B
                 TST         HRWIDTH
-                LBNE        <$F77E          ; ALINK24
+                LBNE        $F77E           ; ALINK24
 LA0D6           JSR         >LA199
                 JSR         >KEYIN
                 BEQ         LA0D6
