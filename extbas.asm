@@ -13,7 +13,7 @@
 ; $Id: $
 
                 ORG         $8000
-MAGIC           FCC         'EX'
+MAGIC           FCC         "EX"
 
 ; MOVE EXTENDED BASIC'S COMMAND INTERPRETATION TABLE FROM ROM TO RAM
 CPYROM          LDX         #L80DE          ; ROM ADDRESS
@@ -142,23 +142,23 @@ L80E1           FDB         L813C           ; EXBAS RESERVED WORD HANDLER
 L80E3           FCB         14              ; 14 EXBAS SECONDARY COMMANDS
 L80E4           FDB         L821E           ; EXBAS SECONDARY RESERVED WORD TABLE
 L80E6           FDB         L8168           ; EXBAS SECONDARY RESERVED WORD HANDLER
-L80E8           FCC         'EXTENDED COLOR BASIC '
+L80E8           FCC         "EXTENDED COLOR BASIC "
 
 
 
 ; -----------------------------------------------------------------------------
                 if          VEREXTBAS<11
 ; -----------------------------------------------------------------------------
-                FCC         '1.0'           ; MINOR VERSION NUMBER
+                FCC         "1.0"           ; MINOR VERSION NUMBER
 ; -----------------------------------------------------------------------------
                 else
                 if          VEREXTBAS<20
 ; -----------------------------------------------------------------------------
-                FCC         '1.1'           ; MINOR VERSION NUMBER
+                FCC         "1.1"           ; MINOR VERSION NUMBER
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-                FCC         '2.0'           ; MINOR VERSION NUMBER
+                FCC         "2.0"           ; MINOR VERSION NUMBER
 ; -----------------------------------------------------------------------------
                 endif
                 endif
@@ -171,16 +171,16 @@ L8100           FCB         CR
 ; -----------------------------------------------------------------------------
                 if          VEREXTBAS<11
 ; -----------------------------------------------------------------------------
-L8101           FCC         'COPYRIGHT (C) 1981 BY TANDY' ; COPYRIGHT YEAR
+L8101           FCC         "COPYRIGHT (C) 1981 BY TANDY" ; COPYRIGHT YEAR
 ; -----------------------------------------------------------------------------
                 else
                 if          VEREXTBAS<20
 ; -----------------------------------------------------------------------------
-L8101           FCC         'COPYRIGHT (C) 1982 BY TANDY' ; COPYRIGHT YEAR
+L8101           FCC         "COPYRIGHT (C) 1982 BY TANDY" ; COPYRIGHT YEAR
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-L8101           FCC         'COPR. 1982, 1986 BY TANDY  ' ; COPYRIGHT YEAR
+L8101           FCC         "COPR. 1982, 1986 BY TANDY  " ; COPYRIGHT YEAR
 ; -----------------------------------------------------------------------------
                 endif
                 endif
@@ -189,7 +189,7 @@ L8101           FCC         'COPR. 1982, 1986 BY TANDY  ' ; COPYRIGHT YEAR
 
 
 L811C           FCB         CR
-L811D           FCC         'UNDER LICENSE FROM MICROSOFT'
+L811D           FCC         "UNDER LICENSE FROM MICROSOFT"
 L8139           FCB         CR,CR,0
 ; EXBAS COMMAND INTERPRETATION LOOP
 L813C           CMPA        #$CB            ; $CB IS LARGEST EX BASIC COMMAND TOKEN
@@ -223,31 +223,31 @@ L817D           LDX         #L8257          ; EXBAS SECONDARY COMMAND JUMP TABLE
                 JMP         >LB2CE          ; JUMP TO SECONDARY FUNCT1ON HANDLER
 ; RESERVED WORD TABLE FOR EXTENDED BASIC
 ; TOKEN #
-L8183           FCS         'DEL'           ; B5
-L8186           FCS         'EDIT'          ; B6
-L818A           FCS         'TRON'          ; B7
-L818E           FCS         'TROFF'         ; B8
-L8193           FCS         'DEF'           ; B9
-L8196           FCS         'LET'           ; BA
-L8199           FCS         'LINE'          ; BB
-L819D           FCS         'PCLS'          ; BC
-L81A1           FCS         'PSET'          ; BD
-L81A5           FCS         'PRESET'        ; BE
-L81AB           FCS         'SCREEN'        ; BF
-L81B1           FCS         'PCLEAR'        ; C0
-L81B7           FCS         'COLOR'         ; C1
-L81BC           FCS         'CIRCLE'        ; C2
-L81C2           FCS         'PAINT'         ; C3
-L81C7           FCS         'GET'           ; C4
-L81CA           FCS         'PUT'           ; C5
-L81CD           FCS         'DRAW'          ; C6
-L81D1           FCS         'PCOPY'         ; C7
-L81D6           FCS         'PMODE'         ; C8
-L81DB           FCS         'PLAY'          ; C9
-L81DF           FCS         'DLOAD'         ; CA
-L81E4           FCS         'RENUM'         ; CB
-L81E9           FCS         'FN'            ; CC
-L81EB           FCS         'USING'         ; CD
+L8183           FCS         "DEL"           ; B5
+L8186           FCS         "EDIT"          ; B6
+L818A           FCS         "TRON"          ; B7
+L818E           FCS         "TROFF"         ; B8
+L8193           FCS         "DEF"           ; B9
+L8196           FCS         "LET"           ; BA
+L8199           FCS         "LINE"          ; BB
+L819D           FCS         "PCLS"          ; BC
+L81A1           FCS         "PSET"          ; BD
+L81A5           FCS         "PRESET"        ; BE
+L81AB           FCS         "SCREEN"        ; BF
+L81B1           FCS         "PCLEAR"        ; C0
+L81B7           FCS         "COLOR"         ; C1
+L81BC           FCS         "CIRCLE"        ; C2
+L81C2           FCS         "PAINT"         ; C3
+L81C7           FCS         "GET"           ; C4
+L81CA           FCS         "PUT"           ; C5
+L81CD           FCS         "DRAW"          ; C6
+L81D1           FCS         "PCOPY"         ; C7
+L81D6           FCS         "PMODE"         ; C8
+L81DB           FCS         "PLAY"          ; C9
+L81DF           FCS         "DLOAD"         ; CA
+L81E4           FCS         "RENUM"         ; CB
+L81E9           FCS         "FN"            ; CC
+L81EB           FCS         "USING"         ; CD
 ; DISPATCH TABLE FOR EXTENDED BASIC COMMANDS
 ; TOKEN #
 L81F0           FDB         DEL             ; DEL B5
@@ -276,20 +276,20 @@ L821C           FDB         RENUM           ; RENUM CB
 ; SECONDARY FUNCTION FOR EXTENDED BASIC
 ; TOKENS ARE PRECEEDED WITH AN $FF BYTE
 ; TOKEN #
-L821E           FCS         'ATN'           ; 94
-L8221           FCS         'COS'           ; 95
-L8224           FCS         'TAN'           ; 96
-L8227           FCS         'EXP'           ; 97
-L822A           FCS         'FIX'           ; 98
-L822D           FCS         'LOG'           ; 99
-L8230           FCS         'POS'           ; 9A
-L8233           FCS         'SQR'           ; 9B
-L8236           FCS         'HEX$'          ; 9C
-L823A           FCS         'VARPTR'        ; 9D
-L8240           FCS         'INSTR'         ; 9E
-L8245           FCS         'TIMER'         ; 9F
-L824A           FCS         'PPOINT'        ; A0
-L8250           FCS         'STRING$'       ; A1
+L821E           FCS         "ATN"           ; 94
+L8221           FCS         "COS"           ; 95
+L8224           FCS         "TAN"           ; 96
+L8227           FCS         "EXP"           ; 97
+L822A           FCS         "FIX"           ; 98
+L822D           FCS         "LOG"           ; 99
+L8230           FCS         "POS"           ; 9A
+L8233           FCS         "SQR"           ; 9B
+L8236           FCS         "HEX$"          ; 9C
+L823A           FCS         "VARPTR"        ; 9D
+L8240           FCS         "INSTR"         ; 9E
+L8245           FCS         "TIMER"         ; 9F
+L824A           FCS         "PPOINT"        ; A0
+L8250           FCS         "STRING$"       ; A1
 ; JUMP TABLE FOR EXTENDED BASIC SECONDARY FUNCTIONS
 ; TOKEN #
 L8257           FDB         ATN             ; ATN 94
@@ -1114,8 +1114,8 @@ XVEC17          CMPB        #2*25           ; CHECK FOR EXBAS ERROR NUMBER
                 LDX         #L890B-25*2     ; POINT X TO EXBAS ERRORS
                 JMP         >LAC60          ; PROCESS ERROR
 ; ADDITIONAL ERROR MESSAGES ADDED BY EXTENDED BASIC
-L890B           FCC         'UF'            ; 25 UNDEFINED FUNCTION (FN) CALL
-L890D           FCC         'NE'            ; 26 FILE NOT FOUND
+L890B           FCC         "UF"            ; 25 UNDEFINED FUNCTION (FN) CALL
+L890D           FCC         "NE"            ; 26 FILE NOT FOUND
 ; DEF USR
 L890F           JSR         GETNCH          ; SKIP PAST SECOND BYTE OF DEF USR TOKEN
                 BSR         L891C           ; GET FN NUMBER
@@ -1469,7 +1469,7 @@ L8BC9           LEAX        ,U              ; TRANSFER NEW LINE POINTER TO (X)
                 JSR         >L89B8          ; MOVE BYTES FROM (U) TO (X) UNTIL END OF PROGRAM
                 LEAX        ,Y              ; LOAD (X) WITH NEW LINE POINTER
                 BRA         L8B8C           ; GO GET ANOTHER INPUT CHARACTER
-L8BD9           FCC         'UL '           ; UNKNOWN LINE NUMBER MESSAGE
+L8BD9           FCC         "UL "           ; UNKNOWN LINE NUMBER MESSAGE
                 FCB         0
 ; CONVERT AN INTEGER INTO AN ASCII STRING AND PRINT IT ON THE SCREEN
 HEXDOL          JSR         >LB740          ; CONVERT FPA0 INTO A POSITIVE 2 BYTE INTEGER

@@ -1414,29 +1414,29 @@ SE1BF           LDX         #FUNDIS20       ; POINT TO ENHANCED BASIC'S FUNCTION
 ; BASIC 2.0 COMMAND DICTIONARY TABLE
 
 ; TOKEN #
-COMDIC20        FCS         'WIDTH'         ; E2
-                FCS         'PALETTE'       ; E3
-                FCS         'HSCREEN'       ; E4
-                FCS         'LPOKE'         ; E5
-                FCS         'HCLS'          ; E6
-                FCS         'HCOLOR'        ; E7
-                FCS         'HPAINT'        ; E8
-                FCS         'HCIRCLE'       ; E9
-                FCS         'HLINE'         ; EA
-                FCS         'HGET'          ; EB
-                FCS         'HPUT'          ; EC
-                FCS         'HBUFF'         ; ED
-                FCS         'HPRINT'        ; EE
-                FCS         'ERR'           ; EF
-                FCS         'BRK'           ; F0
-                FCS         'LOCATE'        ; F1
-                FCS         'HSTAT'         ; F2
-                FCS         'HSET'          ; F3
-                FCS         'HRESET'        ; F4
-                FCS         'HDRAW'         ; F5
-                FCS         'CMP'           ; F6
-                FCS         'RGB'           ; F7
-                FCS         'ATTR'          ; F8
+COMDIC20        FCS         "WIDTH"         ; E2
+                FCS         "PALETTE"       ; E3
+                FCS         "HSCREEN"       ; E4
+                FCS         "LPOKE"         ; E5
+                FCS         "HCLS"          ; E6
+                FCS         "HCOLOR"        ; E7
+                FCS         "HPAINT"        ; E8
+                FCS         "HCIRCLE"       ; E9
+                FCS         "HLINE"         ; EA
+                FCS         "HGET"          ; EB
+                FCS         "HPUT"          ; EC
+                FCS         "HBUFF"         ; ED
+                FCS         "HPRINT"        ; EE
+                FCS         "ERR"           ; EF
+                FCS         "BRK"           ; F0
+                FCS         "LOCATE"        ; F1
+                FCS         "HSTAT"         ; F2
+                FCS         "HSET"          ; F3
+                FCS         "HRESET"        ; F4
+                FCS         "HDRAW"         ; F5
+                FCS         "CMP"           ; F6
+                FCS         "RGB"           ; F7
+                FCS         "ATTR"          ; F8
 
 ; BASIC 2.0 COMMAND DISPATCH TABLE
 
@@ -1468,11 +1468,11 @@ COMDIS20        FDB         WIDTH           ; WIDTH E2
 ; BASIC 2.0 FUNCTION DICTIONARY TABLE
 
 ; TOKEN #
-FUNDIC20        FCS         'LPEEK'         ; A8
-                FCS         'BUTTON'        ; A9
-                FCS         'HPOINT'        ; AA
-                FCS         'ERNO'          ; AB
-                FCS         'ERLIN'         ; AC
+FUNDIC20        FCS         "LPEEK"         ; A8
+                FCS         "BUTTON"        ; A9
+                FCS         "HPOINT"        ; AA
+                FCS         "ERNO"          ; AB
+                FCS         "ERLIN"         ; AC
 
 ; BASIC 2.0 FUNCTION DISPATCH TABLE
 
@@ -1494,21 +1494,21 @@ SHOWDM20        LDX         #DISK20MS-1     ; POINT TO DISK BASIC 2.0 MESSAGE
 ; PRINT THE DISK BASIC 2.1 COPYRIGHT MESSAGE PATCH ENTERED FROM $C0C6
 SHOWDM21        LDX         #DISK21MS-1     ; POINT TO DISK BASIC 2.1 MESSAGE
                 JMP         DC0DC           ; COPY MESSAGE TO SCREEN AND WARM START DISK BASIC 2.1
-DISK20MS        FCC         'DISK EXTENDED COLOR BASIC 2.0'
+DISK20MS        FCC         "DISK EXTENDED COLOR BASIC 2.0"
                 FCB         $0D
-                FCC         'COPR. 1981, 1986 BY TANDY'
+                FCC         "COPR. 1981, 1986 BY TANDY"
                 FCB         $0D
-                FCC         'UNDER LICENSE FROM MICROSOFT'
+                FCC         "UNDER LICENSE FROM MICROSOFT"
                 FCB         $0D
-MWAREMS         FCC         'AND MICROWARE SYSTEMS CORP.'
+MWAREMS         FCC         "AND MICROWARE SYSTEMS CORP."
 SE313           FCB         $0D,$0D,$00
-DISK21MS        FCC         'DISK EXTENDED COLOR BASIC 2.1'
+DISK21MS        FCC         "DISK EXTENDED COLOR BASIC 2.1"
                 FCB         $0D
-                FCC         'COPR. 1982, 1986 BY TANDY'
+                FCC         "COPR. 1982, 1986 BY TANDY"
                 FCB         $0D
-                FCC         'UNDER LICENSE FROM MICROSOFT'
+                FCC         "UNDER LICENSE FROM MICROSOFT"
                 FCB         $0D
-                FCC         'AND MICROWARE SYSTEMS CORP.'
+                FCC         "AND MICROWARE SYSTEMS CORP."
                 FCB         $0D,$0D,$00
 ; GRAPHICS INITIALIZATION PATCH ENTERED FROM $9703
 ALINK14         CLRA                        ;
@@ -1656,8 +1656,8 @@ SE4B3           STB         >H.ERROR        ; SAVE THE ERROR NUMBER
 SE4C7           TFR         X,D             ; SAVE THE ON ERROR DESTINATION LINE NUMBER IN ACCD
                 LBRA        SE449           ; GO TRANSFER CONTROL TO THAT LINE NUMBER
 ; ENHANCED BASIC'S ERROR CODES
-BAS20ERR        FCC         'HR'            ; 38 HIRES GRAHICS ERROR
-SE4CE           FCC         'HP'            ; 39 HIRES TEXT ERROR
+BAS20ERR        FCC         "HR"            ; 38 HIRES GRAHICS ERROR
+SE4CE           FCC         "HP"            ; 39 HIRES TEXT ERROR
 ; LINE INTO 'NEW' FROM $AD3F
 ALINK19         PSHS        B,A             ; SAVE THE CONTENTS OF ACCD
                 CLRA                        ;
@@ -3828,7 +3828,7 @@ SF6F4           BEQ         SF730           ; IF CLS 100, THEN PRINT THE AUTHORS
                 LDX         #MICROMS-1      ; POINT TO MICROWARE'S COMMERCIAL MESSAGE
                 JMP         STRINOUT        ; COPY A STRING TO CONSOLE OUT ($B99C)
 ; MICROWARE COMMERCIAL
-MICROMS         FCC         'Microware Systems Corp.'
+MICROMS         FCC         "Microware Systems Corp."
                 FCB         $0D,$00
 ; NAMES OF THE AUTHORS
 ; THE INITIALIZATION CODE WILL COPY THE AUTHOR'S NAMES INTO THIS SPOT
