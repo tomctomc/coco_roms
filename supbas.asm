@@ -73,7 +73,7 @@ SC00D           STA         ,X+             ; SAVE THE COLOR IN THE PALETTE REGI
                 DECB                        ;  BUMP COUNTER
                 BNE         SC00D           ; LOOP UNTIL ALL PALETTE REGISTERS DONE
                 LDX         #MMUREG         ; POINT X TO THE MMU REGISTERS
-                LEAY        MMUIMAGE,PC     ; POINT Y TO THE MMU REGISTER IMAGES
+                LEAY        MMUIMAGE,PCR    ; POINT Y TO THE MMU REGISTER IMAGES
                 LDB         #16             ; 16 MMU REGISTERS
 SC01B           LDA         ,Y+             ; GET A BYTE FROM THE IMAGE
                 STA         ,X+             ; SAVE IT IN THE MMU REGISTER
@@ -83,7 +83,7 @@ SC01B           LDA         ,Y+             ; GET A BYTE FROM THE IMAGE
                 STA         INIT0           ; AND TURN ON THE NORMAL SPARE CHIP SELECT
 ; MOVE THE INITIALIZATION CODE FROM ROM TO RAM($4000); THIS IS DONE IN
 ; PREPARATION FOR MOVING BASIC FROM ROM TO RAM.
-                LEAX        BEGMOVE,PC      ; POINT TO START OF ROM CODE
+                LEAX        >BEGMOVE,PCR    ; POINT TO START OF ROM CODE
                 LDY         #$4000          ; RAM LOAD ADDRESS
 SC02F           LDD         ,X++            ; GRAB TWO BYTES
                 LDU         ,X++            ; GRAB TWO MORE BYTES
@@ -103,7 +103,7 @@ BEGMOVE         LEAS        -01,S           ; MAKE A TEMPORARY STORAGE LOCATION 
                 STA         V_TIMER
                 STA         V_TIMER+1       ; SET THE TIMER TO $FFFF AND START IT COUNTING
 ; SET UP THE VIDEO CONTROL REGISTERS
-                LEAX        VIDIMAGE,PC     ; POINT X TO THE VIDEO CONTROL REGISTER IMAGE
+                LEAX        VIDIMAGE,PCR    ; POINT X TO THE VIDEO CONTROL REGISTER IMAGE
                 LDY         #VIDEOMOD       ; POINT Y TO THE VIDEO CONTROL REGISTERS
 SC056           LDA         ,X+             ; GET A BYTE FROM THE IMAGE
                 STA         ,Y+             ; SAVE IT IN THE VIDEO REGISTER
@@ -194,7 +194,7 @@ SC0F6           LDX         #DOSBAS         ; POINT TO THE END OF THE COLOR BASI
                 LDY         #EXBAS          ; POINT TO START OF EXTENDED BASIC
                 LBSR        SC1AA           ; MOVE COLOR AND EXTENDED BASIC ROM TO RAM
 ; PATCH COLOR AND EXTENDED BASIC
-                LEAY        PATCHTAB,PC     ; POINT Y TO THE PATCH TABLE
+                LEAY        PATCHTAB,PCR    ; POINT Y TO THE PATCH TABLE
                 LDA         ,Y+             ; GET THE NUMBER OF PATCHES TO BE MADE
 SC106           PSHS        A               ; SAVE THE PATCH COUNTER
                 LDX         ,Y++            ; GET THE ADDRESS WHERE THE PATCH IS TO BE PLACED
@@ -228,7 +228,7 @@ SC137           CLR         SAMREG+30       ; ENABLE ROM MODE
                 LDY         #SUPERVAR       ; POINT TO THE START OF ENHANCED BASIC ROM
                 BSR         SC1AA           ; COPY ROM TO RAM
                 LBSR        SC1DE           ; PATCH THE ENHANCEMENTS (MOVE THE AUTHORS' DECODED NAMES)
-                LEAY        INTIMAGE,PC     ; POINT X TO THE INTERRUPT JUMP VECTOR IMAGES
+                LEAY        INTIMAGE,PCR    ; POINT X TO THE INTERRUPT JUMP VECTOR IMAGES
                 LDX         #INT.FLAG       ; DESTINATION FOR INTERRUPT VECTORS
                 LDB         #19             ; 6 INTERRUPT JUMP ADDRESSES * 3 BYTES/JUMP ADDRESS + VALIDITY FLAG
                 LBSR        MOVE.XY         ; COPY THE INTERRUPT JUMP VECTORS
@@ -265,7 +265,7 @@ SC18C           LDA         #COCO+MMUEN+MC3+MC2+MC1
                 LDA         #$20            ; ALTERNATE COLOR SET FLAG
                 STA         VIDEOMOD        ; FORCE THE ALTERNATE COLOR SET
 SC19A           LDX         #PALETREG       ; POINT X TO THE PALETTE REGISTERS
-                LEAY        PALIMAGE,PC     ; POINT Y TO THE PALETTE REGISTER IMAGES
+                LEAY        PALIMAGE,PCR    ; POINT Y TO THE PALETTE REGISTER IMAGES
                 LDB         #16             ; 16 PALETTE REGISTERS
                 BSR         MOVE.XY         ; FILL THE PALETTE REGISTERS FROM THEIR IMAGE
                 LEAS        $01,S           ; REMOVE THE TEMPORARY STORAGE BYTE
@@ -297,7 +297,7 @@ MOVE.XY         LDA         ,Y+
                 RTS
 ; DECODE AND COPY THE AUTHOR'S NAMES INTO RAM
 SC1DE           LDX         #AUTHORMS       ; POINT X TO THE DESTINATION FOR THE AUTHORS' NAMES
-                LEAY        SC30D,PC        ; POINT Y TO THE CODED NAMES OF THE AUTHORS
+                LEAY        SC30D,PCR       ; POINT Y TO THE CODED NAMES OF THE AUTHORS
                 LDB         #21             ; 21 BYTES IN THE AUTHORS' NAMES
 SC1E7           LDA         ,Y+             ; GET A CODED BYTE OF THE AUTHORS' NAMES
                 COMA                        ;  DECODE THE BYTE
@@ -516,7 +516,7 @@ SC322           LDA         DOSBAS+4        ; LOOK FOR THE MS BYTE OF THE ADDRES
                 CMPA        #$D6            ; IF IT IS D6, THEN WE HAVE DISK BASIC 1.0
                 BNE         SC334           ; BRANCH IF DISK BASIC 1.1
                 LDX         #$C0C6          ; POINT X TO DISK BASIC 1.0 PATCH ADDRESS ($C0C6)
-                LEAY        SC355,PC        ; POINT Y TO THE PATCH DATA
+                LEAY        >SC355,PCR      ; POINT Y TO THE PATCH DATA
                 LDB         ,Y+             ; GET THE NUMBER OF BYTES TO PATCH
                 BRA         SC349
 SC334           LDX         #$C8B4          ; POINT X TO DISK BASIC 1.1 KEYBOARD PATCH ($C8B4)
@@ -526,7 +526,7 @@ SC33B           STA         ,X+             ; STORE A NOP
                 DECB                        ;  DECREMENT COUNTER
                 BNE         SC33B           ; LOOP UNTIL DONE
                 LDX         #$C0D9          ; POINT X TO DISK BASIC 1.1 PATCH ADDRESS ($C0D9)
-                LEAY        SC351,PC        ; POINT Y TO THE PATCH DATA
+                LEAY        >SC351,PCR      ; POINT Y TO THE PATCH DATA
                 LDB         ,Y+             ; GET THE NUMBER OF BYTES TO PATCH
 SC349           LDA         ,Y+             ; GET A PATCH BYTE
                 STA         ,X+             ; STORE THE PATCH BYTE
@@ -1261,14 +1261,14 @@ SE08B           LDA         ,X+             ; GET A BYTE
                 PULS        A,X,Y,PC
 ; PROGRAM THE MMU REGISTERS; ENTER WITH X POINTING TO THE DATA TO PLACE INTO THE MMU REGISTERS
 SETMMU          PSHS        Y,X,B,A
-                LEAX        IM.MMU,PC       ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
+                LEAX        >IM.MMU,PCR     ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
                 BSR         SE0F1           ; MOVE 16 BYTES INTO THE MMU REGISTERS
                 PULS        A,B,X,Y,PC
 ; PLACE A BLOCK INTO LOGICAL ADDRESS SPACE BLOCK 0.
 ; ENTER WITH ACCB CONTAINING THE BLOCK NUMBER TO BE PLACED INTO THE LOGICAL ADDRESS SPACE
 ; EXIT WITH BLOCK 7.0 REPLACED IN BLOCK 0 OF THE LOGICAL ADDRESS SPACE RAM IMAGE
 SELBLOK0        PSHS        Y,X,B,A
-                LEAX        IM.MMU,PC       ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
+                LEAX        >IM.MMU,PCR     ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
                 PSHS        X               ; TEMP SAVE
                 STB         ,X              ; SAVE THE NEW BLOCK NUMBER IN LOGICAL ADDRESS SPACE BLOCK 0 (TR0)
                 BSR         SE0F1           ; COPY THE RAM IMAGE OF THE MMU REGISTERS INTO THE MMU REGISTERS
@@ -1279,7 +1279,7 @@ SELBLOK0        PSHS        Y,X,B,A
 ; PLACE THE HI-RES TEXT SCREEN INTO LOGICAL ADDRESS SPACE BLOCK 1
 ; EXIT WITH BLOCK 7.1 REPLACED INTO BLOCK 1 OF THE LOGICAL ADDRESS SPACE RAM IMAGE
 SELTEXT         PSHS        Y,X,B,A
-                LEAX        IM.MMU,PC       ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
+                LEAX        >IM.MMU,PCR     ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
                 PSHS        X               ; TEMP SAVE
                 LDB         #BLOCK6.6       ; GET THE BLOCK WHICH CONTAINS THE HI-RES TEXT SCREEN
                 STB         $01,X           ; AND SAVE IT IN THE MMU IMAGE OF TASK REGISTER 0
@@ -1289,7 +1289,7 @@ SELTEXT         PSHS        Y,X,B,A
                 STB         $01,X           ; AND SAVE IT IN THE MMU IMAGE
                 PULS        A,B,X,Y,PC
 SE0CB           PSHS        Y,X,B,A
-                LEAX        IM.MMU,PC       ; POINT TO THE MMU RAM IMAGE
+                LEAX        >IM.MMU,PCR     ; POINT TO THE MMU RAM IMAGE
                 PSHS        X               ; TEMP SAVE
                 LDB         #BLOCK6.4       ; GET BLOCK 6.4
                 STB         14,X            ; AND SAVE IT IN LOGICAL BLOCK 6 OF TASK REGISTER 1
@@ -1633,7 +1633,7 @@ SE488           CMPB        #38*2           ; HI-RES GRAPHICS ERROR
                 BNE         SE49F           ; BRANCH IF NOT
                 JSR         LB95C           ; SET UP PRINT PARAMETERS
                 JSR         LB9AF           ; SEND A '?' TO CONSOLE OUT
-                LEAX        BAS20ERR,PC     ; POINT TO ENHANCED BASIC'S ADDITIONAL ERROR CODES
+                LEAX        >BAS20ERR,PCR   ; POINT TO ENHANCED BASIC'S ADDITIONAL ERROR CODES
 SE496           JSR         LACA0           ; GET A CHARACTER FROM X AND SEND IT TO CONSOLE OUT
                 JSR         LACA0           ; DO IT AGAIN
                 JMP         LAC65           ; RE-ENTER THE MAIN STREAM OF CODE ($AC65)
@@ -1641,7 +1641,7 @@ SE49F           CMPB        #39*2           ; HI-RES TEXT MODE ERROR
                 BNE         SE4B0           ; BRANCH IF NOT
                 JSR         LB95C           ; SET UP THE PRINT PARAMETERS
                 JSR         LB9AF           ; SEND A '?' TO CONSOLE OUT
-                LEAX        SE4CE,PC        ; POINT TO ENHANCED BASIC'S ADDITIONAL ERROR CODES
+                LEAX        >SE4CE,PCR      ; POINT TO ENHANCED BASIC'S ADDITIONAL ERROR CODES
                 JMP         >SE496          ; GO PRINT THE ERROR CODE POINTED TO BY X
 SE4B0           JMP         LAC49           ; JUMP TO THE ERROR SERVICING ROUTINE ($AC49)
 SE4B3           STB         >H.ERROR        ; SAVE THE ERROR NUMBER
@@ -1782,7 +1782,7 @@ BUTTON          JSR         INTCNV          ; CONVERT FPA0 INTO AN INTEGER IN AC
                 LDB         ,X              ; READ THE KEYBOARD ROWS
                 CMPB        #$0F            ; THE BUTTONS ARE ON THE BOTTOM FOUR ROWS
                 BEQ         SE5EA           ; BRANCH IF NO BUTTONS DOWN
-                LEAX        SE5D5,PC        ; POINT TO THE BUTTON MASKING ROUTINES
+                LEAX        >SE5D5,PCR      ; POINT TO THE BUTTON MASKING ROUTINES
                 ASLA                        ;
                 ASLA                        ;  MULT ACCA BY FOUR - FOUR BYTES/EACH MASKING ROUTINE
                 JMP         A,X             ; JUMP TO THE APPROPRIATE MASKING ROUTINE
@@ -1810,7 +1810,7 @@ PALETTE         CMPA        #$F7            ; 'RGB' TOKEN?
                 BNE         SE600           ; NOT THE 'RGB' TOKEN, CHECK FOR 'CMP'
                 JSR         GETNCH          ; GET THE NEXT CHARACTER FROM BASIC'S INPUT LINE
 ; RGB ENTRY POINT - SET THE PALETTE REGISTERS FOR DEFAULT RGB VALUES
-SE5FA           LEAX        IM.RGB,PC       ; POINT TO THE DEFAULT RGB PALETTE COLORS
+SE5FA           LEAX        >IM.RGB,PCR     ; POINT TO THE DEFAULT RGB PALETTE COLORS
                 BRA         SE634           ; PUT THE DATA POINTED TO BY X INTO THE PALETTE REGISTERS
 SE600           CMPA        #$F6            ; 'CMP' TOKEN?
                 BNE         SE60C           ; NO, GET A REGISTER NUMBER AND COLOR
@@ -1820,11 +1820,11 @@ SE600           CMPA        #$F6            ; 'CMP' TOKEN?
 ; -----------------------------------------------------------------------------
                 if          COCOPAL<1
 ; -----------------------------------------------------------------------------
-SE606           LEAX        IM.CMP,PC       ; POINT TO THE DEFAULT CMP PALETTE COLORS
+SE606           LEAX        >IM.CMP,PCR     ; POINT TO THE DEFAULT CMP PALETTE COLORS
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-SE606           LEAX        IM.RGB,PC       ; POINT TO THE DEFAULT CMP PALETTE COLORS
+SE606           LEAX        >IM.RGB,PCR     ; POINT TO THE DEFAULT CMP PALETTE COLORS
 ; -----------------------------------------------------------------------------
                 endif
 ; -----------------------------------------------------------------------------
@@ -3799,7 +3799,7 @@ ALINK23         PULS        CC              ; RESTORE THE ZERO FLAG
                 CMPB        #$08            ; CHECK FOR CLS 8
                 BHI         SF6E7           ; BRANCH IF > CLS 8
                 DECB                        ;  CHANGE 1-8 TO 0-7
-                LEAY        IM.PALET,PC     ; POINT TO THE PALETTE REGISTER IMAGES
+                LEAY        IM.PALET,PCR    ; POINT TO THE PALETTE REGISTER IMAGES
                 LDA         B,Y             ; GET THE COLOR IN THE PALETTE REGISTER
                 STA         V_BORDER        ; AND SAVE IT AS THE NEW BORDER COLOR
                 LBSR        SF766           ; SET THE BORDER COLOR IN THE 40 & 80 COLUMN VIDEO MODE IMAGES
@@ -3842,11 +3842,11 @@ SF730           BSR         SF772           ; PUT THE HI-RES TEXT SCREEN INTO LO
                 LDX         #AUTHORMS-1     ; POINT TO THE AUTHOR MESSAGE
                 JSR         >STRINOUT       ; COPY A STRING TO CONSOLE OUT
                 PSHS        X
-                LEAX        >SF6F4,PC       ; POINT TO THE INSTRUCTION WHICH BRANCHES TO THIS ROUTINE
+                LEAX        >SF6F4,PCR      ; POINT TO THE INSTRUCTION WHICH BRANCHES TO THIS ROUTINE
                 LDA         #$12            ; OP CODE OF A NOP
                 STA         ,X+             ; REPLACE THE BRANCH TO THIS ROUTINE WITH 2 NOPs MAKING IT SO
                 STA         ,X              ; THAT THIS ROUTINE MAY ONLY BE ENTERED ONE TIME
-                LEAX        >AUTHORMS,PC    ; POINT TO THE AUTHORS CODED NAMES
+                LEAX        >AUTHORMS,PCR   ; POINT TO THE AUTHORS CODED NAMES
 ; REPLACE THE AUTHORS' NAMES AND THE CODE THAT DISPLAYS THEM WITH NOPs
 SF74D           STA         ,X+             ; SAVE A NOP
                 CMPX        #SF74D          ; CHECK FOR END OF THE DISPLAY NAME ROUTINE
@@ -3862,7 +3862,7 @@ SF761           LBSR        SF6E0           ; RESET THE HI-RES TEXT SCREEN
                 BRA         SF75E
 ; SAVE THE VALUE IN ACCA AS THE BORDER COLOR IN THE 40 AND 80 COLUMN VIDEO MODE IMAGES
 SF766           PSHS        Y
-                LEAY        SE03B,PC        ; POINT TO THE 40 COLUMN MODE REGISTER IMAGE
+                LEAY        SE03B,PCR       ; POINT TO THE 40 COLUMN MODE REGISTER IMAGE
                 STA         $03,Y           ; SAVE THE BORDER COLOR IN THE 40 COLUMN VIDEO MODE REGISTER IMAGE
                 STA         $0C,Y           ; SAVE THE BORDER COLOR IN THE 80 COLUMN VIDEO MODE REGISTER IMAGE
                 PULS        Y,PC

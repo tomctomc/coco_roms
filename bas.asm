@@ -123,7 +123,7 @@ LA0BA           STX         TOPRAM          ; SET TOP OF RAM POINTER
 ; -----------------------------------------------------------------------------
                 if          VERBAS<20
 ; -----------------------------------------------------------------------------
-RESVEC          LEAY        <LA00E,PC       ; POINT Y TO WARM START CHECK CODE
+RESVEC          LEAY        <LA00E,PCR      ; POINT Y TO WARM START CHECK CODE
 LA02A           LDX         #PIA1           ; POINT X TO PIA1
                 CLR         -3,X            ; CLEAR PIA0 CONTROL REGISTER A
                 CLR         -1,X            ; CLEAR PIA0 CONTROL REGISTER B
@@ -203,7 +203,7 @@ LA084           LDA         2,X             ; LOOK FOR END OF MEMORY
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-RESVEC          LEAY        <LA00E,PC       ; POINT Y TO WARM START CHECK CODE
+RESVEC          LEAY        <LA00E,PCR      ; POINT Y TO WARM START CHECK CODE
 LA02A           LDA         #$3A
                 STA         >MMUREG+2
                 LDX         #PIA1
@@ -376,7 +376,7 @@ LA102           LDU         #LA108
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-LA102           LEAY        <LA108,PC       ; Y = ROM-PAK START UP VECTOR
+LA102           LEAY        <LA108,PCR      ; Y = ROM-PAK START UP VECTOR
 ; -----------------------------------------------------------------------------
                 endif
 ; -----------------------------------------------------------------------------
