@@ -1,0 +1,512 @@
+From 3b6e02d2138e485c90b0f7446d08feae34806606 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sat, 29 Apr 2023 11:31:48 -0400
+Subject: Non-standard changes for asm6809
+
+Use "<<" to force 5-bit offset mode with asm6809
+And, revert mamou build fixes
+---
+ bas.asm    | 22 ++++++-------
+ disk.asm   | 90 +++++++++++++++++++++++++++---------------------------
+ supbas.asm |  4 +--
+ 3 files changed, 58 insertions(+), 58 deletions(-)
+
+diff --git a/bas.asm b/bas.asm
+index 4be64d8..efa1a92 100644
+--- a/bas.asm
++++ b/bas.asm
+@@ -535,7 +535,7 @@ KEYIN           PSHS        B,X             ; SAVE REGISTERS
+                 PULS        B,X,PC          ; RESTORE REGISTERS
+ LA1C8           LEAS        -3,S            ; ALLOCATE 3 STORAGE BYTES ON STACK
+                 LDX         #KEYBUF         ; KEYBOARD MEMORY BUFFER
+-                CLR         0,S             ; RESET COLUMN COUNTER
++                CLR         <<0,S           ; RESET COLUMN COUNTER
+                 LDB         #$FE            ; COLUMN STROBE DATA, CHECK BIT 0 FIRST
+ ; A COLUMN IS BEING CHECKED IF THE CORRESPONDING BUT IN THE COLUMN
+ ; STROBE REGISTER ($FF02) HAS A ZERO IN IT.
+@@ -548,7 +548,7 @@ LA1D4           BSR         LA238           ; GET KEY DATA
+                 STB         ,X+             ; STORE IT IN KEY MEMORY
+                 TSTA                        ;  WAS NEW KEY DOWN?
+                 BNE         LA1ED           ; YES
+-                INC         0,S             ; NO, INCREMENT COLUMN COUNTER
++                INC         <<0,S           ; NO, INCREMENT COLUMN COUNTER
+                 COMB                        ;  SET CARRY FLAG
+                 ROL         PIA0+2          ; ROTATE COLUMN STROBE DATA LEFT ONE BIT
+                 BCS         LA1D4           ; ALL COLUMNS CHECKED WHEN ZERO IN THE COLUMN STROBE DATA IS ROTATED INTO THE CARRY FLAG
+@@ -564,7 +564,7 @@ LA1ED           LDB         PIA0+2          ; GET COLUMN STROBE DATA
+ LA1F4           ADDB        #8              ; ADD 8 FOR EACH ROW OF KEYBOARD
+                 LSRA                        ;  ACCA CONTAINS THE ROW NUMBER OF THIS KEY
+                 BCC         LA1F4           ; GO ON UNTIL A ZERO APPEARS IN THE CARRY
+-                ADDB        0,S             ; ADD IN THE COLUMN NUMBER
++                ADDB        <<0,S           ; ADD IN THE COLUMN NUMBER
+ 
+ ; NOW CONVERT THE VALUE IN ACCB INTO ASCII
+                 BEQ         LA245           ; THE 'AT SIGN' KEY WAS DOWN
+@@ -576,7 +576,7 @@ LA1F4           ADDB        #8              ; ADD 8 FOR EACH ROW OF KEYBOARD
+                 LDA         CASFLG          ; NOT DOWN, CHECK THE UPPER/LOWER CASE FLAG
+                 BNE         LA20E           ; UPPER CASE
+                 ORB         #$20            ; CONVERT TO LOWER CASE
+-LA20E           STB         0,S             ; TEMP STORE ASCII VALUE
++LA20E           STB         <<0,S           ; TEMP STORE ASCII VALUE
+                 LDX         DEBVAL          ; GET KEYBOARD DEBOUNCE
+                 JSR         >LA7D3          ; GO WAIT A WHILE
+                 LDB         2,S             ; GET COLUMN STROBE DATA
+@@ -649,7 +649,7 @@ LA1C8           LDU         #PIA0           ; POINT TO PIA0
+ LA1D5           COMB                        ;  SET CARRY FLAG
+                 ROL         2,U             ; ROTATE COLUMN STROBE DATA LEFT 1 BIT,
+                 BCC         LA1BF           ; CARRY INTO BIT 0-RETURN IF 8 BITS DONE
+-                INC         0,S             ; INCREMENT COLUMN POINTER
++                INC         <<0,S           ; INCREMENT COLUMN POINTER
+                 BSR         LA239           ; READ KEYBOARD DATA ROW
+                 STA         1,S             ; TEMP STORE KEY DATA
+                 EORA        ,X              ; SET ANY BIT WHERE A KEY HAS MOVED
+@@ -668,7 +668,7 @@ LA1F1           ADDB        #8              ; ADD 8 FOR EACH ROW OF KEYBOARD
+                 LSRA                        ;  ACCA CONTAINS THE ROW NUMBER OF THIS KEY
+ ; ADD 8 FOR EACH ROW
+                 BCC         LA1F1           ; GO ON UNTIL A ZERO APPEARS IN THE CARRY
+-                ADDB        0,S             ; ADD IN THE COLUMN NUMBER
++                ADDB        <<0,S           ; ADD IN THE COLUMN NUMBER
+ 
+ ; NOW CONVERT THE VALUE IN ACCB INTO ASCII
+                 BEQ         LA244           ; THE 'AT SIGN' KEY WAS DOWN
+@@ -680,7 +680,7 @@ LA1F1           ADDB        #8              ; ADD 8 FOR EACH ROW OF KEYBOARD
+                 LDA         CASFLG          ; NOT DOWN, CHECK THE UPPER/LOWER CASE FLAG
+                 BNE         LA20B           ; UPPER CASE
+                 ORB         #$20            ; CONVERT TO LOWER CASE
+-LA20B           STB         0,S             ; TEMP STORE ASCII VALUE
++LA20B           STB         <<0,S           ; TEMP STORE ASCII VALUE
+                 LDX         DEBVAL          ; GET KEYBOARD DEBOUNCE
+                 JSR         >LA7D3          ; GO WAIT A WHILE
+                 LDB         #$FF            ; SET COLUMN STROBE TO ALL ONES (NO
+@@ -779,7 +779,7 @@ KEYIN           PSHS        U,X,B           ; SAVE REGISTERS
+                 STA         2,U             ; INITIALIZE COLUMN STROBE TO $FF
+ LA1D9           ROL         2,U             ; ROTATE COLUMN STROBE DATA LEFT 1 BIT, CARRY
+                 BCC         LA220           ; INTO BIT 0 - BRANCH IF 8 SHIFTS DONE
+-                INC         0,S             ; INCREMENT COLUMN COUNTER
++                INC         <<0,S           ; INCREMENT COLUMN COUNTER
+                 BSR         LA23A           ; READ KEYBOARD ROW DATA
+                 STA         1,S             ; TEMP STORE KEY DATA
+                 EORA        ,X              ; SET ANY BIT WHERE A KEY HAS MOVED
+@@ -796,7 +796,7 @@ LA1D9           ROL         2,U             ; ROTATE COLUMN STROBE DATA LEFT 1 B
+ LA1F4           ADDB        #$08            ; ADD 8 FOR EACH ROW OF KEYBOARD
+                 LSRA                        ;  ACCA HAS THE ROW NUMBER OF THIS KEY - ADD 8 FOR EACH ROW
+                 BCC         LA1F4           ; GO ON UNTIL A ZERO APPEARS IN THE CARRY FLAG
+-                ADDB        0,S             ; ADD IN THE COLUMN NUMBER
++                ADDB        <<0,S           ; ADD IN THE COLUMN NUMBER
+ ; NOW CONVERT THE VALUE IN ACCB INTO ASCII
+                 BEQ         LA245           ; THE AT SIGN KEY WAS DOWN
+                 CMPB        #26             ; WAS IT A LETTER?
+@@ -806,7 +806,7 @@ LA1F4           ADDB        #$08            ; ADD 8 FOR EACH ROW OF KEYBOARD
+                 ORA         CASFLG          ; OR IN THE CASE FLAG & BRANCH IF IN UPPER
+                 BNE         LA20C           ; CASE MODE OR SHIFT KEY DOWN
+                 ORB         #$20            ; CONVERT TO LOWER CASE
+-LA20C           STB         0,S             ; TEMP STORE ASCII VALUE
++LA20C           STB         <<0,S           ; TEMP STORE ASCII VALUE
+                 LDX         DEBVAL          ; GET KEYBOARD DEBOUNCE
+                 BSR         LA1AE
+                 LDB         #$FF            ; SET COLUMN STROBE TO ALL ONES (NO
+@@ -3667,7 +3667,7 @@ LB54C           LDX         TEMPPT          ; GET NEXT AVAILABLE STRING STACK DE
+                 LDB         #15*2           ; 'STRING FORMULA TOO COMPLEX' ERROR
+ LB555           JMP         >LAC46          ; JUMP TO ERROR SERVICING ROUTINE
+ LB558           LDA         STRDES          ; GET LENGTH OF STRING AND SAVE IT
+-                STA         0,X             ; IN BYTE 0 OF DESCRIPTOR
++                STA         <<0,X           ; IN BYTE 0 OF DESCRIPTOR
+                 LDD         STRDES+2        ; GET START ADDRESS OF ACTUAL STRING
+                 STD         2,X             ; AND SAVE IN BYTES 2,3 OF DESCRIPTOR
+                 LDA         #$FF            ; VARIABLE TYPE = STRING
+diff --git a/disk.asm b/disk.asm
+index 7a613fc..99ccdf1 100644
+--- a/disk.asm
++++ b/disk.asm
+@@ -171,14 +171,14 @@ LC061           STU         ,X++            ; SET USR VECTOR TO 'FC' ERROR
+                 STX         FCBADR          ; SAVE START ADDRESS OF FCBS
+                 LEAX        $01,X           ; ADD ONE AND SAVE THE STARTING
+                 STX         FCBV1           ; ADDRESS OF FCB1
+-                CLR         FCBTYP,X        ; CLEAR THE FIRST BYTE OF FCB 1 (CLOSE FCB)
++                CLR         <<FCBTYP,X      ; CLEAR THE FIRST BYTE OF FCB 1 (CLOSE FCB)
+                 LEAX        FCBLEN,X        ; POINT X TO FCB 2
+                 STX         FCBV1+2         ; SAVE ITS STARTING ADDRESS IN FCB VECTOR TABLE
+-                CLR         FCBTYP,X        ; CLEAR THE FIRST BYTE OF FCB 2 (CLOSE FCB)
++                CLR         <<FCBTYP,X      ; CLEAR THE FIRST BYTE OF FCB 2 (CLOSE FCB)
+                 LEAX        FCBLEN,X        ; POINT X TO SYSTEM FCB - THIS FCB WILL ONLY
+ ; BE USED TO COPY, LOAD, SAVE, MERGE, ETC
+                 STX         FCBV1+4         ; SAVE ITS ADDRESS IN THE FCB VECTOR TABLE
+-                CLR         FCBTYP,X        ; CLEAR THE FIRST BYTE OF SYSTEM FCB (CLOSE FCB)
++                CLR         <<FCBTYP,X      ; CLEAR THE FIRST BYTE OF SYSTEM FCB (CLOSE FCB)
+                 LDA         #$02            ; SET THE NUMBER OF ACTIVE RESERVED
+                 STA         FCBACT          ; FILE BUFFERS TO 2 (1,2)
+                 LEAX        FCBLEN,X        ; POINT X TO ONE PAST THE END OF SYSTEM FCB
+@@ -632,10 +632,10 @@ LC48D           PSHS        A               ; SAVE MODE ON STACK
+                 BSR         LC52D           ; INITIALIZE FILE BUFFER CONTROL BLOCK
+                 JSR         >LC627          ; GO FILL DATA BUFFER
+ LC4BB           JSR         >LC755          ; POINT X TO PROPER FILE ALLOCATION TABLE
+-                INC         FAT0,X          ; ADD ONE TO FAT ACTIVE FILE COUNTER
++                INC         <<FAT0,X        ; ADD ONE TO FAT ACTIVE FILE COUNTER
+                 LDX         FCBTMP          ; GET FILE BUFFER POINTER
+                 PULS        A               ; GET FILE TYPE
+-                STA         FCBTYP,X        ; SAVE IT IN FCB
++                STA         <<FCBTYP,X      ; SAVE IT IN FCB
+                 RTS
+ LC4C7           ASL         ,S              ; SET FILE TYPE TO OUTPUT
+                 CMPB        #'O             ; FILE MODE = OUTPUT?
+@@ -740,7 +740,7 @@ LC586           CLR         ,X+             ; CLEAR BYTE
+                 LDB         #11             ; 11 BYTES IN FILENAME AND EXTENSION
+                 JSR         >LA59A          ; MOVE B BYTES FROM X TO U
+                 LDD         DFLTYP          ; GET FILE TYPE AND ASCII FLAG
+-                STD         $00,U           ; SAVE IN RAM IMAGE
++                STD         <<$00,U         ; SAVE IN RAM IMAGE
+                 LDB         #33             ; FIRST GRANULE TO CHECK
+                 JSR         >LC7BF          ; FIND THE FIRST FREE GRANULE
+                 STA         V976            ; SAVE IN RAM
+@@ -960,7 +960,7 @@ LC749           PSHS        B               ; SAVE FILE NUMBER ON STACK
+                 ASLB                        ; X2: 2 BYTES PER POINTER
+                 LDX         #FCBV1-2        ; POINT X TO START OF FCB POINTERS
+                 LDX         B,X             ; POINT X TO PROPER FCB
+-                LDB         FCBTYP,X        ; SET FLAGS ACCORDING TO FILE TYPE
++                LDB         <<FCBTYP,X      ; SET FLAGS ACCORDING TO FILE TYPE
+                 PULS        B,PC            ; RESTORE FILE NUMBER
+ ; POINT X TO DRIVE ALLOCATION TABLE
+ LC755           PSHS        B,A             ; SAVE ACCD ON STACK
+@@ -1016,7 +1016,7 @@ LC796           DECB                        ;  DECREMENT THE GRANULE COUNT BY ON
+ LC79C           RTS
+ ; MAKE SURE RAM FILE ALLOCATION TABLE DATA IS VALID
+ LC79D           BSR         LC755           ; POINT X TO FAT FOR THE CORRECT DRIVE NUMBER
+-                TST         FAT0,X          ; CHECK TO SEE IF ANY FILES ARE ACTIVE
++                TST         <<FAT0,X        ; CHECK TO SEE IF ANY FILES ARE ACTIVE
+                 BNE         LC79C           ; RETURN IF ANY FILES ACTIVE IN THIS FAT
+                 CLR         FAT1,X          ; RESET FAT DATA VALID FLAG
+                 LEAU        FATCON,X        ; LOAD U WITH START OF GRANULE DATA BUFFER
+@@ -1094,7 +1094,7 @@ LC80D           JSR         >LC749          ; POINT X TO FCB OF THIS FILE
+                 LDA         DIRGRN,U        ; GET FIRST GRANULE IN FILE
+                 CMPA        FCBFGR,X        ; DOES IT MATCH THIS FILE BUFFER?
+                 BNE         LC829           ; NO
+-                LDA         FCBTYP,X        ; GET FILE TYPE OF THIS BUFFER
++                LDA         <<FCBTYP,X      ; GET FILE TYPE OF THIS BUFFER
+                 CMPA        ,S              ; DOES IT MATCH THE ONE WE ARE LOOKING FOR?
+                 LBNE        LA61C           ; 'FILE ALREADY OPEN' ERROR IF NOT
+ LC829           DECB                        ;  DECR FILE COUNTER
+@@ -1105,7 +1105,7 @@ LC82E           JSR         >LA5A5          ; EVALUATE AN EXPRESSION (DEVICE NUM
+                 TSTB                        ;  TEST NEW DEVICE NUMBER
+                 LBLE        LB44A           ; 'FC' ERROR IF DEVICE NUMBER NOT A DISK FILE
+                 JSR         >LC749          ; POINT X TO FCB
+-                LDA         FCBTYP,X        ; TEST IF BUFFER IS IN USE
++                LDA         <<FCBTYP,X      ; TEST IF BUFFER IS IN USE
+                 LBEQ        LA3FB           ; 'FILE NOT OPEN' ERROR
+                 CMPA        #RANFIL         ; DIRECT/RANDOM FILE?
+                 BEQ         LC806           ; RETURN IF RANDOM
+@@ -1123,7 +1123,7 @@ DVEC6           LDA         #OUTFIL         ; OUTPUT FILE TYPE
+ ; THIS IS THE SAME AS LEAS 2,S AND PSHS X
+                 JSR         >LC744          ; POINT X TO FCB
+                 PSHS        B,A             ; SAVE ACCB AND FILE TYPE ON STACK
+-                LDA         FCBTYP,X        ; GET FILE TYPE
++                LDA         <<FCBTYP,X      ; GET FILE TYPE
+                 LBEQ        LA3FB           ; 'FILE NOT OPEN' ERROR
+                 CMPA        #RANFIL         ; RANDOM FILE?
+                 BEQ         LC868           ; BRANCH IF RANDOM FILE
+@@ -1215,7 +1215,7 @@ DVEC14          LEAS        $02,S           ; PURGE RETURN ADDRESS OFF OF THE ST
+                 TST         DEVNUM          ; CHECK DEVICE NUMBER AND
+                 LBLE        LA5DA           ; BRANCH BACK TO BASIC'S EOF IF NOT DISK FILE
+                 JSR         >LC744          ; POINT X TO FCB
+-                LDB         FCBTYP,X        ; GET FILE TYPE
++                LDB         <<FCBTYP,X      ; GET FILE TYPE
+                 CMPB        #RANFIL         ; RANDOM FILE?
+                 LBEQ        LA616           ; 'FM' BAD FILE MODE ERROR IF RANDOM
+                 CLRB                        ;  FILE NOT EMPTY FLAG - SET TO NOT EMPTY
+@@ -1449,10 +1449,10 @@ DVEC8           TST         DEVNUM          ; CHECK DEVICE NUMBER AND RETURN
+ LCB01           JSR         >LC744          ; POINT X TO CORRECT FCB
+                 CLR         DEVNUM          ; SET DEVICE NUMBER TO SCREEN
+ LCB06           STX         FCBTMP          ; SAVE FILE BUFFER POINTER
+-                LDA         FCBTYP,X        ; GET THE TYPE OF THIS FILE
++                LDA         <<FCBTYP,X      ; GET THE TYPE OF THIS FILE
+                 BEQ         LCAF8           ; RETURN IF FILE NOT OPEN
+                 PSHS        A               ; SAVE FILE TYPE
+-                CLR         FCBTYP,X        ; CLOSE THE FILE - ZERO OUT THE FILE TYPE
++                CLR         <<FCBTYP,X      ; CLOSE THE FILE - ZERO OUT THE FILE TYPE
+                 LDB         FCBDRV,X        ; GET DRIVE NUMBER AND
+                 STB         DCDRV           ; SAVE IT IN DSKCON VARIABLE
+                 CMPA        #OUTFIL         ; CHECK FOR OUTPUT TYPE AND
+@@ -1533,7 +1533,7 @@ LCB93           LDB         FCBACT          ; GET THE NUMBER OF ACTIVE FILES
+                 INCB                        ;  ADD ONE
+ LCB97           PSHS        B               ; SAVE FILES COUNT ON THE STACK
+                 JSR         >LC749          ; POINT X TO FCB
+-                LDA         FCBTYP,X        ; GET FILE TYPE
++                LDA         <<FCBTYP,X      ; GET FILE TYPE
+                 CMPA        #RANFIL         ; IS IT A RANDOM FILE?
+                 BNE         LCBAD           ; BRANCH IF NOT
+                 LDD         FCBBUF,X        ; GET START OF THIS FILE'S RANDOM FILE BUFFER
+@@ -1562,7 +1562,7 @@ LCBB4           CMPU        RNBFAD          ; AT THE BOTTOM OF FREE RANDOM BUFFE
+                 BRA         LCBB4           ; KEEP MOVING BYTES
+ LCBC0           STX         RNBFAD          ; SAVE NEW START OF FREE RANDOM BUFFER AREA
+ LCBC3           JSR         >LC755          ; POINT X TO PROPER FILE ALLOCATION TABLE
+-                DEC         FAT0,X          ; REMOVE ONE ACTIVE FILE
++                DEC         <<FAT0,X        ; REMOVE ONE ACTIVE FILE
+                 TST         FAT1,X          ; NEW DATA IN FAT RAM IMAGE?
+                 BEQ         LCBCF           ; NO
+                 JSR         >LC71E          ; WRITE OUT FILE ALLOCATION TABLE TO DISK
+@@ -1710,7 +1710,7 @@ LCCC5           PULS        U               ; SAVE TOP OF STACK
+                 LDB         #$03            ; NUMBER CHARACTERS TO PRINT
+                 JSR         >LB9A2          ; SEND EXTENSION TO CONSOLE OUT
+                 BSR         LCD1B           ; SEND BLANK TO CONSOLE OUT
+-                LDB         FCBTYP,X        ; GET FILE TYPE
++                LDB         <<FCBTYP,X      ; GET FILE TYPE
+                 CMPB        #10             ; CHECK THE NUMBER OF DECIMAL DIGITS IN
+                 BHS         LCCEB           ; ACCB: IF THERE IS ONLY ONE DIGIT,
+                 BSR         LCD1B           ; SEND BLANK TO CONSOLE OUT
+@@ -1823,7 +1823,7 @@ LCDB8           BSR         LCDD6           ; BACK UP PTR INPUT POINTER ONE
+ LCDBC           BSR         LCDD0           ; GET A CHAR FROM INPUT BUFFER - RETURN IN ACCA
+                 BEQ         LCDD5           ; RETURN IF BUFFER NOT EMPTY
+                 JSR         >LC744          ; POINT X TO START OF FILE BUFFER
+-                LDB         FCBTYP,X        ; GET FILE TYPE
++                LDB         <<FCBTYP,X      ; GET FILE TYPE
+                 CMPB        #RANFIL         ; IS IT RANDOM FILE TYPE?
+                 LBNE        LC352           ; 'INPUT PAST END OF FILE ERROR IF NOT RANDOM
+ LCDCB           LDB         #2*37           ; 'WRITE/INPUT PAST END OF RECORD ERROR IF RANDOM
+@@ -1834,7 +1834,7 @@ LCDD5           RTS
+ ; MOVE THE INPUT POINTER BACK ONE (DISK FILE)
+ LCDD6           PSHS        X,B             ; SAVE REGISTERS ON STACK
+                 JSR         >LC744          ; POINT X TO PROPER FCB
+-                LDB         FCBTYP,X        ; GET FILE TYPE OF THIS FCB
++                LDB         <<FCBTYP,X      ; GET FILE TYPE OF THIS FCB
+                 CMPB        #RANFIL         ; IS IT A RANDOM FILE?
+                 BNE         LCDEC           ; BRANCH IF NOT A RANDOM FILE
+                 LDD         FCBGET,X        ; GRAB THE RANDOM FILE 'GET' POINTER,
+@@ -1873,7 +1873,7 @@ LCE19           LDA         DEVNUM          ; GET CURRENT DEVICE NUMBER AND
+                 JSR         >LC744          ; POINT (X) TO FILE BUFFER
+                 PULS        A               ; GET OLD DEVICE NUMBER OFF OF THE STACK AND
+                 STA         DEVNUM          ; SAVE IT AS DEVICE NUMBER
+-                TST         FCBTYP,X        ; IS FILE OPEN?
++                TST         <<FCBTYP,X      ; IS FILE OPEN?
+                 LBEQ        LA3FB           ; 'FILE NOT OPEN' ERROR IF NOT OPEN
+                 RTS
+ ; LOF
+@@ -1893,7 +1893,7 @@ LOF             BSR         LCE19           ; POINT X TO FILE BUFFER
+                 ADCA        #$00            ; PROPAGATE CARRY TO MS BYTE OF ACCD
+                 PULS        X               ; GET FCB POINTER BACK
+                 PSHS        A               ; SAVE ACCA ON STACK
+-                LDA         FCBTYP,X        ; GET FILE TYPE OF THIS FCB AND
++                LDA         <<FCBTYP,X      ; GET FILE TYPE OF THIS FCB AND
+                 CMPA        #RANFIL         ; CHECK TO SEE IF IT'S A RANDOM FILE
+                 PULS        A               ; RESTORE ACCA
+                 BNE         LCE14           ; IF NOT A RANDOM FILE, THEN THE TOTAL NUMBER OF SECTORS IN THE FILE
+@@ -2004,7 +2004,7 @@ DXIVEC          CMPB        #($9A-$80)*2    ; MODIFIED TOKEN FOR POS
+                 TST         DEVNUM          ; CHECK DEVICE NUMBER AND BRANCH
+                 BLE         LCF5C           ; IF NOT A DISK FILE
+                 JSR         >LC744          ; POINT X TO FCB
+-                LDB         FCBTYP,X        ; GET FILE TYPE
++                LDB         <<FCBTYP,X      ; GET FILE TYPE
+                 CMPB        #RANFIL         ; DIRECT/RANDOM FILE?
+                 BNE         LCF5C           ; BRANCH IF NOT A RANDOM FILE
+                 PULS        A               ; RESTORE DEVICE NUMBER
+@@ -2363,7 +2363,7 @@ LD21B           LDU         #FCBV1          ; POINT U TO FILE BUFFER POINTERS
+                 LDX         FCBADR          ; POINT X TO START OF BUFFERS
+                 CLRB                        ;  RESET FILE COUNTER
+ LD222           STX         ,U++            ; STORE FILE ADDRESS IN VECTOR TABLE
+-                CLR         FCBTYP,X        ; RESET FILE TYPE TO CLOSED
++                CLR         <<FCBTYP,X      ; RESET FILE TYPE TO CLOSED
+                 LEAX        FCBLEN,X        ; GO TO NEXT FCB
+                 INCB                        ;  INCREMENT FILE COUNTER
+                 CMPB        FCBACT          ; CLOSE ALL ACTIVE BUFFERS AND SYSTEM FCB
+@@ -3516,14 +3516,14 @@ LC057           STU         ,X++            ; SET USR VECTOR TO 'FC' ERROR
+ ; SAVE START ADDRESS OF FCBS
+                 LEAX        $01,X           ; ADD ONE AND SAVE THE STARTING
+                 STX         FCBV1           ; ADDRESS OF FCB1
+-                CLR         FCBTYP,X        ; CLEAR THE FIRST BYTE OF FCB 1 (CLOSE FCB)
++                CLR         <<FCBTYP,X      ; CLEAR THE FIRST BYTE OF FCB 1 (CLOSE FCB)
+                 LEAX        FCBLEN,X        ; POINT X TO FCB 2
+                 STX         FCBV1+2         ; SAVE ITS STARTING ADDRESS IN FCB VECTOR TABLE
+-                CLR         FCBTYP,X        ; CLEAR THE FIRST BYTE OF FCB 2 (CLOSE FCB)
++                CLR         <<FCBTYP,X      ; CLEAR THE FIRST BYTE OF FCB 2 (CLOSE FCB)
+                 LEAX        FCBLEN,X        ; POINT X TO SYSTEM FCB - THIS FCB WILL ONLY
+ ; BE USED TO COPY, LOAD, SAVE, MERGE, ETC
+                 STX         FCBV1+4         ; SAVE ITS ADDRESS IN THE FCB VECTOR TABLE
+-                CLR         FCBTYP,X        ; CLEAR THE FIRST BYTE OF SYSTEM FCB (CLOSE FCB)
++                CLR         <<FCBTYP,X      ; CLEAR THE FIRST BYTE OF SYSTEM FCB (CLOSE FCB)
+                 LDA         #$02            ; SET THE NUMBER OF ACTIVE RESERVED
+                 STA         FCBACT          ; FILE BUFFERS TO 2 (1,2)
+                 LEAX        FCBLEN,X        ; POINT X TO ONE PAST THE END OF SYSTEM FCB
+@@ -3979,10 +3979,10 @@ LC468           PSHS        A               ; SAVE MODE ON STACK
+                 BSR         LC500           ; INITIALIZE FILE BUFFER CONTROL BLOCK
+                 JSR         LC5FA           ; GO FILL DATA BUFFER
+ LC496           JSR         LC725           ; POINT X TO PROPER FILE ALLOCATION TABLE
+-                INC         FAT0,X          ; ADD ONE TO FAT ACTIVE FILE COUNTER
++                INC         <<FAT0,X        ; ADD ONE TO FAT ACTIVE FILE COUNTER
+                 LDX         FCBTMP          ; GET FILE BUFFER POINTER
+                 PULS        A               ; GET FILE TYPE
+-                STA         FCBTYP,X        ; SAVE IT IN FCB
++                STA         <<FCBTYP,X      ; SAVE IT IN FCB
+                 RTS
+ LC4A2           ASL         ,S              ; SET FILE TYPE TO OUTPUT
+                 CMPB        #'O'            ; FILE MODE = OUTPUT?
+@@ -4088,7 +4088,7 @@ LC559           CLR         ,X+             ; CLEAR BYTE
+                 LDB         #11             ; 11 BYTES IN FILENAME AND EXTENSION
+                 JSR         LA59A           ; MOVE B BYTES FROM X TO U
+                 LDD         DFLTYP          ; GET FILE TYPE AND ASCII FLAG
+-                STD         $00,U           ; SAVE IN RAM IMAGE
++                STD         <<$00,U         ; SAVE IN RAM IMAGE
+                 LDB         #33             ; FIRST GRANULE TO CHECK
+                 JSR         LC78F           ; FIND THE FIRST FREE GRANULE
+                 STA         V976            ; SAVE IN RAM
+@@ -4321,7 +4321,7 @@ LC719           PSHS        B               ; SAVE FILE NUMBER ON STACK
+                 ASLB                        ; X2: 2 BYTES PER POINTER
+                 LDX         #FCBV1-2        ; POINT X TO START OF FCB POINTERS
+                 LDX         B,X             ; POINT X TO PROPER FCB
+-                LDB         FCBTYP,X        ; SET FLAGS ACCORDING TO FILE TYPE
++                LDB         <<FCBTYP,X      ; SET FLAGS ACCORDING TO FILE TYPE
+                 PULS        B,PC            ; RESTORE FILE NUMBER
+ 
+ ; POINT X TO DRIVE ALLOCATION TABLE
+@@ -4382,7 +4382,7 @@ LC76C           RTS
+ 
+ ; MAKE SURE RAM FILE ALLOCATION TABLE DATA IS VALID
+ LC76D           BSR         LC725           ; POINT X TO FAT FOR THE CORRECT DRIVE NUMBER
+-                TST         FAT0,X          ; CHECK TO SEE IF ANY FILES ARE ACTIVE
++                TST         <<FAT0,X        ; CHECK TO SEE IF ANY FILES ARE ACTIVE
+                 BNE         LC76C           ; RETURN IF ANY FILES ACTIVE IN THIS FAT
+                 CLR         FAT1,X          ; RESET FAT DATA VALID FLAG
+                 LEAU        FATCON,X        ; LOAD U WITH START OF GRANULE DATA BUFFER
+@@ -4465,7 +4465,7 @@ LC7DD           JSR         LC719           ; POINT X TO FCB OF THIS FILE
+                 LDA         DIRGRN,U        ; GET FIRST GRANULE IN FILE
+                 CMPA        FCBFGR,X        ; DOES IT MATCH THIS FILE BUFFER?
+                 BNE         LC7F9           ; NO
+-                LDA         FCBTYP,X        ; GET FILE TYPE OF THIS BUFFER
++                LDA         <<FCBTYP,X      ; GET FILE TYPE OF THIS BUFFER
+                 CMPA        ,S              ; DOES IT MATCH THE ONE WE ARE LOOKING FOR?
+                 LBNE        LA61C           ; 'FILE ALREADY OPEN' ERROR IF NOT
+ LC7F9           DECB                        ; DECR FILE COUNTER
+@@ -4477,7 +4477,7 @@ LC7FE           JSR         LA5A5           ; EVALUATE AN EXPRESSION (DEVICE NUM
+                 TSTB                        ; TEST NEW DEVICE NUMBER
+                 LBLE        LB44A           ; 'FC' ERROR IF DEVICE NUMBER NOT A DISK FILE
+                 JSR         LC719           ; POINT X TO FCB
+-                LDA         FCBTYP,X        ; TEST IF BUFFER IS IN USE
++                LDA         <<FCBTYP,X      ; TEST IF BUFFER IS IN USE
+                 LBEQ        LA3FB           ; 'FILE NOT OPEN' ERROR
+                 CMPA        #RANFIL         ; DIRECT/RANDOM FILE?
+                 BEQ         LC7D6           ; RETURN IF RANDOM
+@@ -4495,7 +4495,7 @@ DVEC6           LDA         #OUTFIL         ; OUTPUT FILE TYPE
+ ; = THIS IS THE SAME AS LEAS 2,S AND PSHS X
+                 JSR         LC714           ; POINT X TO FCB
+                 PSHS        A               ; SAVE FILE TYPE ON STACK
+-                LDA         FCBTYP,X        ; GET FILE TYPE
++                LDA         <<FCBTYP,X      ; GET FILE TYPE
+                 LBEQ        LA3FB           ; 'FILE NOT OPEN' ERROR
+                 CMPA        #RANFIL         ; RANDOM FILE?
+                 BEQ         LC836           ; BRANCH IF RANDOM FILE
+@@ -4535,7 +4535,7 @@ DVEC14          LEAS        $02,S           ; PURGE RETURN ADDRESS OFF OF THE ST
+                 TST         DEVNUM          ; CHECK DEVICE NUMBER AND
+                 LBLE        LA5DA           ; BRANCH BACK TO BASIC'S EOF IF NOT DISK FILE
+                 JSR         LC714           ; POINT X TO FCB
+-                LDB         FCBTYP,X        ; GET FILE TYPE
++                LDB         <<FCBTYP,X      ; GET FILE TYPE
+                 CMPB        #RANFIL         ; RANDOM FILE?
+                 BEQ         LC815           ; 'BAD FILE MODE' ERROR IF RANDOM
+                 CLRB                        ; FILE NOT EMPTY FLAG - SET TO NOT EMPTY
+@@ -4783,10 +4783,10 @@ DVEC8           TST         DEVNUM          ; CHECK DEVICE NUMBER AND RETURN
+ LCA53           JSR         LC714           ; POINT X TO CORRECT FCB
+                 CLR         DEVNUM          ; SET DEVICE NUMBER TO SCREEN
+ LCA58           STX         FCBTMP          ; SAVE FILE BUFFER POINTER
+-                LDA         FCBTYP,X        ; GET THE TYPE OF THIS FILE
++                LDA         <<FCBTYP,X      ; GET THE TYPE OF THIS FILE
+                 BEQ         LCA4A           ; RETURN IF FILE NOT OPEN
+                 PSHS        A               ; SAVE FILE TYPE
+-                CLR         FCBTYP,X        ; CLOSE THE FILE - ZERO OUT THE FILE TYPE
++                CLR         <<FCBTYP,X      ; CLOSE THE FILE - ZERO OUT THE FILE TYPE
+                 LDB         FCBDRV,X        ; GET DRIVE NUMBER AND
+                 STB         DCDRV           ; SAVE IT IN DSKCON VARIABLE
+                 CMPA        #OUTFIL         ; = CHECK FOR OUTPUT TYPE AND
+@@ -4884,7 +4884,7 @@ LCAE2           CMPU        RNBFAD          ; AT THE BOTTOM OF FREE RANDOM BUFFE
+                 BRA         LCAE2           ; KEEP MOVING BYTES
+ LCAEE           STX         RNBFAD          ; SAVE NEW START OF FREE RANDOM BUFFER AREA
+ LCAF1           JSR         LC725           ; POINT X TO PROPER FILE ALLOCATION TABLE
+-                DEC         FAT0,X          ; REMOVE ONE ACTIVE FILE
++                DEC         <<FAT0,X        ; REMOVE ONE ACTIVE FILE
+                 TST         FAT1,X          ; NEW DATA IN FAT RAM IMAGE?
+                 BEQ         LCAFD           ; NO
+                 JSR         LC6F1           ; WRITE OUT FILE ALLOCATION TABLE TO DISK
+@@ -5037,7 +5037,7 @@ LCBEB           PULS        U               ; SAVE TOP OF STACK
+                 LDB         #$03            ; NUMBER CHARACTERS TO PRINT
+                 JSR         LB9A2           ; SEND EXTENSION TO CONSOLE OUT
+                 BSR         LCC41           ; SEND BLANK TO CONSOLE OUT
+-                LDB         FCBTYP,X        ; GET FILE TYPE
++                LDB         <<FCBTYP,X      ; GET FILE TYPE
+                 CMPB        #10             ; CHECK THE NUMBER OF DECIMAL DIGITS IN
+                 BHS         LCC11           ; ACCB: IF THERE IS ONLY ONE DIGIT,
+                 BSR         LCC41           ; SEND BLANK TO CONSOLE OUT
+@@ -5156,7 +5156,7 @@ LCCDE           BSR         LCCFC           ; BACK UP PTR INPUT POINTER ONE
+ LCCE2           BSR         LCCF6           ; GET A CHAR FROM INPUT BUFFER - RETURN IN ACCA
+                 BEQ         LCCFB           ; RETURN IF BUFFER NOT EMPTY
+                 JSR         LC714           ; POINT X TO START OF FILE BUFFER
+-                LDB         FCBTYP,X        ; GET FILE TYPE
++                LDB         <<FCBTYP,X      ; GET FILE TYPE
+                 CMPB        #RANFIL         ; IS IT RANDOM FILE TYPE?
+                 LBNE        LC334           ; 'INPUT PAST END OF FILE ERROR IF NOT RANDOM
+ LCCF1           LDB         #2*37           ; 'WRITE/INPUT PAST END OF RECORD ERROR IF RANDOM
+@@ -5169,7 +5169,7 @@ LCCFB           RTS
+ ; MOVE THE INPUT POINTER BACK ONE (DISK FILE)
+ LCCFC           PSHS        X,B             ; SAVE REGISTERS ON STACK
+                 JSR         LC714           ; POINT X TO PROPER FCB
+-                LDB         FCBTYP,X        ; GET FILE TYPE OF THIS FCB
++                LDB         <<FCBTYP,X      ; GET FILE TYPE OF THIS FCB
+                 CMPB        #RANFIL         ; IS IT A RANDOM FILE?
+                 BNE         LCD12           ; BRANCH IF NOT A RANDOM FILE
+                 LDD         FCBGET,X        ; GRAB THE RANDOM FILE 'GET' POINTER,
+@@ -5211,7 +5211,7 @@ LCD3D           LDA         DEVNUM          ; GET CURRENT DEVICE NUMBER AND
+                 JSR         LC714           ; POINT (X) TO FILE BUFFER
+                 PULS        A               ; GET OLD DEVICE NUMBER OFF OF THE STACK AND
+                 STA         DEVNUM          ; SAVE IT AS DEVICE NUMBER
+-                TST         FCBTYP,X        ; IS FILE OPEN?
++                TST         <<FCBTYP,X      ; IS FILE OPEN?
+                 LBEQ        LA3FB           ; 'FILE NOT OPEN' ERROR IF NOT OPEN
+                 RTS
+ 
+@@ -5232,7 +5232,7 @@ LOF             BSR         LCD3D           ; POINT X TO FILE BUFFER
+                 ADCA        #$00            ; PROPAGATE CARRY TO MS BYTE OF ACCD
+                 PULS        X               ; GET FCB POINTER BACK
+                 PSHS        A               ; SAVE ACCA ON STACK
+-                LDA         FCBTYP,X        ; GET FILE TYPE OF THIS FCB AND
++                LDA         <<FCBTYP,X      ; GET FILE TYPE OF THIS FCB AND
+                 CMPA        #RANFIL         ; CHECK TO SEE IF IT'S A RANDOM FILE
+                 PULS        A               ; RESTORE ACCA
+                 BNE         LCD3A           ; IF NOT A RANDOM FILE, THEN THE TOTAL NUMBER OF SECTORS IN THE FILE
+@@ -5354,7 +5354,7 @@ DXIVEC          CMPB        #($9A-$80)*2    ; MODIFIED TOKEN FOR POS
+                 TST         DEVNUM          ; CHECK DEVICE NUMBER AND BRANCH
+                 BLE         LCE80           ; IF NOT A DISK FILE
+                 JSR         LC714           ; POINT X TO FCB
+-                LDB         FCBTYP,X        ; GET FILE TYPE
++                LDB         <<FCBTYP,X      ; GET FILE TYPE
+                 CMPB        #RANFIL         ; DIRECT/RANDOM FILE?
+                 BNE         LCE80           ; BRANCH IF NOT A RANDOM FILE
+                 PULS        A               ; RESTORE DEVICE NUMBER
+@@ -5720,7 +5720,7 @@ LD12E           LDU         #FCBV1          ; POINT U TO FILE BUFFER POINTERS
+                 LDX         FCBADR          ; POINT X TO START OF BUFFERS
+                 CLRB                        ; RESET FILE COUNTER
+ LD135           STX         ,U++            ; STORE FILE ADDRESS IN VECTOR TABLE
+-                CLR         FCBTYP,X        ; RESET FILE TYPE TO CLOSED
++                CLR         <<FCBTYP,X      ; RESET FILE TYPE TO CLOSED
+                 LEAX        FCBLEN,X        ; GO TO NEXT FCB
+                 INCB                        ; INCREMENT FILE COUNTER
+                 CMPB        FCBACT          ; CLOSE ALL ACTIVE BUFFERS AND SYSTEM FCB
+diff --git a/supbas.asm b/supbas.asm
+index 134cf22..333193a 100644
+--- a/supbas.asm
++++ b/supbas.asm
+@@ -548,7 +548,7 @@ INTIMAGE        FCB         $55             ; VALIDITY FLAG (INTERRUPT VECTORS V
+                 LBRA        (INTIMAGE+1)-(INT.JUMP)+SWIVEC
+                 LBRA        (INTIMAGE+1)-(INT.JUMP)+NMIVEC
+ 
+-ENDMOVE         =           *               ; THE END OF THE DATA THAT'S COPIED TO RAM
++ENDMOVE                                     ; = * THE END OF THE DATA THAT'S COPIED TO RAM
+ 
+ 
+ ; -----------------------------------------------------------------------------
+@@ -971,7 +971,7 @@ AUTHPIC         FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,
+                 FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+                 FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+ 
+-ENDPIC          =           *               ; THE END OF THE AUTHOR'S PICTURE DATA
++ENDPIC                                      ; = * THE END OF THE AUTHOR'S PICTURE DATA
+ 
+ ; -----------------------------------------------------------------------------
+                 if          COCOPAL<1
+-- 
+2.40.1.windows.1
+
