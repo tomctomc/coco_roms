@@ -50,6 +50,30 @@ AUTO_EXTBAS_BUILD= ${A09} -Bauto_tmp -Y$@       auto_symbols_bas.asm    extbas.a
 #  SUPBAS20P_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_extbas.asm supbas.asm   -dCOCOPAL=1
 
 # =============================================================================
+# lwasm assembler
+# (available from http://lwtools.projects.l-w.ca)
+# =============================================================================
+
+#LWASM=lwasm --6809 --format=raw --list-nofiles --pragma=noindex0tonone
+
+#  AUTO_COCO_BUILD= ${LWASM} --symbol-dump=$@        cocodefs.asm
+#   AUTO_BAS_BUILD= ${LWASM} --symbol-dump=$@        auto_symbols_coco.asm   bas.asm      -DVERBAS=20
+#AUTO_EXTBAS_BUILD= ${LWASM} --symbol-dump=$@        auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=20
+
+#      BAS10_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_coco.asm   bas.asm      -DVERBAS=10
+#      BAS11_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_coco.asm   bas.asm      -DVERBAS=11
+#      BAS12_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_coco.asm   bas.asm      -DVERBAS=12
+#      BAS13_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_coco.asm   bas.asm      -DVERBAS=13
+#      BAS20_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_coco.asm   bas.asm      -DVERBAS=20
+#   EXTBAS10_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=10
+#   EXTBAS11_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=11
+#   EXTBAS20_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=20
+#     DISK10_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_extbas.asm disk.asm     -DVERDISK=10
+#     DISK11_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_extbas.asm disk.asm     -DVERDISK=11
+#   SUPBAS20_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_extbas.asm supbas.asm   -DCOCOPAL=0
+#  SUPBAS20P_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_extbas.asm supbas.asm   -DCOCOPAL=1
+
+# =============================================================================
 # mamou assembler
 # (available from http://sourceforge.net/projects/toolshed)
 # =============================================================================
