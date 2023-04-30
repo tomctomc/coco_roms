@@ -93,7 +93,7 @@ SC02F           LDD         ,X++            ; GRAB TWO BYTES
                 BCS         SC02F           ; KEEP GOING UNTIL DONE
                 JMP         $4000           ; JUMP INTO THE MOVED CODE
 ; THE REST OF THE CODE IS MOVED INTO RAM TO BE EXECUTED
-BEGMOVE         LEAS        $-01,S          ; MAKE A TEMPORARY STORAGE LOCATION ON THE STACK
+BEGMOVE         LEAS        -01,S           ; MAKE A TEMPORARY STORAGE LOCATION ON THE STACK
                 NOP                         ;
                 NOP                         ;
                 NOP                         ;
@@ -141,7 +141,7 @@ SC091           STA         ,U++            ; CLEAR THE BIT AND SKIP TO THE NEXT
                 STA         SAMREG+9        ; SET THE VIDEO DISPLAY PAGE TO $400
                 TFR         B,DP            ; SET THE DIRECT PAGE TO PAGE ZERO
                 CLR         $02,X           ; STROBE ALL KEYBOARD COLUMNS; USELESS INSTRUCTION
-                STA         $-03,U          ; SAMREG+21 (FFD5); SELECT RAM PAGE 1; USELESS IN THE COCO 3
+                STA         -03,U           ; SAMREG+21 (FFD5); SELECT RAM PAGE 1; USELESS IN THE COCO 3
                 LDX         #PIA0           ; POINT X TO PIA 0; WHY?? IT'S ALREADY POINTED THERE
                 LDB         #$DF            ; COLUMN TWO STROBE
                 STB         $02,X           ; STROBE THE COLUMNS
@@ -157,7 +157,7 @@ SC0B1           ASRB                        ;  SHIFT THE COLUMN STROBE -- WASTED
                 COMA                        ;
                 ANDA        #$40            ; KEEP ONLY ROW 6
                 BEQ         SC0C2           ; BRANCH IF KEY NOT DOWN
-                LEAY        $-01,Y          ; LET'S CHECK FOT EH ALT KEY NOW
+                LEAY        -01,Y           ; LET'S CHECK FOT EH ALT KEY NOW
                 BNE         SC0B1
                 LBRA        SC1F0           ; GO DISPLAY THE HI-RES PICTURE IF CONTROL AND ALT KEYS ARE DOWN
 SC0C2           LDA         #COCO+MMUEN+MC3+MC1 ; TURN OFF THE NORMAL SCS; THE EXTERNAL DISK CONTROLLER
@@ -1376,7 +1376,7 @@ EBCOMTAB        FCB         23              ; 23 BASIC 2.0 COMMANDS
 ALINK3          LEAU        10,U            ; SKIP TO THE NEXT COMMAND INTERPRETATION TABLE
                 TST         ,U              ; IS THIS A VALID TABLE?
                 LBNE        LB7F9           ; YES - RE-ENTER THE MAIN STREAM CODE
-                LEAX        $-01,X          ; UNNECESSARY INSTRUCTION; NEXT ONE SHOULD JUST BE LDA -1,X
+                LEAX        -01,X           ; UNNECESSARY INSTRUCTION; NEXT ONE SHOULD JUST BE LDA -1,X
                 LDA         ,X+             ; GET THE TOKEN FROM BASIC'S INPUT LINE
                 ANDA        #$7F            ; STRIP OFF THE $80 COMMAND TOKEN BIAS
                 CMPA        #$62            ; FIRST LEGAL BASIC 2.0 COMMAND TOKEN NUMBER
@@ -2195,7 +2195,7 @@ SE8B4           CLRB                        ;  PRESET FLAG
 SE8EB           LDB         #'F             ; CHECK FOR FILL OPTION
                 JSR         LB26F           ; GO DO A SYNTAX CHECK FOR AN 'F'
                 BRA         SE8F6           ; GO 'FILL' THE BOX
-SE8F2           LEAX        $-01,X          ; MOVE VERTICAL COORD UP ONE
+SE8F2           LEAX        -01,X           ; MOVE VERTICAL COORD UP ONE
 SE8F4           STX         VERBEG          ; SAVE THE NEW VERTICAL START COORDINATE
 ; DRAW A SERIES OF HORIZONTAL LINES FROM VERTICAL START TO VERTICAL END
 SE8F6           JSR         >SE906          ; DRAW A HORIZONTAL LINE
@@ -2223,7 +2223,7 @@ SE921           STA         VD7             ; SAVEL PIXEL MASK
                 JSR         >SE788          ; TURN ON PIXEL
                 LDA         VD7             ; GET OLD PIXEL MASK
                 JSR         ,U              ; MOVE TO NEXT ONE TO RIGHT
-                LEAY        $-01,Y          ; DEC COUNTER
+                LEAY        -01,Y           ; DEC COUNTER
                 BNE         SE921           ; LOOP IF NOT DONE
                 RTS
 SE92F           PULS        A,B             ; CLEAN UP STACK
@@ -2280,7 +2280,7 @@ SE98D           JSR         ,U              ; CONVERT (X,Y) COORDINATES TO ABSOL
                 JSR         >SE788          ; TURN ON A PIXEL
                 LDX         $06,S           ; GET DISTANCE COUNTER
                 BEQ         SE9AD           ; BRANCH IF LINE COMPLETELY DRAWN
-                LEAX        $-01,X          ; DECR ONE
+                LEAX        -01,X           ; DECR ONE
                 STX         $06,S           ; SAVE IT
                 JSR         [$08,S]         ; INCR/DECR COORDINATE WHICH HAS THE SMALLEST DELTA
                 LDD         ,S              ; GET THE MINOR COORDINATE INCREMENT COUNTER
@@ -2304,11 +2304,11 @@ SE9B8           LDX         VERBEG          ; GET VERTICAL COORD
                 STX         VERBEG          ; SAVE NEW VERTICAL COORD
                 RTS
 SE9BF           LDX         HORBEG          ; GET HORIZONTAL COORD
-                LEAX        $-01,X          ; SUBTRACT ONE
+                LEAX        -01,X           ; SUBTRACT ONE
                 STX         HORBEG          ; SAVE NEW HORIZONTAL COORD
                 RTS
 SE9C6           LDX         VERBEG          ; GET VERTICAL COORD
-                LEAX        $-01,X          ; SUBTRACT ONE
+                LEAX        -01,X           ; SUBTRACT ONE
                 STX         VERBEG          ; SAVE NEW VERTICAL COORD
 SE9CC           RTS
 SE9CD           LDD         VEREND          ; GET VERTICAL ENDING ADDRESS
@@ -2450,7 +2450,7 @@ SEAC7           ASLB                        ;  MUL BY 2
                 PSHS        U               ; SAVE SIN/COS TABLE ENTRY
                 JSR         >SEBBD          ; CALCULATE HORIZONTAL OFFSET
                 PULS        U               ; GET BACK SIN/COS TABLE POINTER
-                LEAU        $-02,U          ; MOVE TO COSINE (VERTICAL)
+                LEAU        -02,U           ; MOVE TO COSINE (VERTICAL)
                 PSHS        X               ; SAVE HORIZONTAL OFFSET
                 JSR         >SEBBD          ; CALCULATE VERTICAL OFFSET
                 PULS        Y               ; PUT HORIZONTAL OFFSET IN Y
@@ -2673,7 +2673,7 @@ SEC6E           STB         VERBEG+1        ; SAVE CURRENT VERTICAL COORD
                 BEQ         SEC86           ; BRANCH IF NO PIXELS WERE PAINTED
                 CMPD        #3              ; SEE IF FEWER THAN 3 PIXELS WERE PAINTED
                 BCS         SEC80           ; BRANCH IF NO NEED TO CHECK FOR PAINTABLE DATA
-                LEAX        $-02,X          ; MOVE HORIZONTAL COORD TWO PIXELS TO THE LEFT
+                LEAX        -02,X           ; MOVE HORIZONTAL COORD TWO PIXELS TO THE LEFT
                 JSR         >SED15          ; SAVE A BLOCK OF PAINT DATA IN THE DIRECTION OPPOSITE TO UP/DN FLAG
 SEC80           JSR         >SED01          ; CONTINUE PAINTING LINE TO THE RIGHT
 SEC83           JSR         >SED2E          ; SAVE A BLOCK OF PAINT DATA IN THE SAME DIRECTION AS UP/DN FLAG
@@ -3698,7 +3698,7 @@ SF5DD           CMPD        VD3             ; COMPARE THE SUBCOMMAND TO THE MAXI
                 BCC         SF5C1           ; BRANCH IF MORE NUMERIC DATA TO CONVERT
 SF5F2           INC         VD8             ; ADD ONE TO THE COMMAND COUNTER
                 LDX         VD9             ;
-                LEAX        $-01,X          ;
+                LEAX        -01,X           ;
                 STX         VD9             ; MOVE THE COMMAND STRING BACK ONE
 SF5FA           LDD         VD3             ; LOAD ACCD WITH THE VALUE OF THE SUBCOMMAND
                 RTS
@@ -3925,8 +3925,8 @@ SF7E2           PSHS        B,A
                 LDB         >H.CRSATT       ; GET THE ATTRIBUTES RAM IMAGE
                 STD         ,X              ; SAVE A SPACE ON THE SCREEN AT THE OLD CURSOR POSITION
                 ORB         #$40            ; FORCE THE UNDERLINE ATTRIBUTE
-                STD         $-02,X          ; SAVE AN UNDERLINED SPACE AS THE NEW CURSOR CHARACTER
-                LEAX        $-02,X          ; MOVE THE CURSOR POINTER BACK TWO
+                STD         -02,X           ; SAVE AN UNDERLINED SPACE AS THE NEW CURSOR CHARACTER
+                LEAX        -02,X           ; MOVE THE CURSOR POINTER BACK TWO
                 STX         >H.CRSLOC       ; AND SAVE IT IN RAM
                 LDD         >H.CURSX        ; GET THE COLUMN AND ROW POSITION OF THE OLD CURSOR
                 DECA                        ;  BUMP THE COLUMN NUMBER DOWN ONE
@@ -4089,7 +4089,7 @@ HSTAT           TST         HRWIDTH         ; IS THE HI-RES TEXT MODE ENABLED?
                 STA         ,X              ; SAVE THE CURSOR CHARACTER IN THE NEWLY RESERVED STRING SPACE
                 JSR         LB54C           ; PUT THE STRING ONTO THE STRING STACK
                 LDX         VARDES          ; POINT TO THE STRING'S VARIABLE DESCRIPTOR
-                TST         $-01,X          ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
+                TST         -01,X          ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
                 LBPL        LB151           ; TYPE MISMATCH ERROR IF NUMERIC VARIABLE
                 LDY         FPA0+2          ; POINT Y TO THE START OF THE STRING DESCRIPTOR
                 LDB         #$05            ; VARIABLE DESCRIPTORS ARE 5 BYTES LONG
@@ -4098,7 +4098,7 @@ SF963           LDA         ,Y+             ; COPY THE DATA FROM THE STRING DESC
                 DECB                        ;  DECREMENT THE DESCRIPTOR COUNTER
                 BNE         SF963           ; LOOP UNTIL DONE
                 LDX         TEMPPT          ; THIS CODE IS DESIGNED TO REMOVE THE ABOVE ALLOCATED STRING FROM
-                LEAX        $-05,X          ; THE STRING STACK - IT MAY CAUSE BUGS BECAUSE IT DOESN'T RESET
+                LEAX        -05,X           ; THE STRING STACK - IT MAY CAUSE BUGS BECAUSE IT DOESN'T RESET
                 STX         TEMPPT          ; LASTPT; LDX LASTPT, JSR LB675 WOULD BE MUCH BETTER
                 JSR         LB357           ; EVALUATE A VARIABLE; RETURN X POINTING TO THE VARIABLE DESCRIPTOR
                 STX         VARDES          ; SAVE THE VARIABLE DESCRIPTOR
@@ -4107,7 +4107,7 @@ SF963           LDA         ,Y+             ; COPY THE DATA FROM THE STRING DESC
                 LDB         VCB+1           ; GET THE CURSOR ATTRIBUTES
                 JSR         GIVABF          ; CONVERT ACCD TO FLOATING POINT
                 LDX         VARDES          ; POINT X TO THE VARIABLE DESCRIPTOR
-                TST         $-01,X          ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
+                TST         -01,X           ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
                 LBMI        LB151           ; TYPE MISMATCH ERROR IF STRING VARIABLE
                 JSR         LBC35           ; PACK FPA0 AND STORE IT IN THE DESCRIPTOR POINTED TO BY X
                 JSR         LB357           ; EVALUATE A VARIABLE; RETURN X POINTING TO THE VARIABLE DESCRIPTOR
@@ -4117,7 +4117,7 @@ SF963           LDA         ,Y+             ; COPY THE DATA FROM THE STRING DESC
                 LDB         VCD             ; GET THE X COORDINATE OF THE CURSOR POSITION
                 JSR         GIVABF          ; CONVERT ACCD TO FLOATING POINT
                 LDX         VARDES          ; POINT X TO THE VARIABLE DESCRIPTOR
-                TST         $-01,X          ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
+                TST         -01,X           ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
                 LBMI        LB151           ; TYPE MISMATCH ERROR IF STRING VARIABLE
                 JSR         LBC35           ; PACK FPA0 AND STORE IT IN THE DESCRIPTOR POINTED TO BY X
                 JSR         LB357           ; EVALUATE A VARIABLE; RETURN X POINTING TO THE VARIABLE DESCRIPTOR
@@ -4126,7 +4126,7 @@ SF963           LDA         ,Y+             ; COPY THE DATA FROM THE STRING DESC
                 LDB         VCD+1           ; GET THE Y COORDINATE OF THE CURSOR POSITION
                 JSR         GIVABF          ; CONVERT ACCD TO FLOATING POINT
                 LDX         VARDES          ; POINT X TO THE VARIABLE DESCRIPTOR
-                TST         $-01,X          ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
+                TST         -01,X           ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
                 LBMI        LB151           ; TYPE MISMATCH ERROR IF STRING VARIABLE
                 JSR         LBC35           ; PACK FPA0 AND STORE IT IN THE DESCRIPTOR POINTED TO BY X
                 RTS

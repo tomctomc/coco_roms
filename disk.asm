@@ -403,7 +403,7 @@ LC2EA           LDD         FCBREC,X        ; GET RECORD NUMBER
                 PSHS        X,B,A           ; THESE ARE THE INITIAL VALUES OF A TEMPORARY
 ; RECORD LENGTH COUNTER AND RANDOM BUFFER
 ; POINTER WHICH ARE MAINTAINED ON THE STACK
-                LEAX        $-2,U           ; POINT X TO (RECORD NUMBER -1)
+                LEAX        -2,U            ; POINT X TO (RECORD NUMBER -1)
                 JSR         >L9FB5          ; MULT (UNSIGNED) RECORD LENGTH X (RECORD NUMBER -1)
                 PSHS        U,Y             ; SAVE PRODUCT ON THE STACK
                 LDA         ,S+             ; CHECK MS BYTE OF PRODUCT
@@ -778,7 +778,7 @@ LC5C4           PSHS        X,B             ; SAVE REGISTERS
                 STD         FCBGET,X        ; SAVE IT IN FCB
                 LDX         FCBBUF,X        ; POINT X TO START OF RANDOM FILE BUFFER AND
                 LEAX        D,X             ; ADD THE RECORD COUNTER TO IT
-                LDA         $-1,X           ; GET A CHARACTER FROM THE BUFFER
+                LDA         -1,X            ; GET A CHARACTER FROM THE BUFFER
                 PULS        B,X,PC          ; RESTORE REGISTERS AND RETURN
 ; GET A BYTE FROM A SEQUENTIAL FILE
 LC5EC           LDB         FCBCFL,X        ; TEST THE CACHE FLAG AND BRANCH IF AN
