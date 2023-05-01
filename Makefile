@@ -25,7 +25,53 @@ AUTO_EXTBAS_BUILD= ${A09} -Bauto_tmp -Y$@       auto_symbols_bas.asm    extbas.a
    SUPBAS20_BUILD= ${A09} -B$@ -L${@:.rom=.lst} auto_symbols_extbas.asm supbas.asm   -DCOCOPAL=0
   SUPBAS20P_BUILD= ${A09} -B$@ -L${@:.rom=.lst} auto_symbols_extbas.asm supbas.asm   -DCOCOPAL=1
 
+# =============================================================================
+# asm6809 assembler
+# (available from https://www.6809.org.uk/asm6809/)
+# =============================================================================
 
+#ASM6809=asm6809 --6809 --setdp=0
+
+#  AUTO_COCO_BUILD= ${ASM6809} --symbols=$@              cocodefs.asm
+#   AUTO_BAS_BUILD= ${ASM6809} --symbols=$@              auto_symbols_coco.asm   bas.asm      -dVERBAS=20
+#AUTO_EXTBAS_BUILD= ${ASM6809} --symbols=$@              auto_symbols_bas.asm    extbas.asm   -dVEREXTBAS=20
+
+#      BAS10_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_coco.asm   bas.asm      -dVERBAS=10
+#      BAS11_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_coco.asm   bas.asm      -dVERBAS=11
+#      BAS12_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_coco.asm   bas.asm      -dVERBAS=12
+#      BAS13_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_coco.asm   bas.asm      -dVERBAS=13
+#      BAS20_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_coco.asm   bas.asm      -dVERBAS=20
+#   EXTBAS10_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_bas.asm    extbas.asm   -dVEREXTBAS=10
+#   EXTBAS11_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_bas.asm    extbas.asm   -dVEREXTBAS=11
+#   EXTBAS20_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_bas.asm    extbas.asm   -dVEREXTBAS=20
+#     DISK10_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_extbas.asm disk.asm     -dVERDISK=10
+#     DISK11_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_extbas.asm disk.asm     -dVERDISK=11
+#   SUPBAS20_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_extbas.asm supbas.asm   -dCOCOPAL=0
+#  SUPBAS20P_BUILD= ${ASM6809} -o$@ --listing=${@:.rom=.lst} --symbols=${@:.rom=.sym} auto_symbols_extbas.asm supbas.asm   -dCOCOPAL=1
+
+# =============================================================================
+# lwasm assembler
+# (available from http://lwtools.projects.l-w.ca)
+# =============================================================================
+
+#LWASM=lwasm --6809 --format=raw --list-nofiles --pragma=noindex0tonone
+
+#  AUTO_COCO_BUILD= ${LWASM} --symbol-dump=$@        cocodefs.asm
+#   AUTO_BAS_BUILD= ${LWASM} --symbol-dump=$@        auto_symbols_coco.asm   bas.asm      -DVERBAS=20
+#AUTO_EXTBAS_BUILD= ${LWASM} --symbol-dump=$@        auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=20
+
+#      BAS10_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_coco.asm   bas.asm      -DVERBAS=10
+#      BAS11_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_coco.asm   bas.asm      -DVERBAS=11
+#      BAS12_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_coco.asm   bas.asm      -DVERBAS=12
+#      BAS13_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_coco.asm   bas.asm      -DVERBAS=13
+#      BAS20_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_coco.asm   bas.asm      -DVERBAS=20
+#   EXTBAS10_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=10
+#   EXTBAS11_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=11
+#   EXTBAS20_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=20
+#     DISK10_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_extbas.asm disk.asm     -DVERDISK=10
+#     DISK11_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_extbas.asm disk.asm     -DVERDISK=11
+#   SUPBAS20_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_extbas.asm supbas.asm   -DCOCOPAL=0
+#  SUPBAS20P_BUILD= ${LWASM} -o$@ -l >${@:.rom=.lst} auto_symbols_extbas.asm supbas.asm   -DCOCOPAL=1
 
 # =============================================================================
 # mamou assembler

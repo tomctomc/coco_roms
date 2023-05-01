@@ -73,7 +73,7 @@ SC00D           STA         ,X+             ; SAVE THE COLOR IN THE PALETTE REGI
                 DECB                        ;  BUMP COUNTER
                 BNE         SC00D           ; LOOP UNTIL ALL PALETTE REGISTERS DONE
                 LDX         #MMUREG         ; POINT X TO THE MMU REGISTERS
-                LEAY        MMUIMAGE,PC     ; POINT Y TO THE MMU REGISTER IMAGES
+                LEAY        MMUIMAGE,PCR    ; POINT Y TO THE MMU REGISTER IMAGES
                 LDB         #16             ; 16 MMU REGISTERS
 SC01B           LDA         ,Y+             ; GET A BYTE FROM THE IMAGE
                 STA         ,X+             ; SAVE IT IN THE MMU REGISTER
@@ -83,7 +83,7 @@ SC01B           LDA         ,Y+             ; GET A BYTE FROM THE IMAGE
                 STA         INIT0           ; AND TURN ON THE NORMAL SPARE CHIP SELECT
 ; MOVE THE INITIALIZATION CODE FROM ROM TO RAM($4000); THIS IS DONE IN
 ; PREPARATION FOR MOVING BASIC FROM ROM TO RAM.
-                LEAX        BEGMOVE,PC      ; POINT TO START OF ROM CODE
+                LEAX        >BEGMOVE,PCR    ; POINT TO START OF ROM CODE
                 LDY         #$4000          ; RAM LOAD ADDRESS
 SC02F           LDD         ,X++            ; GRAB TWO BYTES
                 LDU         ,X++            ; GRAB TWO MORE BYTES
@@ -93,7 +93,7 @@ SC02F           LDD         ,X++            ; GRAB TWO BYTES
                 BCS         SC02F           ; KEEP GOING UNTIL DONE
                 JMP         $4000           ; JUMP INTO THE MOVED CODE
 ; THE REST OF THE CODE IS MOVED INTO RAM TO BE EXECUTED
-BEGMOVE         LEAS        $-01,S          ; MAKE A TEMPORARY STORAGE LOCATION ON THE STACK
+BEGMOVE         LEAS        -01,S           ; MAKE A TEMPORARY STORAGE LOCATION ON THE STACK
                 NOP                         ;
                 NOP                         ;
                 NOP                         ;
@@ -103,7 +103,7 @@ BEGMOVE         LEAS        $-01,S          ; MAKE A TEMPORARY STORAGE LOCATION 
                 STA         V_TIMER
                 STA         V_TIMER+1       ; SET THE TIMER TO $FFFF AND START IT COUNTING
 ; SET UP THE VIDEO CONTROL REGISTERS
-                LEAX        VIDIMAGE,PC     ; POINT X TO THE VIDEO CONTROL REGISTER IMAGE
+                LEAX        VIDIMAGE,PCR    ; POINT X TO THE VIDEO CONTROL REGISTER IMAGE
                 LDY         #VIDEOMOD       ; POINT Y TO THE VIDEO CONTROL REGISTERS
 SC056           LDA         ,X+             ; GET A BYTE FROM THE IMAGE
                 STA         ,Y+             ; SAVE IT IN THE VIDEO REGISTER
@@ -141,7 +141,7 @@ SC091           STA         ,U++            ; CLEAR THE BIT AND SKIP TO THE NEXT
                 STA         SAMREG+9        ; SET THE VIDEO DISPLAY PAGE TO $400
                 TFR         B,DP            ; SET THE DIRECT PAGE TO PAGE ZERO
                 CLR         $02,X           ; STROBE ALL KEYBOARD COLUMNS; USELESS INSTRUCTION
-                STA         $-03,U          ; SAMREG+21 (FFD5); SELECT RAM PAGE 1; USELESS IN THE COCO 3
+                STA         -03,U           ; SAMREG+21 (FFD5); SELECT RAM PAGE 1; USELESS IN THE COCO 3
                 LDX         #PIA0           ; POINT X TO PIA 0; WHY?? IT'S ALREADY POINTED THERE
                 LDB         #$DF            ; COLUMN TWO STROBE
                 STB         $02,X           ; STROBE THE COLUMNS
@@ -157,7 +157,7 @@ SC0B1           ASRB                        ;  SHIFT THE COLUMN STROBE -- WASTED
                 COMA                        ;
                 ANDA        #$40            ; KEEP ONLY ROW 6
                 BEQ         SC0C2           ; BRANCH IF KEY NOT DOWN
-                LEAY        $-01,Y          ; LET'S CHECK FOT EH ALT KEY NOW
+                LEAY        -01,Y           ; LET'S CHECK FOT EH ALT KEY NOW
                 BNE         SC0B1
                 LBRA        SC1F0           ; GO DISPLAY THE HI-RES PICTURE IF CONTROL AND ALT KEYS ARE DOWN
 SC0C2           LDA         #COCO+MMUEN+MC3+MC1 ; TURN OFF THE NORMAL SCS; THE EXTERNAL DISK CONTROLLER
@@ -194,7 +194,7 @@ SC0F6           LDX         #DOSBAS         ; POINT TO THE END OF THE COLOR BASI
                 LDY         #EXBAS          ; POINT TO START OF EXTENDED BASIC
                 LBSR        SC1AA           ; MOVE COLOR AND EXTENDED BASIC ROM TO RAM
 ; PATCH COLOR AND EXTENDED BASIC
-                LEAY        PATCHTAB,PC     ; POINT Y TO THE PATCH TABLE
+                LEAY        PATCHTAB,PCR    ; POINT Y TO THE PATCH TABLE
                 LDA         ,Y+             ; GET THE NUMBER OF PATCHES TO BE MADE
 SC106           PSHS        A               ; SAVE THE PATCH COUNTER
                 LDX         ,Y++            ; GET THE ADDRESS WHERE THE PATCH IS TO BE PLACED
@@ -228,7 +228,7 @@ SC137           CLR         SAMREG+30       ; ENABLE ROM MODE
                 LDY         #SUPERVAR       ; POINT TO THE START OF ENHANCED BASIC ROM
                 BSR         SC1AA           ; COPY ROM TO RAM
                 LBSR        SC1DE           ; PATCH THE ENHANCEMENTS (MOVE THE AUTHORS' DECODED NAMES)
-                LEAY        INTIMAGE,PC     ; POINT X TO THE INTERRUPT JUMP VECTOR IMAGES
+                LEAY        INTIMAGE,PCR    ; POINT X TO THE INTERRUPT JUMP VECTOR IMAGES
                 LDX         #INT.FLAG       ; DESTINATION FOR INTERRUPT VECTORS
                 LDB         #19             ; 6 INTERRUPT JUMP ADDRESSES * 3 BYTES/JUMP ADDRESS + VALIDITY FLAG
                 LBSR        MOVE.XY         ; COPY THE INTERRUPT JUMP VECTORS
@@ -265,7 +265,7 @@ SC18C           LDA         #COCO+MMUEN+MC3+MC2+MC1
                 LDA         #$20            ; ALTERNATE COLOR SET FLAG
                 STA         VIDEOMOD        ; FORCE THE ALTERNATE COLOR SET
 SC19A           LDX         #PALETREG       ; POINT X TO THE PALETTE REGISTERS
-                LEAY        PALIMAGE,PC     ; POINT Y TO THE PALETTE REGISTER IMAGES
+                LEAY        PALIMAGE,PCR    ; POINT Y TO THE PALETTE REGISTER IMAGES
                 LDB         #16             ; 16 PALETTE REGISTERS
                 BSR         MOVE.XY         ; FILL THE PALETTE REGISTERS FROM THEIR IMAGE
                 LEAS        $01,S           ; REMOVE THE TEMPORARY STORAGE BYTE
@@ -297,7 +297,7 @@ MOVE.XY         LDA         ,Y+
                 RTS
 ; DECODE AND COPY THE AUTHOR'S NAMES INTO RAM
 SC1DE           LDX         #AUTHORMS       ; POINT X TO THE DESTINATION FOR THE AUTHORS' NAMES
-                LEAY        SC30D,PC        ; POINT Y TO THE CODED NAMES OF THE AUTHORS
+                LEAY        SC30D,PCR       ; POINT Y TO THE CODED NAMES OF THE AUTHORS
                 LDB         #21             ; 21 BYTES IN THE AUTHORS' NAMES
 SC1E7           LDA         ,Y+             ; GET A CODED BYTE OF THE AUTHORS' NAMES
                 COMA                        ;  DECODE THE BYTE
@@ -485,7 +485,7 @@ PATCHTAB        FCB         27              ; NUMBER OF PATCHES
 ; PATCH 23 - 'CLS' ROUTINE
                 FDB         CLS             ; PATCH23 $A910
                 FCB         $03
-                JMP         L8C46           ; $8C46
+                JMP         L8C36+16        ; $8C46
 ; PATCH 24 - CURSOR BLINK
                 FDB         LA1B1           ; PATCH24 $A1B1
                 FCB         $08
@@ -516,7 +516,7 @@ SC322           LDA         DOSBAS+4        ; LOOK FOR THE MS BYTE OF THE ADDRES
                 CMPA        #$D6            ; IF IT IS D6, THEN WE HAVE DISK BASIC 1.0
                 BNE         SC334           ; BRANCH IF DISK BASIC 1.1
                 LDX         #$C0C6          ; POINT X TO DISK BASIC 1.0 PATCH ADDRESS ($C0C6)
-                LEAY        SC355,PC        ; POINT Y TO THE PATCH DATA
+                LEAY        >SC355,PCR      ; POINT Y TO THE PATCH DATA
                 LDB         ,Y+             ; GET THE NUMBER OF BYTES TO PATCH
                 BRA         SC349
 SC334           LDX         #$C8B4          ; POINT X TO DISK BASIC 1.1 KEYBOARD PATCH ($C8B4)
@@ -526,7 +526,7 @@ SC33B           STA         ,X+             ; STORE A NOP
                 DECB                        ;  DECREMENT COUNTER
                 BNE         SC33B           ; LOOP UNTIL DONE
                 LDX         #$C0D9          ; POINT X TO DISK BASIC 1.1 PATCH ADDRESS ($C0D9)
-                LEAY        SC351,PC        ; POINT Y TO THE PATCH DATA
+                LEAY        >SC351,PCR      ; POINT Y TO THE PATCH DATA
                 LDB         ,Y+             ; GET THE NUMBER OF BYTES TO PATCH
 SC349           LDA         ,Y+             ; GET A PATCH BYTE
                 STA         ,X+             ; STORE THE PATCH BYTE
@@ -1156,7 +1156,7 @@ IM.TEXT         FCB         COCO+MMUEN+MC3+MC2 ; FF90
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-                FCB         $00 | $08
+                FCB         $08             ; $00 | $08
 ; -----------------------------------------------------------------------------
                 endif
 ; -----------------------------------------------------------------------------
@@ -1173,7 +1173,7 @@ SE03B           FCB         MMUEN+MC3+MC2   ; FF90
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-                FCB         $03 | $08
+                FCB         $0B             ; $03 | $08
 ; -----------------------------------------------------------------------------
                 endif
 ; -----------------------------------------------------------------------------
@@ -1190,7 +1190,7 @@ SE044           FCB         MMUEN+MC3+MC2   ; FF90
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-                FCB         $03 | $08
+                FCB         $0B             ; $03 | $08
 ; -----------------------------------------------------------------------------
                 endif
 ; -----------------------------------------------------------------------------
@@ -1225,7 +1225,7 @@ IM.GRAPH        FCB         MMUEN+MC3+MC2   ; FF90
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-                FCB         $80 | $08
+                FCB         $88             ; $80 | $08
 ; -----------------------------------------------------------------------------
                 endif
 ; -----------------------------------------------------------------------------
@@ -1242,7 +1242,7 @@ SE079           FCB         MMUEN+MC3+MC2   ; FF90
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-                FCB         $80 | $08
+                FCB         $88             ; $80 | $08
 ; -----------------------------------------------------------------------------
                 endif
 ; -----------------------------------------------------------------------------
@@ -1261,14 +1261,14 @@ SE08B           LDA         ,X+             ; GET A BYTE
                 PULS        A,X,Y,PC
 ; PROGRAM THE MMU REGISTERS; ENTER WITH X POINTING TO THE DATA TO PLACE INTO THE MMU REGISTERS
 SETMMU          PSHS        Y,X,B,A
-                LEAX        IM.MMU,PC       ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
+                LEAX        >IM.MMU,PCR     ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
                 BSR         SE0F1           ; MOVE 16 BYTES INTO THE MMU REGISTERS
                 PULS        A,B,X,Y,PC
 ; PLACE A BLOCK INTO LOGICAL ADDRESS SPACE BLOCK 0.
 ; ENTER WITH ACCB CONTAINING THE BLOCK NUMBER TO BE PLACED INTO THE LOGICAL ADDRESS SPACE
 ; EXIT WITH BLOCK 7.0 REPLACED IN BLOCK 0 OF THE LOGICAL ADDRESS SPACE RAM IMAGE
 SELBLOK0        PSHS        Y,X,B,A
-                LEAX        IM.MMU,PC       ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
+                LEAX        >IM.MMU,PCR     ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
                 PSHS        X               ; TEMP SAVE
                 STB         ,X              ; SAVE THE NEW BLOCK NUMBER IN LOGICAL ADDRESS SPACE BLOCK 0 (TR0)
                 BSR         SE0F1           ; COPY THE RAM IMAGE OF THE MMU REGISTERS INTO THE MMU REGISTERS
@@ -1279,7 +1279,7 @@ SELBLOK0        PSHS        Y,X,B,A
 ; PLACE THE HI-RES TEXT SCREEN INTO LOGICAL ADDRESS SPACE BLOCK 1
 ; EXIT WITH BLOCK 7.1 REPLACED INTO BLOCK 1 OF THE LOGICAL ADDRESS SPACE RAM IMAGE
 SELTEXT         PSHS        Y,X,B,A
-                LEAX        IM.MMU,PC       ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
+                LEAX        >IM.MMU,PCR     ; POINT TO THE RAM IMAGE OF THE MMU REGISTERS
                 PSHS        X               ; TEMP SAVE
                 LDB         #BLOCK6.6       ; GET THE BLOCK WHICH CONTAINS THE HI-RES TEXT SCREEN
                 STB         $01,X           ; AND SAVE IT IN THE MMU IMAGE OF TASK REGISTER 0
@@ -1289,7 +1289,7 @@ SELTEXT         PSHS        Y,X,B,A
                 STB         $01,X           ; AND SAVE IT IN THE MMU IMAGE
                 PULS        A,B,X,Y,PC
 SE0CB           PSHS        Y,X,B,A
-                LEAX        IM.MMU,PC       ; POINT TO THE MMU RAM IMAGE
+                LEAX        >IM.MMU,PCR     ; POINT TO THE MMU RAM IMAGE
                 PSHS        X               ; TEMP SAVE
                 LDB         #BLOCK6.4       ; GET BLOCK 6.4
                 STB         14,X            ; AND SAVE IT IN LOGICAL BLOCK 6 OF TASK REGISTER 1
@@ -1376,7 +1376,7 @@ EBCOMTAB        FCB         23              ; 23 BASIC 2.0 COMMANDS
 ALINK3          LEAU        10,U            ; SKIP TO THE NEXT COMMAND INTERPRETATION TABLE
                 TST         ,U              ; IS THIS A VALID TABLE?
                 LBNE        LB7F9           ; YES - RE-ENTER THE MAIN STREAM CODE
-                LEAX        $-01,X          ; UNNECESSARY INSTRUCTION; NEXT ONE SHOULD JUST BE LDA -1,X
+                LEAX        -01,X           ; UNNECESSARY INSTRUCTION; NEXT ONE SHOULD JUST BE LDA -1,X
                 LDA         ,X+             ; GET THE TOKEN FROM BASIC'S INPUT LINE
                 ANDA        #$7F            ; STRIP OFF THE $80 COMMAND TOKEN BIAS
                 CMPA        #$62            ; FIRST LEGAL BASIC 2.0 COMMAND TOKEN NUMBER
@@ -1414,29 +1414,29 @@ SE1BF           LDX         #FUNDIS20       ; POINT TO ENHANCED BASIC'S FUNCTION
 ; BASIC 2.0 COMMAND DICTIONARY TABLE
 
 ; TOKEN #
-COMDIC20        FCS         'WIDTH'         ; E2
-                FCS         'PALETTE'       ; E3
-                FCS         'HSCREEN'       ; E4
-                FCS         'LPOKE'         ; E5
-                FCS         'HCLS'          ; E6
-                FCS         'HCOLOR'        ; E7
-                FCS         'HPAINT'        ; E8
-                FCS         'HCIRCLE'       ; E9
-                FCS         'HLINE'         ; EA
-                FCS         'HGET'          ; EB
-                FCS         'HPUT'          ; EC
-                FCS         'HBUFF'         ; ED
-                FCS         'HPRINT'        ; EE
-                FCS         'ERR'           ; EF
-                FCS         'BRK'           ; F0
-                FCS         'LOCATE'        ; F1
-                FCS         'HSTAT'         ; F2
-                FCS         'HSET'          ; F3
-                FCS         'HRESET'        ; F4
-                FCS         'HDRAW'         ; F5
-                FCS         'CMP'           ; F6
-                FCS         'RGB'           ; F7
-                FCS         'ATTR'          ; F8
+COMDIC20        FCS         "WIDTH"         ; E2
+                FCS         "PALETTE"       ; E3
+                FCS         "HSCREEN"       ; E4
+                FCS         "LPOKE"         ; E5
+                FCS         "HCLS"          ; E6
+                FCS         "HCOLOR"        ; E7
+                FCS         "HPAINT"        ; E8
+                FCS         "HCIRCLE"       ; E9
+                FCS         "HLINE"         ; EA
+                FCS         "HGET"          ; EB
+                FCS         "HPUT"          ; EC
+                FCS         "HBUFF"         ; ED
+                FCS         "HPRINT"        ; EE
+                FCS         "ERR"           ; EF
+                FCS         "BRK"           ; F0
+                FCS         "LOCATE"        ; F1
+                FCS         "HSTAT"         ; F2
+                FCS         "HSET"          ; F3
+                FCS         "HRESET"        ; F4
+                FCS         "HDRAW"         ; F5
+                FCS         "CMP"           ; F6
+                FCS         "RGB"           ; F7
+                FCS         "ATTR"          ; F8
 
 ; BASIC 2.0 COMMAND DISPATCH TABLE
 
@@ -1468,11 +1468,11 @@ COMDIS20        FDB         WIDTH           ; WIDTH E2
 ; BASIC 2.0 FUNCTION DICTIONARY TABLE
 
 ; TOKEN #
-FUNDIC20        FCS         'LPEEK'         ; A8
-                FCS         'BUTTON'        ; A9
-                FCS         'HPOINT'        ; AA
-                FCS         'ERNO'          ; AB
-                FCS         'ERLIN'         ; AC
+FUNDIC20        FCS         "LPEEK"         ; A8
+                FCS         "BUTTON"        ; A9
+                FCS         "HPOINT"        ; AA
+                FCS         "ERNO"          ; AB
+                FCS         "ERLIN"         ; AC
 
 ; BASIC 2.0 FUNCTION DISPATCH TABLE
 
@@ -1494,21 +1494,21 @@ SHOWDM20        LDX         #DISK20MS-1     ; POINT TO DISK BASIC 2.0 MESSAGE
 ; PRINT THE DISK BASIC 2.1 COPYRIGHT MESSAGE PATCH ENTERED FROM $C0C6
 SHOWDM21        LDX         #DISK21MS-1     ; POINT TO DISK BASIC 2.1 MESSAGE
                 JMP         DC0DC           ; COPY MESSAGE TO SCREEN AND WARM START DISK BASIC 2.1
-DISK20MS        FCC         'DISK EXTENDED COLOR BASIC 2.0'
+DISK20MS        FCC         "DISK EXTENDED COLOR BASIC 2.0"
                 FCB         $0D
-                FCC         'COPR. 1981, 1986 BY TANDY'
+                FCC         "COPR. 1981, 1986 BY TANDY"
                 FCB         $0D
-                FCC         'UNDER LICENSE FROM MICROSOFT'
+                FCC         "UNDER LICENSE FROM MICROSOFT"
                 FCB         $0D
-MWAREMS         FCC         'AND MICROWARE SYSTEMS CORP.'
+MWAREMS         FCC         "AND MICROWARE SYSTEMS CORP."
 SE313           FCB         $0D,$0D,$00
-DISK21MS        FCC         'DISK EXTENDED COLOR BASIC 2.1'
+DISK21MS        FCC         "DISK EXTENDED COLOR BASIC 2.1"
                 FCB         $0D
-                FCC         'COPR. 1982, 1986 BY TANDY'
+                FCC         "COPR. 1982, 1986 BY TANDY"
                 FCB         $0D
-                FCC         'UNDER LICENSE FROM MICROSOFT'
+                FCC         "UNDER LICENSE FROM MICROSOFT"
                 FCB         $0D
-                FCC         'AND MICROWARE SYSTEMS CORP.'
+                FCC         "AND MICROWARE SYSTEMS CORP."
                 FCB         $0D,$0D,$00
 ; GRAPHICS INITIALIZATION PATCH ENTERED FROM $9703
 ALINK14         CLRA                        ;
@@ -1633,7 +1633,7 @@ SE488           CMPB        #38*2           ; HI-RES GRAPHICS ERROR
                 BNE         SE49F           ; BRANCH IF NOT
                 JSR         LB95C           ; SET UP PRINT PARAMETERS
                 JSR         LB9AF           ; SEND A '?' TO CONSOLE OUT
-                LEAX        BAS20ERR,PC     ; POINT TO ENHANCED BASIC'S ADDITIONAL ERROR CODES
+                LEAX        >BAS20ERR,PCR   ; POINT TO ENHANCED BASIC'S ADDITIONAL ERROR CODES
 SE496           JSR         LACA0           ; GET A CHARACTER FROM X AND SEND IT TO CONSOLE OUT
                 JSR         LACA0           ; DO IT AGAIN
                 JMP         LAC65           ; RE-ENTER THE MAIN STREAM OF CODE ($AC65)
@@ -1641,7 +1641,7 @@ SE49F           CMPB        #39*2           ; HI-RES TEXT MODE ERROR
                 BNE         SE4B0           ; BRANCH IF NOT
                 JSR         LB95C           ; SET UP THE PRINT PARAMETERS
                 JSR         LB9AF           ; SEND A '?' TO CONSOLE OUT
-                LEAX        SE4CE,PC        ; POINT TO ENHANCED BASIC'S ADDITIONAL ERROR CODES
+                LEAX        >SE4CE,PCR      ; POINT TO ENHANCED BASIC'S ADDITIONAL ERROR CODES
                 JMP         >SE496          ; GO PRINT THE ERROR CODE POINTED TO BY X
 SE4B0           JMP         LAC49           ; JUMP TO THE ERROR SERVICING ROUTINE ($AC49)
 SE4B3           STB         >H.ERROR        ; SAVE THE ERROR NUMBER
@@ -1656,8 +1656,8 @@ SE4B3           STB         >H.ERROR        ; SAVE THE ERROR NUMBER
 SE4C7           TFR         X,D             ; SAVE THE ON ERROR DESTINATION LINE NUMBER IN ACCD
                 LBRA        SE449           ; GO TRANSFER CONTROL TO THAT LINE NUMBER
 ; ENHANCED BASIC'S ERROR CODES
-BAS20ERR        FCC         'HR'            ; 38 HIRES GRAHICS ERROR
-SE4CE           FCC         'HP'            ; 39 HIRES TEXT ERROR
+BAS20ERR        FCC         "HR"            ; 38 HIRES GRAHICS ERROR
+SE4CE           FCC         "HP"            ; 39 HIRES TEXT ERROR
 ; LINE INTO 'NEW' FROM $AD3F
 ALINK19         PSHS        B,A             ; SAVE THE CONTENTS OF ACCD
                 CLRA                        ;
@@ -1675,7 +1675,7 @@ ERNO            CLRA                        ;  CLEAR THE MS BYTE OF ACCD
                 LDB         >H.ERROR        ; GET THE ERROR NUMBER
                 CMPB        #$FF            ; IS IT A REAL ERROR
                 BNE         SE4F4           ; BRANCH IF YES
-                SEX         NOW             ; ACCD = $FFFF IF NOT A REAL ERROR
+                SEX                         ; NOW ACCD = $FFFF IF NOT A REAL ERROR
                 BRA         SE4FA           ; CONVERT ACCD TO FLOATING POINT
 SE4F4           CMPB        #$F1            ; CHECK FOR ERROR NUMBER $F1
                 BNE         SE4F9           ; BRANCH IF NOT ERROR $F1
@@ -1782,7 +1782,7 @@ BUTTON          JSR         INTCNV          ; CONVERT FPA0 INTO AN INTEGER IN AC
                 LDB         ,X              ; READ THE KEYBOARD ROWS
                 CMPB        #$0F            ; THE BUTTONS ARE ON THE BOTTOM FOUR ROWS
                 BEQ         SE5EA           ; BRANCH IF NO BUTTONS DOWN
-                LEAX        SE5D5,PC        ; POINT TO THE BUTTON MASKING ROUTINES
+                LEAX        >SE5D5,PCR      ; POINT TO THE BUTTON MASKING ROUTINES
                 ASLA                        ;
                 ASLA                        ;  MULT ACCA BY FOUR - FOUR BYTES/EACH MASKING ROUTINE
                 JMP         A,X             ; JUMP TO THE APPROPRIATE MASKING ROUTINE
@@ -1810,7 +1810,7 @@ PALETTE         CMPA        #$F7            ; 'RGB' TOKEN?
                 BNE         SE600           ; NOT THE 'RGB' TOKEN, CHECK FOR 'CMP'
                 JSR         GETNCH          ; GET THE NEXT CHARACTER FROM BASIC'S INPUT LINE
 ; RGB ENTRY POINT - SET THE PALETTE REGISTERS FOR DEFAULT RGB VALUES
-SE5FA           LEAX        IM.RGB,PC       ; POINT TO THE DEFAULT RGB PALETTE COLORS
+SE5FA           LEAX        >IM.RGB,PCR     ; POINT TO THE DEFAULT RGB PALETTE COLORS
                 BRA         SE634           ; PUT THE DATA POINTED TO BY X INTO THE PALETTE REGISTERS
 SE600           CMPA        #$F6            ; 'CMP' TOKEN?
                 BNE         SE60C           ; NO, GET A REGISTER NUMBER AND COLOR
@@ -1820,11 +1820,11 @@ SE600           CMPA        #$F6            ; 'CMP' TOKEN?
 ; -----------------------------------------------------------------------------
                 if          COCOPAL<1
 ; -----------------------------------------------------------------------------
-SE606           LEAX        IM.CMP,PC       ; POINT TO THE DEFAULT CMP PALETTE COLORS
+SE606           LEAX        >IM.CMP,PCR     ; POINT TO THE DEFAULT CMP PALETTE COLORS
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-SE606           LEAX        IM.RGB,PC       ; POINT TO THE DEFAULT CMP PALETTE COLORS
+SE606           LEAX        >IM.RGB,PCR     ; POINT TO THE DEFAULT CMP PALETTE COLORS
 ; -----------------------------------------------------------------------------
                 endif
 ; -----------------------------------------------------------------------------
@@ -2032,7 +2032,7 @@ SE7AD           LDU         #HORBEG         ; POINT U TO EVALUATED COORDINATES' 
 ; THE 'NORMALIZATION' ($9320) ROUTINE FROM EXTENDED BASIC WENT HERE - IT IS NOT NEEDED
 ; IN ENHANCED BASIC SO IT WAS REPLACED WITH AN RTS.
 SE7B0           RTS
-                RTS         WASTED          ; BYTE
+                RTS                         ; WASTED BYTE
 ; EVALUATE TWO EXPRESSIONS - NORMALLY A HORIZONTAL AND VERTICAL COORDINATE
 ; PERFORM COORDINATE SYNTAX RANGE CHECKS ON THE EXPRESSIONS
 SE7B2           JSR         LB734           ; EVALUATE TWO EXPRESSIONS; RETURN 1ST VALUE IN BINVAL, SECOND IN ACCB
@@ -2195,7 +2195,7 @@ SE8B4           CLRB                        ;  PRESET FLAG
 SE8EB           LDB         #'F             ; CHECK FOR FILL OPTION
                 JSR         LB26F           ; GO DO A SYNTAX CHECK FOR AN 'F'
                 BRA         SE8F6           ; GO 'FILL' THE BOX
-SE8F2           LEAX        $-01,X          ; MOVE VERTICAL COORD UP ONE
+SE8F2           LEAX        -01,X           ; MOVE VERTICAL COORD UP ONE
 SE8F4           STX         VERBEG          ; SAVE THE NEW VERTICAL START COORDINATE
 ; DRAW A SERIES OF HORIZONTAL LINES FROM VERTICAL START TO VERTICAL END
 SE8F6           JSR         >SE906          ; DRAW A HORIZONTAL LINE
@@ -2223,7 +2223,7 @@ SE921           STA         VD7             ; SAVEL PIXEL MASK
                 JSR         >SE788          ; TURN ON PIXEL
                 LDA         VD7             ; GET OLD PIXEL MASK
                 JSR         ,U              ; MOVE TO NEXT ONE TO RIGHT
-                LEAY        $-01,Y          ; DEC COUNTER
+                LEAY        -01,Y           ; DEC COUNTER
                 BNE         SE921           ; LOOP IF NOT DONE
                 RTS
 SE92F           PULS        A,B             ; CLEAN UP STACK
@@ -2280,7 +2280,7 @@ SE98D           JSR         ,U              ; CONVERT (X,Y) COORDINATES TO ABSOL
                 JSR         >SE788          ; TURN ON A PIXEL
                 LDX         $06,S           ; GET DISTANCE COUNTER
                 BEQ         SE9AD           ; BRANCH IF LINE COMPLETELY DRAWN
-                LEAX        $-01,X          ; DECR ONE
+                LEAX        -01,X           ; DECR ONE
                 STX         $06,S           ; SAVE IT
                 JSR         [$08,S]         ; INCR/DECR COORDINATE WHICH HAS THE SMALLEST DELTA
                 LDD         ,S              ; GET THE MINOR COORDINATE INCREMENT COUNTER
@@ -2304,11 +2304,11 @@ SE9B8           LDX         VERBEG          ; GET VERTICAL COORD
                 STX         VERBEG          ; SAVE NEW VERTICAL COORD
                 RTS
 SE9BF           LDX         HORBEG          ; GET HORIZONTAL COORD
-                LEAX        $-01,X          ; SUBTRACT ONE
+                LEAX        -01,X           ; SUBTRACT ONE
                 STX         HORBEG          ; SAVE NEW HORIZONTAL COORD
                 RTS
 SE9C6           LDX         VERBEG          ; GET VERTICAL COORD
-                LEAX        $-01,X          ; SUBTRACT ONE
+                LEAX        -01,X           ; SUBTRACT ONE
                 STX         VERBEG          ; SAVE NEW VERTICAL COORD
 SE9CC           RTS
 SE9CD           LDD         VEREND          ; GET VERTICAL ENDING ADDRESS
@@ -2450,7 +2450,7 @@ SEAC7           ASLB                        ;  MUL BY 2
                 PSHS        U               ; SAVE SIN/COS TABLE ENTRY
                 JSR         >SEBBD          ; CALCULATE HORIZONTAL OFFSET
                 PULS        U               ; GET BACK SIN/COS TABLE POINTER
-                LEAU        $-02,U          ; MOVE TO COSINE (VERTICAL)
+                LEAU        -02,U           ; MOVE TO COSINE (VERTICAL)
                 PSHS        X               ; SAVE HORIZONTAL OFFSET
                 JSR         >SEBBD          ; CALCULATE VERTICAL OFFSET
                 PULS        Y               ; PUT HORIZONTAL OFFSET IN Y
@@ -2526,7 +2526,7 @@ SEB53           INCB                        ;  INC SUBARC COUNTER
                 ANDA        #$07            ; KEEP IN RANGE OF 0-7; ONCE ACCA=ACCB, THIS WILL MAKE ACCA=0
 ; SO THE END POINT WILL BE (0,0) AND THE CIRCLE ROUTINE WILL END
 SEB5C           JMP         >SEAB3          ; KEEP DRAWING THE CIRCLE
-SEB5F           RTS         EXIT            ; CIRCLE ROUTINE
+SEB5F           RTS                         ; EXIT CIRCLE ROUTINE
 ; GET MAXIMUM VALUE OF HORIZONTAL & VERTICAL COORDINATES NORMALIZED FOR
 ; PROPER GRAPHICS MODE. RETURN VALUES: HORIZONTAL IN VD3, VERTICAL IN VD5
 SEB60           LDU         #VD3            ; POINT U TO STORAGE AREA
@@ -2673,7 +2673,7 @@ SEC6E           STB         VERBEG+1        ; SAVE CURRENT VERTICAL COORD
                 BEQ         SEC86           ; BRANCH IF NO PIXELS WERE PAINTED
                 CMPD        #3              ; SEE IF FEWER THAN 3 PIXELS WERE PAINTED
                 BCS         SEC80           ; BRANCH IF NO NEED TO CHECK FOR PAINTABLE DATA
-                LEAX        $-02,X          ; MOVE HORIZONTAL COORD TWO PIXELS TO THE LEFT
+                LEAX        -02,X           ; MOVE HORIZONTAL COORD TWO PIXELS TO THE LEFT
                 JSR         >SED15          ; SAVE A BLOCK OF PAINT DATA IN THE DIRECTION OPPOSITE TO UP/DN FLAG
 SEC80           JSR         >SED01          ; CONTINUE PAINTING LINE TO THE RIGHT
 SEC83           JSR         >SED2E          ; SAVE A BLOCK OF PAINT DATA IN THE SAME DIRECTION AS UP/DN FLAG
@@ -2972,7 +2972,7 @@ SEEAB           JSR         ,Y              ; PERFORM THE APPROPRIATE MOVEMENT A
                 BNE         SEEA7           ; LOOP UNTIL ALL ROWS MOVED
                 JSR         SELTASK0        ; SELECT TASK REGISTER 0 AS THE ACTIVE TASK
                 JSR         SETMMU          ; SET UP THE MMU REGISTERS
-                RTS         WHY             ; NOT MAKE THE JSR ABOVE A JMP
+                RTS                         ; WHY NOT MAKE THE JSR ABOVE A JMP
 ; HGET'S BYTE MOVEMENT ROUTINE
 SEEC0           LDA         ,X+             ; GET A BBYTE FROM THE HI-RES SCREEN
                 BSR         SEEC7           ; POINT U TO PROPER BUFFER LOCATION
@@ -3185,7 +3185,7 @@ SF045           PSHS        Y,A             ; SAVE THE PRINT BUFFER POINTER AND 
                 TFR         B,A             ; PUT THE NEXT TWO PIXELS' DATA INTO ACCA
                 JSR         >SF00A          ; DISPLAY THE LAST TWO PIXELS
                 PULS        Y               ; RESTORE THE PRINT BUFFER POINTER
-                RTS         WASTED;         ; THIS AND ABOVE INSTRUCTION SHOULD BE PULS Y,PC
+                RTS                         ; WASTED THIS AND ABOVE INSTRUCTION SHOULD BE PULS Y,PC
 ; 16 COLOR PIXEL MASKS - DOUBLE BYTE WIDE
 SF06C           FDB         $0000,$000F,$00F0
                 FDB         $00FF,$0F00,$0F0F
@@ -3698,7 +3698,7 @@ SF5DD           CMPD        VD3             ; COMPARE THE SUBCOMMAND TO THE MAXI
                 BCC         SF5C1           ; BRANCH IF MORE NUMERIC DATA TO CONVERT
 SF5F2           INC         VD8             ; ADD ONE TO THE COMMAND COUNTER
                 LDX         VD9             ;
-                LEAX        $-01,X          ;
+                LEAX        -01,X           ;
                 STX         VD9             ; MOVE THE COMMAND STRING BACK ONE
 SF5FA           LDD         VD3             ; LOAD ACCD WITH THE VALUE OF THE SUBCOMMAND
                 RTS
@@ -3799,7 +3799,7 @@ ALINK23         PULS        CC              ; RESTORE THE ZERO FLAG
                 CMPB        #$08            ; CHECK FOR CLS 8
                 BHI         SF6E7           ; BRANCH IF > CLS 8
                 DECB                        ;  CHANGE 1-8 TO 0-7
-                LEAY        IM.PALET,PC     ; POINT TO THE PALETTE REGISTER IMAGES
+                LEAY        IM.PALET,PCR    ; POINT TO THE PALETTE REGISTER IMAGES
                 LDA         B,Y             ; GET THE COLOR IN THE PALETTE REGISTER
                 STA         V_BORDER        ; AND SAVE IT AS THE NEW BORDER COLOR
                 LBSR        SF766           ; SET THE BORDER COLOR IN THE 40 & 80 COLUMN VIDEO MODE IMAGES
@@ -3828,7 +3828,7 @@ SF6F4           BEQ         SF730           ; IF CLS 100, THEN PRINT THE AUTHORS
                 LDX         #MICROMS-1      ; POINT TO MICROWARE'S COMMERCIAL MESSAGE
                 JMP         STRINOUT        ; COPY A STRING TO CONSOLE OUT ($B99C)
 ; MICROWARE COMMERCIAL
-MICROMS         FCC         'Microware Systems Corp.'
+MICROMS         FCC         "Microware Systems Corp."
                 FCB         $0D,$00
 ; NAMES OF THE AUTHORS
 ; THE INITIALIZATION CODE WILL COPY THE AUTHOR'S NAMES INTO THIS SPOT
@@ -3842,11 +3842,11 @@ SF730           BSR         SF772           ; PUT THE HI-RES TEXT SCREEN INTO LO
                 LDX         #AUTHORMS-1     ; POINT TO THE AUTHOR MESSAGE
                 JSR         >STRINOUT       ; COPY A STRING TO CONSOLE OUT
                 PSHS        X
-                LEAX        >SF6F4,PC       ; POINT TO THE INSTRUCTION WHICH BRANCHES TO THIS ROUTINE
+                LEAX        >SF6F4,PCR      ; POINT TO THE INSTRUCTION WHICH BRANCHES TO THIS ROUTINE
                 LDA         #$12            ; OP CODE OF A NOP
                 STA         ,X+             ; REPLACE THE BRANCH TO THIS ROUTINE WITH 2 NOPs MAKING IT SO
                 STA         ,X              ; THAT THIS ROUTINE MAY ONLY BE ENTERED ONE TIME
-                LEAX        >AUTHORMS,PC    ; POINT TO THE AUTHORS CODED NAMES
+                LEAX        >AUTHORMS,PCR   ; POINT TO THE AUTHORS CODED NAMES
 ; REPLACE THE AUTHORS' NAMES AND THE CODE THAT DISPLAYS THEM WITH NOPs
 SF74D           STA         ,X+             ; SAVE A NOP
                 CMPX        #SF74D          ; CHECK FOR END OF THE DISPLAY NAME ROUTINE
@@ -3862,7 +3862,7 @@ SF761           LBSR        SF6E0           ; RESET THE HI-RES TEXT SCREEN
                 BRA         SF75E
 ; SAVE THE VALUE IN ACCA AS THE BORDER COLOR IN THE 40 AND 80 COLUMN VIDEO MODE IMAGES
 SF766           PSHS        Y
-                LEAY        SE03B,PC        ; POINT TO THE 40 COLUMN MODE REGISTER IMAGE
+                LEAY        SE03B,PCR       ; POINT TO THE 40 COLUMN MODE REGISTER IMAGE
                 STA         $03,Y           ; SAVE THE BORDER COLOR IN THE 40 COLUMN VIDEO MODE REGISTER IMAGE
                 STA         $0C,Y           ; SAVE THE BORDER COLOR IN THE 80 COLUMN VIDEO MODE REGISTER IMAGE
                 PULS        Y,PC
@@ -3925,8 +3925,8 @@ SF7E2           PSHS        B,A
                 LDB         >H.CRSATT       ; GET THE ATTRIBUTES RAM IMAGE
                 STD         ,X              ; SAVE A SPACE ON THE SCREEN AT THE OLD CURSOR POSITION
                 ORB         #$40            ; FORCE THE UNDERLINE ATTRIBUTE
-                STD         $-02,X          ; SAVE AN UNDERLINED SPACE AS THE NEW CURSOR CHARACTER
-                LEAX        $-02,X          ; MOVE THE CURSOR POINTER BACK TWO
+                STD         -02,X           ; SAVE AN UNDERLINED SPACE AS THE NEW CURSOR CHARACTER
+                LEAX        -02,X           ; MOVE THE CURSOR POINTER BACK TWO
                 STX         >H.CRSLOC       ; AND SAVE IT IN RAM
                 LDD         >H.CURSX        ; GET THE COLUMN AND ROW POSITION OF THE OLD CURSOR
                 DECA                        ;  BUMP THE COLUMN NUMBER DOWN ONE
@@ -4089,7 +4089,7 @@ HSTAT           TST         HRWIDTH         ; IS THE HI-RES TEXT MODE ENABLED?
                 STA         ,X              ; SAVE THE CURSOR CHARACTER IN THE NEWLY RESERVED STRING SPACE
                 JSR         LB54C           ; PUT THE STRING ONTO THE STRING STACK
                 LDX         VARDES          ; POINT TO THE STRING'S VARIABLE DESCRIPTOR
-                TST         $-01,X          ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
+                TST         -01,X          ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
                 LBPL        LB151           ; TYPE MISMATCH ERROR IF NUMERIC VARIABLE
                 LDY         FPA0+2          ; POINT Y TO THE START OF THE STRING DESCRIPTOR
                 LDB         #$05            ; VARIABLE DESCRIPTORS ARE 5 BYTES LONG
@@ -4098,7 +4098,7 @@ SF963           LDA         ,Y+             ; COPY THE DATA FROM THE STRING DESC
                 DECB                        ;  DECREMENT THE DESCRIPTOR COUNTER
                 BNE         SF963           ; LOOP UNTIL DONE
                 LDX         TEMPPT          ; THIS CODE IS DESIGNED TO REMOVE THE ABOVE ALLOCATED STRING FROM
-                LEAX        $-05,X          ; THE STRING STACK - IT MAY CAUSE BUGS BECAUSE IT DOESN'T RESET
+                LEAX        -05,X           ; THE STRING STACK - IT MAY CAUSE BUGS BECAUSE IT DOESN'T RESET
                 STX         TEMPPT          ; LASTPT; LDX LASTPT, JSR LB675 WOULD BE MUCH BETTER
                 JSR         LB357           ; EVALUATE A VARIABLE; RETURN X POINTING TO THE VARIABLE DESCRIPTOR
                 STX         VARDES          ; SAVE THE VARIABLE DESCRIPTOR
@@ -4107,7 +4107,7 @@ SF963           LDA         ,Y+             ; COPY THE DATA FROM THE STRING DESC
                 LDB         VCB+1           ; GET THE CURSOR ATTRIBUTES
                 JSR         GIVABF          ; CONVERT ACCD TO FLOATING POINT
                 LDX         VARDES          ; POINT X TO THE VARIABLE DESCRIPTOR
-                TST         $-01,X          ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
+                TST         -01,X           ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
                 LBMI        LB151           ; TYPE MISMATCH ERROR IF STRING VARIABLE
                 JSR         LBC35           ; PACK FPA0 AND STORE IT IN THE DESCRIPTOR POINTED TO BY X
                 JSR         LB357           ; EVALUATE A VARIABLE; RETURN X POINTING TO THE VARIABLE DESCRIPTOR
@@ -4117,7 +4117,7 @@ SF963           LDA         ,Y+             ; COPY THE DATA FROM THE STRING DESC
                 LDB         VCD             ; GET THE X COORDINATE OF THE CURSOR POSITION
                 JSR         GIVABF          ; CONVERT ACCD TO FLOATING POINT
                 LDX         VARDES          ; POINT X TO THE VARIABLE DESCRIPTOR
-                TST         $-01,X          ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
+                TST         -01,X           ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
                 LBMI        LB151           ; TYPE MISMATCH ERROR IF STRING VARIABLE
                 JSR         LBC35           ; PACK FPA0 AND STORE IT IN THE DESCRIPTOR POINTED TO BY X
                 JSR         LB357           ; EVALUATE A VARIABLE; RETURN X POINTING TO THE VARIABLE DESCRIPTOR
@@ -4126,7 +4126,7 @@ SF963           LDA         ,Y+             ; COPY THE DATA FROM THE STRING DESC
                 LDB         VCD+1           ; GET THE Y COORDINATE OF THE CURSOR POSITION
                 JSR         GIVABF          ; CONVERT ACCD TO FLOATING POINT
                 LDX         VARDES          ; POINT X TO THE VARIABLE DESCRIPTOR
-                TST         $-01,X          ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
+                TST         -01,X           ; CHECK THE SECOND CHARACTER OF THE VARIABLE NAME
                 LBMI        LB151           ; TYPE MISMATCH ERROR IF STRING VARIABLE
                 JSR         LBC35           ; PACK FPA0 AND STORE IT IN THE DESCRIPTOR POINTED TO BY X
                 RTS

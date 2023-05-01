@@ -107,7 +107,7 @@ FCBLFT          EQU         24              ; NUMBER OF CHARACTERS LEFT IN BUFFE
 
                 ORG         $C000
 
-                FCC         'DK'
+                FCC         "DK"
                 BRA         LRC00C
 DCNVEC          FDB         DSKCON          ; DSKCON POINTER
 DSKVAR          FDB         DCOPC           ; ADDRESS OF DSKCON VARIABLES
@@ -237,38 +237,38 @@ LC113           FDB         DVEC0,DVEC1,DVEC2
                 FDB         DVEC17,DVEC18
 
 ; DISK BASIC COPYRIGHT MESSAGE
-LC139           FCC         'DISK EXTENDED COLOR BASIC 1.1'
+LC139           FCC         "DISK EXTENDED COLOR BASIC 1.1"
                 FCB         CR
-                FCC         'COPYRIGHT (C) 198'
+                FCC         "COPYRIGHT (C) 198"
                 FCB         CYEAR
-                FCC         ' BY TANDY'
+                FCC         " BY TANDY"
                 FCB         CR
-                FCC         'UNDER LICENSE FROM MICROSOFT'
+                FCC         "UNDER LICENSE FROM MICROSOFT"
                 FCB         CR,CR,0
 
 ; DISK BASIC COMMAND DICTIONARY TABLE
 ; TOKEN #
-LC192           FCS         'DIR'           ; CE
-                FCS         'DRIVE'         ; CF
-                FCS         'FIELD'         ; D0
-                FCS         'FILES'         ; D1
-                FCS         'KILL'          ; D2
-                FCS         'LOAD'          ; D3
-                FCS         'LSET'          ; D4
-                FCS         'MERGE'         ; D5
-                FCS         'RENAME'        ; D6
-                FCS         'RSET'          ; D7
-                FCS         'SAVE'          ; D8
-                FCS         'WRITE'         ; D9
-                FCS         'VERIFY'        ; DA
-                FCS         'UNLOAD'        ; DB
-                FCS         'DSKINI'        ; DC
-                FCS         'BACKUP'        ; DD
-                FCS         'COPY'          ; DE
-                FCS         'DSKI$'         ; DF
-                FCS         'DSKO$'         ; E0
+LC192           FCS         "DIR"           ; CE
+                FCS         "DRIVE"         ; CF
+                FCS         "FIELD"         ; D0
+                FCS         "FILES"         ; D1
+                FCS         "KILL"          ; D2
+                FCS         "LOAD"          ; D3
+                FCS         "LSET"          ; D4
+                FCS         "MERGE"         ; D5
+                FCS         "RENAME"        ; D6
+                FCS         "RSET"          ; D7
+                FCS         "SAVE"          ; D8
+                FCS         "WRITE"         ; D9
+                FCS         "VERIFY"        ; DA
+                FCS         "UNLOAD"        ; DB
+                FCS         "DSKINI"        ; DC
+                FCS         "BACKUP"        ; DD
+                FCS         "COPY"          ; DE
+                FCS         "DSKI$"         ; DF
+                FCS         "DSKO$"         ; E0
 
-                FCS         'DOS'           ; E1
+                FCS         "DOS"           ; E1
 
 ; DISK BASIC COMMAND JUMP TABLE
 ; COMMAND / TOKEN #
@@ -296,12 +296,12 @@ LC1F1           FDB         DIR             ; DIR / CE
 
 ; SECONDARY FUNCTION DICTIONARY TABLE
 ; TOKEN #
-LC219           FCS         'CVN'           ; A2
-                FCS         'FREE'          ; A3
-                FCS         'LOC'           ; A4
-                FCS         'LOF'           ; A5
-                FCS         'MKN$'          ; A6
-                FCS         'AS'            ; A7
+LC219           FCS         "CVN"           ; A2
+                FCS         "FREE"          ; A3
+                FCS         "LOC"           ; A4
+                FCS         "LOF"           ; A5
+                FCS         "MKN$"          ; A6
+                FCS         "AS"            ; A7
 
 ; DISK BASIC SECONDARY FUNCTION JUMP TABLE
 ; FUNCTION / TOKEN #
@@ -350,23 +350,23 @@ DVEC17          PULS        Y               ; PUT THE RETURN ADDRESS INTO Y
                 JMP         >LAC60          ; JUMP TO BASIC'S ERROR HANDLER
 
 ; DISK BASIC ERROR MESSAGES
-LR_DBERTAB      FCC         'BR'            ; 27 BAD RECORD
-                FCC         'DF'            ; 28 DISK FULL
-                FCC         'OB'            ; 29 OUT OF BUFFER SPACE
-                FCC         'WP'            ; 30 WRITE PROTECTED
-                FCC         'FN'            ; 31 BAD FILE NAME
-                FCC         'FS'            ; 32 BAD FILE STRUCTURE
-                FCC         'AE'            ; 33 FILE ALREADY EXISTS
-                FCC         'FO'            ; 34 FIELD OVERFLOW
-                FCC         'SE'            ; 35 SET TO NON-FIELDED STRING
-                FCC         'VF'            ; 36 VERIFICATION ERROR
-                FCC         'ER'            ; 37 WRITE OR INPUT PAST END OF RECORD
+LR_DBERTAB      FCC         "BR"            ; 27 BAD RECORD
+                FCC         "DF"            ; 28 DISK FULL
+                FCC         "OB"            ; 29 OUT OF BUFFER SPACE
+                FCC         "WP"            ; 30 WRITE PROTECTED
+                FCC         "FN"            ; 31 BAD FILE NAME
+                FCC         "FS"            ; 32 BAD FILE STRUCTURE
+                FCC         "AE"            ; 33 FILE ALREADY EXISTS
+                FCC         "FO"            ; 34 FIELD OVERFLOW
+                FCC         "SE"            ; 35 SET TO NON-FIELDED STRING
+                FCC         "VF"            ; 36 VERIFICATION ERROR
+                FCC         "ER"            ; 37 WRITE OR INPUT PAST END OF RECORD
 
 ; DISK FILE EXTENSIONS
-BASEXT          FCC         'BAS'           ; BASIC FILE EXTENSION
+BASEXT          FCC         "BAS"           ; BASIC FILE EXTENSION
 DEFEXT          FCC         "   "           ; BLANK (DEFAULT) FILE EXTENSION
-DATEXT          FCC         'DAT'           ; DATA FILE EXTENSION
-BINEXT          FCC         'BIN'           ; BINARY FILE EXTENSION
+DATEXT          FCC         "DAT"           ; DATA FILE EXTENSION
+BINEXT          FCC         "BIN"           ; BINARY FILE EXTENSION
 
 ; CLS RAM VECTOR
 DVEC22          PSHS        X,CC            ; SAVE X REG AND STATUS
@@ -403,7 +403,7 @@ LC2EA           LDD         FCBREC,X        ; GET RECORD NUMBER
                 PSHS        X,B,A           ; THESE ARE THE INITIAL VALUES OF A TEMPORARY
 ; RECORD LENGTH COUNTER AND RANDOM BUFFER
 ; POINTER WHICH ARE MAINTAINED ON THE STACK
-                LEAX        $-2,U           ; POINT X TO (RECORD NUMBER -1)
+                LEAX        -2,U            ; POINT X TO (RECORD NUMBER -1)
                 JSR         >L9FB5          ; MULT (UNSIGNED) RECORD LENGTH X (RECORD NUMBER -1)
                 PSHS        U,Y             ; SAVE PRODUCT ON THE STACK
                 LDA         ,S+             ; CHECK MS BYTE OF PRODUCT
@@ -778,7 +778,7 @@ LC5C4           PSHS        X,B             ; SAVE REGISTERS
                 STD         FCBGET,X        ; SAVE IT IN FCB
                 LDX         FCBBUF,X        ; POINT X TO START OF RANDOM FILE BUFFER AND
                 LEAX        D,X             ; ADD THE RECORD COUNTER TO IT
-                LDA         $-1,X           ; GET A CHARACTER FROM THE BUFFER
+                LDA         -1,X            ; GET A CHARACTER FROM THE BUFFER
                 PULS        B,X,PC          ; RESTORE REGISTERS AND RETURN
 ; GET A BYTE FROM A SEQUENTIAL FILE
 LC5EC           LDB         FCBCFL,X        ; TEST THE CACHE FLAG AND BRANCH IF AN
@@ -1163,7 +1163,7 @@ DVEC2           TST         DEVNUM          ; CHECK DEVICE NUMBER AND
 DVEC11          TST         DEVNUM          ; CHECK DEVICE NUMBER AND RETURN
                 BLE         LC8AF           ; IF NOT A DISK FILE
                 LEAS        $02,S           ; PURGE RETURN ADDRESS OFF OF THE STACK - DON'T
-LC8AF           RTS         =               ; DO A BREAK CHECK IF DISK FILE
+LC8AF           RTS                         ; = DO A BREAK CHECK IF DISK FILE
 ; COMMAND INTERPRETATION RAM HOOK
 DVEC20          LEAS        $02,S           ; PURGE RETURN ADDRESS OFF OF THE STACK
 LC8B2           ANDCC       #$AF            ; ENABLE IRQ & FIRQ
@@ -1735,7 +1735,7 @@ LCD08           LEAX        DIRLEN,X        ; MOVE X TO NEXT DIRECTORY ENTRY
                 INCB                        ;  BUMP COUNT
                 CMPB        #SECMAX         ; SECMAX SECTORS IN DIRECTORY TRACK
                 BLS         LCCBB           ; GET NEXT SECTOR
-LCD17           RTS         FINISHED
+LCD17           RTS                         ; FINISHED
 LCD18           JSR         PUTCHR          ; SEND CHARACTER TO CONSOLE OUT
 LCD1B           JMP         >LB9AC          ; SEND BLANK TO CONSOLE OUT
 ; ENTER WITH ACCB POINTING TO FIRST GRANULE IN A FILE; RETURN THE NUMBER OF
@@ -2510,9 +2510,9 @@ LD357           JSR         >LA171          ; GET A CHARACTER FROM CONSOLE IN
                 CMPA        #CR             ; KEEP LOOKING AT CONSOLE IN UNTIL
                 BNE         LD357           ; YOU GET A CARRIAGE RETURN
 LD35E           RTS
-LD35F           FCC         'INSERT SOURCE'
-LD36C           FCC         'INSERT DESTINATION'
-LD37E           FCC         ' DISKETTE AND'
+LD35F           FCC         "INSERT SOURCE"
+LD36C           FCC         "INSERT DESTINATION"
+LD37E           FCC         " DISKETTE AND"
                 FCB         CR
                 FCC         "PRESS 'ENTER'"
 ; PUSH FILENAME.EXT AND DRIVE NUMBER ONTO THE STACK
@@ -3297,7 +3297,7 @@ LD8CD           JMP         >L8955          ; JUMP TO EXTENDED BASIC'S IRQ HANDL
                 FCB         $D8,$BD,$9F,$E2,$34,$06,$BD,$9F,$E2,$DD,$D9,$35,$06,$34,$06,$9E
 
 ; THIS IS THE CODE FOR THE DOS COMMAND
-DOSCOM          SWI3        DO              ; A SOFTWARE INTERRUPT (#3)
+DOSCOM          SWI3                        ; DO A SOFTWARE INTERRUPT (#3)
                 CLR         TMPLOC          ; RESET SECTOR COUNTER
                 LDD         #DOSBUF         ; RAM LOAD ADDRESS FOR SECTOR DATA
                 PSHS        B,A             ; SAVE RAM LOAD ADDRESS
@@ -3454,7 +3454,7 @@ FCBLFT          EQU         24              ; NUMBER OF CHARACTERS LEFT IN BUFFE
 
                 ORG         $C000
 
-                FCC         'DK'
+                FCC         "DK"
                 BRA         LRC00C
 
 DCNVEC          FDB         DSKCON          ; DSKCON POINTER
@@ -3579,36 +3579,36 @@ LC100           FDB         DVEC0,DVEC1,DVEC2
                 FDB         DVEC18
 
 ; DISK BASIC COPYRIGHT MESSAGE
-LC126           FCC         'DISK EXTENDED COLOR BASIC 1.0'
+LC126           FCC         "DISK EXTENDED COLOR BASIC 1.0"
                 FCB         CR
-                FCC         'COPYRIGHT (C) 198'
+                FCC         "COPYRIGHT (C) 198"
                 FCB         CYEAR
-                FCC         ' BY TANDY'
+                FCC         " BY TANDY"
                 FCB         CR
-                FCC         'UNDER LICENSE FROM MICROSOFT'
+                FCC         "UNDER LICENSE FROM MICROSOFT"
                 FCB         CR,CR,0
 
 ; DISK BASIC COMMAND DICTIONARY TABLE
 ; TOKEN #
-LC17F           FCS         'DIR'
-                FCS         'DRIVE'
-                FCS         'FIELD'
-                FCS         'FILES'
-                FCS         'KILL'
-                FCS         'LOAD'
-                FCS         'LSET'
-                FCS         'MERGE'
-                FCS         'RENAME'
-                FCS         'RSET'
-                FCS         'SAVE'
-                FCS         'WRITE'
-                FCS         'VERIFY'
-                FCS         'UNLOAD'
-                FCS         'DSKINI'
-                FCS         'BACKUP'
-                FCS         'COPY'
-                FCS         'DSKI$'
-                FCS         'DSKO$'
+LC17F           FCS         "DIR"
+                FCS         "DRIVE"
+                FCS         "FIELD"
+                FCS         "FILES"
+                FCS         "KILL"
+                FCS         "LOAD"
+                FCS         "LSET"
+                FCS         "MERGE"
+                FCS         "RENAME"
+                FCS         "RSET"
+                FCS         "SAVE"
+                FCS         "WRITE"
+                FCS         "VERIFY"
+                FCS         "UNLOAD"
+                FCS         "DSKINI"
+                FCS         "BACKUP"
+                FCS         "COPY"
+                FCS         "DSKI$"
+                FCS         "DSKO$"
 
 
 ; DISK BASIC COMMAND JUMP TABLE
@@ -3637,12 +3637,12 @@ LC1DB           FDB         DIR             ; DIR / CE
 
 ; SECONDARY FUNCTION DICTIONARY TABLE
 ; TOKEN #
-LC201           FCS         'CVN'
-                FCS         'FREE'
-                FCS         'LOC'
-                FCS         'LOF'
-                FCS         'MKN$'
-                FCS         'AS'
+LC201           FCS         "CVN"
+                FCS         "FREE"
+                FCS         "LOC"
+                FCS         "LOF"
+                FCS         "MKN$"
+                FCS         "AS"
 
 ; DISK BASIC SECONDARY FUNCTION JUMP TABLE
 ; FUNCTION / TOKEN #
@@ -3691,23 +3691,23 @@ DVEC17          PULS        Y               ; PUT THE RETURN ADDRESS INTO Y
                 JMP         LAC60           ; JUMP TO BASIC'S ERROR HANDLER
 
 ; DISK BASIC ERROR MESSAGES
-LC290           FCC         'BR'            ; 27 BAD RECORD
-                FCC         'DF'            ; 28 DISK FULL
-                FCC         'OB'            ; 29 OUT OF BUFFER SPACE
-                FCC         'WP'            ; 30 WRITE PROTECTED
-                FCC         'FN'            ; 31 BAD FILE NAME
-                FCC         'FS'            ; 32 BAD FILE STRUCTURE
-                FCC         'AE'            ; 33 FILE ALREADY EXISTS
-                FCC         'FO'            ; 34 FIELD OVERFLOW
-                FCC         'SE'            ; 35 SET TO NON-FIELDED STRING
-                FCC         'VF'            ; 36 VERIFICATION ERROR
-                FCC         'ER'            ; 37 WRITE OR INPUT PAST END OF RECORD
+LC290           FCC         "BR"            ; 27 BAD RECORD
+                FCC         "DF"            ; 28 DISK FULL
+                FCC         "OB"            ; 29 OUT OF BUFFER SPACE
+                FCC         "WP"            ; 30 WRITE PROTECTED
+                FCC         "FN"            ; 31 BAD FILE NAME
+                FCC         "FS"            ; 32 BAD FILE STRUCTURE
+                FCC         "AE"            ; 33 FILE ALREADY EXISTS
+                FCC         "FO"            ; 34 FIELD OVERFLOW
+                FCC         "SE"            ; 35 SET TO NON-FIELDED STRING
+                FCC         "VF"            ; 36 VERIFICATION ERROR
+                FCC         "ER"            ; 37 WRITE OR INPUT PAST END OF RECORD
 
 ; DISK FILE EXTENSIONS
-BASEXT          FCC         'BAS'           ; BASIC FILE EXTENSION
-DEFEXT          FCC         '   '           ; BLANK (DEFAULT) FILE EXTENSION
-DATEXT          FCC         'DAT'           ; DATA FILE EXTENSION
-BINEXT          FCC         'BIN'           ; BINARY FILE EXTENSION
+BASEXT          FCC         "BAS"           ; BASIC FILE EXTENSION
+DEFEXT          FCC         "   "           ; BLANK (DEFAULT) FILE EXTENSION
+DATEXT          FCC         "DAT"           ; DATA FILE EXTENSION
+BINEXT          FCC         "BIN"           ; BINARY FILE EXTENSION
 
 ; CLS RAM VECTOR
 DVEC22          PSHS        X,CC            ; SAVE X REG AND STATUS
@@ -4524,7 +4524,7 @@ DVEC2           TST         DEVNUM          ; CHECK DEVICE NUMBER AND
 DVEC11          TST         DEVNUM          ; CHECK DEVICE NUMBER AND RETURN
                 BLE         LC85F           ; IF NOT A DISK FILE
                 LEAS        $02,S           ; = PURGE RETURN ADDRESS OFF OF THE STACK - DON'T
-LC85F           RTS         =               ; DO A BREAK CHECK IF DISK FILE
+LC85F           RTS                         ; = DO A BREAK CHECK IF DISK FILE
 
 ; EOF RAM HOOK
 DVEC14          LEAS        $02,S           ; PURGE RETURN ADDRESS OFF OF THE STACK
@@ -5062,7 +5062,7 @@ LCC2E           LEAX        DIRLEN,X        ; MOVE X TO NEXT DIRECTORY ENTRY
                 INCB                        ; BUMP COUNT
                 CMPB        #SECMAX         ; SECMAX SECTORS IN DIRECTORY TRACK
                 BLS         LCBE1           ; GET NEXT SECTOR
-LCC3D           RTS         FINISHED
+LCC3D           RTS                         ; FINISHED
 LCC3E           JSR         PUTCHR          ; SEND CHARACTER TO CONSOLE OUT
 LCC41           JMP         LB9AC           ; SEND BLANK TO CONSOLE OUT
 
@@ -5620,8 +5620,8 @@ LD067           LDU         $02,Y           ; LOAD U WITH THE ADDRESS OF THE FIE
                 ADDB        ,Y              ; ADD THE LENGTH OF THE FIELD STRING TO THE INVERSE
                 ADCA        #$00            ; OF THE NUMBER OF BYTES TO BE MOVED
                 LEAU        D,U             ; =ADD RESULT TO START OF FIELD STRING. NOW U
-                =WILL       POINT           ; TO (-NUMBER OF BYTES TO MOVE)
-                =FROM       THE             ; RIGHT SIDE OF THE FIELD STRING
+                                            ; =WILL POINT TO (-NUMBER OF BYTES TO MOVE)
+                                            ; =FROM THE RIGHT SIDE OF THE FIELD STRING
                 PULS        B               ; GET THE NUMBER OF BYTES TO MOVE
 LD07B           JMP         LA59A           ; MOVE ACCB BYTES FROM X TO U (DATA TO FIELD STRING)
 LD07E           PULS        A,PC            ; PULL LSET/RSET FLAG OFF OF STACK AND RETURN
@@ -5876,13 +5876,13 @@ LD26A           JSR         LA171           ; GET A CHARACTER FROM CONSOLE IN
                 BNE         LD26A           ; YOU GET A CARRIAGE RETURN
 LD271           RTS
 
-LD272           FCC         'INSERT SOURCE'
+LD272           FCC         "INSERT SOURCE"
 
 
-LD27F           FCC         'INSERT DESTINATION'
+LD27F           FCC         "INSERT DESTINATION"
 
 
-LD291           FCC         ' DISKETTE AND'
+LD291           FCC         " DISKETTE AND"
 
 
                 FCB         CR
@@ -5986,7 +5986,7 @@ LD335           INCB                        ; ADD A SECTOR TO TEMPORARY SECTOR C
                 BNE         LD335           ; BRANCH IF STILL ROOM FOR MORE SECTORS
 LD33E           STX         ,S              ; SAVE THE NUMBER OF UNCOPIED SECTORS REMAINING IN THE FILE
                 STB         $04,S           ; SAVE THE NUMBER OF SECTORS TO BE COPIED THIS TIME THROUGH LOOP
-                BSR         $D394           ; 'GET' ACCB SECTORS TO RAM BUFFER
+                BSR         LD394           ; 'GET' ACCB SECTORS TO RAM BUFFER
                 LDA         #$FF            ; SET SOURCE/DESTINATION FLAG TO DESTINATION
                 BSR         LD388           ; PRINT PROMPT MESSAGE IF REQUIRED
                 TST         $05,S           ; CHECK THE GRAN TEST FLAG. IF <> 0, IT CONTAINS THE
@@ -6232,7 +6232,7 @@ LD525           LDA         #$53            ; = GET STEP IN COMMAND
                 JSR         LD6DE           ; CHECK DRIVE READY
                 BNE         LD59B           ; BRANCH IF NOT READY - ISSUE AN ERROR
 LD533           JSR         LD6FD           ; WAIT A WHILE
-                BSR         $D5A4           ; BUILD A FORMATTED TRACK IN RAM
+                BSR         LD5A4           ; BUILD A FORMATTED TRACK IN RAM
                 LDY         #FDCREG+3       ; Y POINTS TO 1793 DATA REGISTER
                 ORCC        #$50            ; DISABLE INTERRUPTS
                 LDX         #LD562          ; GET RETURN ADDRESS AND STORE
@@ -6285,7 +6285,7 @@ LD59B           CLR         DRGRAM          ; CLEAR RAM IMAGE OF DSKREG
 D5A1            JMP         LD60E           ; PROCESS DRIVES NOT READY ERROR
 
 ; BUILD A FORMATTED TRACK OF DATA IN RAM STARTING AT DFLBUF.
-                LDX         #DFLBUF         ; START TRACK BUFFER AT DFLBUF
+LD5A4           LDX         #DFLBUF         ; START TRACK BUFFER AT DFLBUF
                 LDD         #$204E          ; GET SET TO WRITE 32 BYTES OF $4E
                 BSR         LD5D5           ; GO WRITE GAP IV
                 CLRB                        ; RESET SECTOR COUNTER

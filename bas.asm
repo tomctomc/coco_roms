@@ -123,7 +123,7 @@ LA0BA           STX         TOPRAM          ; SET TOP OF RAM POINTER
 ; -----------------------------------------------------------------------------
                 if          VERBAS<20
 ; -----------------------------------------------------------------------------
-RESVEC          LEAY        <LA00E,PC       ; POINT Y TO WARM START CHECK CODE
+RESVEC          LEAY        <LA00E,PCR      ; POINT Y TO WARM START CHECK CODE
 LA02A           LDX         #PIA1           ; POINT X TO PIA1
                 CLR         -3,X            ; CLEAR PIA0 CONTROL REGISTER A
                 CLR         -1,X            ; CLEAR PIA0 CONTROL REGISTER B
@@ -203,7 +203,7 @@ LA084           LDA         2,X             ; LOOK FOR END OF MEMORY
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-RESVEC          LEAY        <LA00E,PC       ; POINT Y TO WARM START CHECK CODE
+RESVEC          LEAY        <LA00E,PCR      ; POINT Y TO WARM START CHECK CODE
 LA02A           LDA         #$3A
                 STA         >MMUREG+2
                 LDX         #PIA1
@@ -308,7 +308,7 @@ LA0CE           CMPX        EXBAS           ; SEE IF EXTENDED ROM IS THERE
                 JMP         >$8002          ; CPYROM copy rom to ram (coco3)
                 PSHS        X,B
                 TST         HRWIDTH
-                LBNE        <$F77E          ; ALINK24
+                LBNE        $F77E           ; ALINK24
 LA0D6           JSR         >LA199
                 JSR         >KEYIN
                 BEQ         LA0D6
@@ -376,7 +376,7 @@ LA102           LDU         #LA108
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-LA102           LEAY        <LA108,PC       ; Y = ROM-PAK START UP VECTOR
+LA102           LEAY        <LA108,PCR      ; Y = ROM-PAK START UP VECTOR
 ; -----------------------------------------------------------------------------
                 endif
 ; -----------------------------------------------------------------------------
@@ -432,30 +432,30 @@ LA142           FCB         20              ; 20 BASIC SECONDARY COMMANDS
 LA143           FDB         LAB1A           ; POINTS TO SECONDARY FUNCTION RESERVED WORDS
 LA145           FDB         LAA29           ; POINTS TO SECONDARY FUNCTION JUMP TABLE
 ; COPYRIGHT MESSAGES
-LA147           FCC         'COLOR BASIC '
+LA147           FCC         "COLOR BASIC "
 ; -----------------------------------------------------------------------------
                 if          VERBAS<11
 ; -----------------------------------------------------------------------------
-                FCC         '1.0'
+                FCC         "1.0"
 ; -----------------------------------------------------------------------------
                 else
                 if          VERBAS<12
 ; -----------------------------------------------------------------------------
-                FCC         '1.1'
+                FCC         "1.1"
 ; -----------------------------------------------------------------------------
                 else
                 if          VERBAS<13
 ; -----------------------------------------------------------------------------
-                FCC         '1.2'
+                FCC         "1.2"
 ; -----------------------------------------------------------------------------
                 else
                 if          VERBAS<20
 ; -----------------------------------------------------------------------------
-                FCC         '1.3'
+                FCC         "1.3"
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-                FCC         '1.2'           ; for some reason, coco3 has "1.2" in there ;
+                FCC         "1.2"           ; for some reason, coco3 has "1.2" in there ;
 ; but we are still calling it VERBAS=20 for our conditional assemble
 ; -----------------------------------------------------------------------------
                 endif
@@ -464,21 +464,21 @@ LA147           FCC         'COLOR BASIC '
                 endif
 ; -----------------------------------------------------------------------------
 LA156           FCB         CR
-LA157           FCC         '(C) 198'
+LA157           FCC         "(C) 198"
 ; -----------------------------------------------------------------------------
                 if          VERBAS<12
 ; -----------------------------------------------------------------------------
-                FCC         '0'
+                FCC         "0"
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-                FCC         '2'
+                FCC         "2"
 ; -----------------------------------------------------------------------------
                 endif
 ; -----------------------------------------------------------------------------
-                FCC         ' TANDY'
+                FCC         " TANDY"
 LA165           FCB         $00
-LA166           FCC         'MICROSOFT'
+LA166           FCC         "MICROSOFT"
 LA16F           FCB         CR,$00
 LA171           BSR         LA176           ; GET A CHARACTER FROM CONSOLE IN
                 ANDA        #$7F            ; MASK OFF BIT 7
@@ -830,7 +830,7 @@ LA22E           LDA         #$7F            ; COLUMN STROBE
                 LDA         ,U              ; READ KEY DATA
                 COMA                        ;
                 ANDA        #$40            ; SET BIT 6 IF SHIFT KEY DOWN
-                RTS         RETURN
+                RTS                         ; RETURN
 ; READ THE KEYBOARD
 LA238           STB         2,U             ; SAVE NEW COLUMN STROBE VALUE
 LA23A           LDA         ,U              ; READ PIA0, PORT A TO SEE IF KEY IS DOWN
@@ -840,7 +840,7 @@ LA23A           LDA         ,U              ; READ PIA0, PORT A TO SEE IF KEY IS
                 BMI         LA244           ; NO
                 ORA         #$C0            ; YES, FORCE ROW 6 TO BE HIGH - THIS WILL CAUSE
 ; THE SHIFT KEY TO BE IGNORED
-LA244           RTS         RETURN
+LA244           RTS                         ; RETURN
 LA245           LDB         #51             ; CODE FOR AT SIGN
 LA247           LDX         #CONTAB-$36     ; POINT X TO CONTROL CODE TABLE
                 CMPB        #33             ; KEY NUMBER <33?
@@ -1418,7 +1418,7 @@ LA5DA           CLRB                        ;  NOT EOF FLAG = 0
                 COMB                        ;  NO - EOF: SET FLAG = -1 ($FF)
 LA5E4           PULS        A               ; GET DEVICE NUMBER BACK AGAIN
                 STA         DEVNUM          ; RESTORE IT
-LA5E8           SEX         CONVERT         ; ACCB TO 2 DIGIT SIGNED INTEGER
+LA5E8           SEX                         ; CONVERT ACCB TO 2 DIGIT SIGNED INTEGER
                 JMP         >GIVABF         ; CONVERT ACCD TO FLOATING POINT
 ; SKIPF
 SKIPF           BSR         LA5C5           ; SCAN OFF THE BASIC FILE NAME
@@ -1991,7 +1991,7 @@ LA9BB           LDX         >SNDDUR         ; GET INTERRUPT TIMER (SOUND COMMAND
                 BEQ         LA9C5           ; RETURN IF TIMER = 0
                 LEAX        -1,X            ; DECREMENT TIMER IF NOT = 0
                 STX         >SNDDUR         ; SAVE NEW TIMER VALUE
-LA9C5           RTI         RETURN          ; FROM INTERRUPT
+LA9C5           RTI                         ; RETURN FROM INTERRUPT
 ; JOYSTK
 JOYSTK          JSR         >LB70E          ; EVALUATE JOYSTICK ARGUMENT
                 CMPB        #3              ; TWO JOYSTICKS MAXIMUM (HOR & VER FOR EACH)
@@ -2107,82 +2107,82 @@ LAA51           FCB         $79
 
 ; THIS IS THE RESERVED WORD TABLE
 ; TOKEN #
-LAA66           FCS         'FOR'           ; 80
-                FCS         'GO'            ; 81
-                FCS         'REM'           ; 82
+LAA66           FCS         "FOR"           ; 80
+                FCS         "GO"            ; 81
+                FCS         "REM"           ; 82
                 FCB         ''+$80          ; 83
-                FCS         'ELSE'          ; 84
-                FCS         'IF'            ; 85
-                FCS         'DATA'          ; 86
-                FCS         'PRINT'         ; 87
-                FCS         'ON'            ; 88
-                FCS         'INPUT'         ; 89
-                FCS         'END'           ; 8A
-                FCS         'NEXT'          ; 8B
-                FCS         'DIM'           ; 8C
-                FCS         'READ'          ; 8D
-                FCS         'RUN'           ; 8E
-                FCS         'RESTORE'       ; 8F
-                FCS         'RETURN'        ; 90
-                FCS         'STOP'          ; 91
-                FCS         'POKE'          ; 92
-                FCS         'CONT'          ; 93
-                FCS         'LIST'          ; 94
-                FCS         'CLEAR'         ; 95
-                FCS         'NEW'           ; 96
-                FCS         'CLOAD'         ; 97
-                FCS         'CSAVE'         ; 98
-                FCS         'OPEN'          ; 99
-                FCS         'CLOSE'         ; 9A
-                FCS         'LLIST'         ; 9B
-                FCS         'SET'           ; 9C
-                FCS         'RESET'         ; 9D
-                FCS         'CLS'           ; 9E
-                FCS         'MOTOR'         ; 9F
-                FCS         'SOUND'         ; A0
-                FCS         'AUDIO'         ; A1
-                FCS         'EXEC'          ; A2
-                FCS         'SKIPF'         ; A3
-                FCS         'TAB('          ; A4
-                FCS         'TO'            ; A5
-                FCS         'SUB'           ; A6
-                FCS         'THEN'          ; A7
-                FCS         'NOT'           ; A8
-                FCS         'STEP'          ; A9
-                FCS         'OFF'           ; AA
+                FCS         "ELSE"          ; 84
+                FCS         "IF"            ; 85
+                FCS         "DATA"          ; 86
+                FCS         "PRINT"         ; 87
+                FCS         "ON"            ; 88
+                FCS         "INPUT"         ; 89
+                FCS         "END"           ; 8A
+                FCS         "NEXT"          ; 8B
+                FCS         "DIM"           ; 8C
+                FCS         "READ"          ; 8D
+                FCS         "RUN"           ; 8E
+                FCS         "RESTORE"       ; 8F
+                FCS         "RETURN"        ; 90
+                FCS         "STOP"          ; 91
+                FCS         "POKE"          ; 92
+                FCS         "CONT"          ; 93
+                FCS         "LIST"          ; 94
+                FCS         "CLEAR"         ; 95
+                FCS         "NEW"           ; 96
+                FCS         "CLOAD"         ; 97
+                FCS         "CSAVE"         ; 98
+                FCS         "OPEN"          ; 99
+                FCS         "CLOSE"         ; 9A
+                FCS         "LLIST"         ; 9B
+                FCS         "SET"           ; 9C
+                FCS         "RESET"         ; 9D
+                FCS         "CLS"           ; 9E
+                FCS         "MOTOR"         ; 9F
+                FCS         "SOUND"         ; A0
+                FCS         "AUDIO"         ; A1
+                FCS         "EXEC"          ; A2
+                FCS         "SKIPF"         ; A3
+                FCS         "TAB("          ; A4
+                FCS         "TO"            ; A5
+                FCS         "SUB"           ; A6
+                FCS         "THEN"          ; A7
+                FCS         "NOT"           ; A8
+                FCS         "STEP"          ; A9
+                FCS         "OFF"           ; AA
                 FCS         '+'             ; AB
                 FCS         '-'             ; AC
                 FCS         '*'             ; AD
                 FCS         '/'             ; AE
                 FCS         '^'             ; AF
-                FCS         'AND'           ; B0
-                FCS         'OR'            ; B1
+                FCS         "AND"           ; B0
+                FCS         "OR"            ; B1
                 FCS         '>'             ; B2
                 FCS         '='             ; B3
                 FCS         '<'             ; B4
 
 ; TOKENS FOR THE SECONDARY FUNCTIONS ARE PRECEEDED BY $FF
 ; TOKEN #
-LAB1A           FCS         'SGN'           ; 80
-                FCS         'INT'           ; 81
-                FCS         'ABS'           ; 82
-                FCS         'USR'           ; 83
-                FCS         'RND'           ; 84
-                FCS         'SIN'           ; 85
-                FCS         'PEEK'          ; 86
-                FCS         'LEN'           ; 87
-                FCS         'STR$'          ; 88
-                FCS         'VAL'           ; 89
-                FCS         'ASC'           ; 8A
-                FCS         'CHR$'          ; 8B
-                FCS         'EOF'           ; 8C
-                FCS         'JOYSTK'        ; 8D
-                FCS         'LEFT$'         ; 8E
-                FCS         'RIGHT$'        ; 8F
-                FCS         'MID$'          ; 90
-                FCS         'POINT'         ; 91
-                FCS         'INKEY$'        ; 92
-                FCS         'MEM'           ; 93
+LAB1A           FCS         "SGN"           ; 80
+                FCS         "INT"           ; 81
+                FCS         "ABS"           ; 82
+                FCS         "USR"           ; 83
+                FCS         "RND"           ; 84
+                FCS         "SIN"           ; 85
+                FCS         "PEEK"          ; 86
+                FCS         "LEN"           ; 87
+                FCS         "STR$"          ; 88
+                FCS         "VAL"           ; 89
+                FCS         "ASC"           ; 8A
+                FCS         "CHR$"          ; 8B
+                FCS         "EOF"           ; 8C
+                FCS         "JOYSTK"        ; 8D
+                FCS         "LEFT$"         ; 8E
+                FCS         "RIGHT$"        ; 8F
+                FCS         "MID$"          ; 90
+                FCS         "POINT"         ; 91
+                FCS         "INKEY$"        ; 92
+                FCS         "MEM"           ; 93
 
 ; DISPATCH TABLE FOR COMMANDS TOKEN #
 LAB67           FDB         FOR             ; FOR 80
@@ -2223,40 +2223,40 @@ LAB67           FDB         FOR             ; FOR 80
                 FDB         SKIPF           ; SKIPF A3
 
 ; ERROR MESSAGES AND THEIR NUMBERS AS USED INTERNALLY
-LABAF           FCC         'NF'            ; 0 NEXT WITHOUT FOR
-                FCC         'SN'            ; 1 SYNTAX ERROR
-                FCC         'RG'            ; 2 RETURN WITHOUT GOSUB
-                FCC         'OD'            ; 3 OUT OF DATA
-                FCC         'FC'            ; 4 ILLEGAL FUNCTION CALL
-                FCC         'OV'            ; 5 OVERFLOW
-                FCC         'OM'            ; 6 OUT OF MEMORY
-                FCC         'UL'            ; 7 UNDEFINED LINE NUMBER
-                FCC         'BS'            ; 8 BAD SUBSCRIPT
-                FCC         'DD'            ; 9 REDIMENSIONED ARRAY
-                FCC         '/0'            ; 10 DIVISION BY ZERO
-                FCC         'ID'            ; 11 ILLEGAL DIRECT STATEMENT
-                FCC         'TM'            ; 12 TYPE MISMATCH
-                FCC         'OS'            ; 13 OUT OF STRING SPACE
-                FCC         'LS'            ; 14 STRING TOO LONG
-                FCC         'ST'            ; 15 STRING FORMULA TOO COMPLEX
-                FCC         'CN'            ; 16 CAN'T CONTINUE
-                FCC         'FD'            ; 17 BAD FILE DATA
-                FCC         'AO'            ; 18 FILE ALREADY OPEN
-                FCC         'DN'            ; 19 DEVICE NUMBER ERROR
-                FCC         'IO'            ; 20 I/O ERROR
-                FCC         'FM'            ; 21 BAD FILE MODE
-                FCC         'NO'            ; 22 FILE NOT OPEN
-                FCC         'IE'            ; 23 INPUT PAST END OF FILE
-                FCC         'DS'            ; 24 DIRECT STATEMENT IN FILE
-LABE1           FCC         ' ERROR'
+LABAF           FCC         "NF"            ; 0 NEXT WITHOUT FOR
+                FCC         "SN"            ; 1 SYNTAX ERROR
+                FCC         "RG"            ; 2 RETURN WITHOUT GOSUB
+                FCC         "OD"            ; 3 OUT OF DATA
+                FCC         "FC"            ; 4 ILLEGAL FUNCTION CALL
+                FCC         "OV"            ; 5 OVERFLOW
+                FCC         "OM"            ; 6 OUT OF MEMORY
+                FCC         "UL"            ; 7 UNDEFINED LINE NUMBER
+                FCC         "BS"            ; 8 BAD SUBSCRIPT
+                FCC         "DD"            ; 9 REDIMENSIONED ARRAY
+                FCC         "/0"            ; 10 DIVISION BY ZERO
+                FCC         "ID"            ; 11 ILLEGAL DIRECT STATEMENT
+                FCC         "TM"            ; 12 TYPE MISMATCH
+                FCC         "OS"            ; 13 OUT OF STRING SPACE
+                FCC         "LS"            ; 14 STRING TOO LONG
+                FCC         "ST"            ; 15 STRING FORMULA TOO COMPLEX
+                FCC         "CN"            ; 16 CAN'T CONTINUE
+                FCC         "FD"            ; 17 BAD FILE DATA
+                FCC         "AO"            ; 18 FILE ALREADY OPEN
+                FCC         "DN"            ; 19 DEVICE NUMBER ERROR
+                FCC         "IO"            ; 20 I/O ERROR
+                FCC         "FM"            ; 21 BAD FILE MODE
+                FCC         "NO"            ; 22 FILE NOT OPEN
+                FCC         "IE"            ; 23 INPUT PAST END OF FILE
+                FCC         "DS"            ; 24 DIRECT STATEMENT IN FILE
+LABE1           FCC         " ERROR"
                 FCB         $00
-LABE8           FCC         ' IN '
+LABE8           FCC         " IN "
                 FCB         $00
 LABED           FCB         CR
-LABEE           FCC         'OK'
+LABEE           FCC         "OK"
                 FCB         CR,$00
 LABF2           FCB         CR
-                FCC         'BREAK'
+                FCC         "BREAK"
                 FCB         $00
 ; SEARCH THE STACK FOR GOSUB/RETURN OR FOR/NEXT DATA.
 ; THE FOR/NEXT INDEX VARIABLE DESCRIPTOR ADDRESS BEING
@@ -2825,7 +2825,7 @@ LAFBE           STX         V4D             ; SAVE STRING DESCRIPTOR ADDRESS IN 
                 STA         ,X              ; SAVE STRING LENGTH AND START IN
                 STY         2,X             ; TARGET DESCRIPTOR LOCATION
 LAFCE           RTS
-LAFCF           FCC         '?REDO'         ; ?REDO MESSAGE
+LAFCF           FCC         "?REDO"         ; ?REDO MESSAGE
                 FCB         CR,$00
 LAFD6           LDB         #2*17           ; BAD FILE DATA ERROR
                 TST         DEVNUM          ; CHECK DEVICE NUMBER AND BRANCH
@@ -2967,7 +2967,7 @@ LB0D5           LDX         DATTMP          ; GET DATA POINTER
                 LDX         #LB0E8-1        ; POINT X TO ?EXTRA IGNORED
                 JMP         >LB99C          ; PRINT THE MESSAGE
 LB0E7           RTS
-LB0E8           FCC         '?EXTRA IGNORED' ; ?EXTRA IGNORED MESSAGE
+LB0E8           FCC         "?EXTRA IGNORED" ; ?EXTRA IGNORED MESSAGE
                 FCB         CR,$00
 ; NEXT
 NEXT            BNE         LB0FE           ; BRANCH IF ARGUMENT GIVEN
@@ -3833,7 +3833,7 @@ LB659           LDB         ,X              ; GET LENGTH OF STRING
 LB66F           LEAX        1,X             ; ADD ONE TO POINTER
                 RTS
 LB672           LDX         2,X             ; POINT X TO ADDRESS OF STRING NOT
-                RTS         *ON             ; THE STRING STACK
+                RTS                         ; *ON THE STRING STACK
 ; REMOVE STRING FROM STRING STACK. ENTER WITH X
 ; POINTING TO A STRING DESCRIPTOR - DELETE THE
 ; STRING FROM STACK IF IT IS ON TOP OF THE
@@ -4112,7 +4112,7 @@ LB85C           CLR         ,U+             ; DOUBLE ZERO AT END OF LINE
                 SUBD        #LINHDR         ; LENGTH OF LINE IN ACCD
                 LDX         #LINBUF-1       ; SET THE INPUT POINTER TO ONE BEFORE
                 STX         CHARAD          ; THE START OF THE CRUNCHED LINE
-                RTS         EXIT            ; 'CRUNCH'
+                RTS                         ; EXIT 'CRUNCH'
 LB86B           CMPA        #'?             ; CHECK FOR "?" - PRINT ABBREVIATION
                 BNE         LB873           ; BRANCH IF NOT PRINT ABBREVIATION
                 LDA         #$87            ; GET THE PRINT TOKEN AND SAVE IT
@@ -4765,7 +4765,7 @@ LBCA0           LDB         FP0EXP          ; GET EXPONENT OF
                 LDB         FPA0+3          ; SUBTRACT LS BYTE
                 SUBB        4,X             ; OF (X) FROM LS BYTE OF
                 BNE         LBCC3           ; FPA0, BRANCH IF <>
-                RTS         RETURN          ; IF FP (X) = FPA0
+                RTS                         ; RETURN IF FP (X) = FPA0
 LBCC3           RORB                        ;  SHIFT CARRY TO BIT 7 CARRY SET IF FPA0 < (X)
                 EORB        FP0SGN          ; TOGGLE SIZE COMPARISON BIT IF FPA0 IS NEGATIVE
                 BRA         LBC73           ; GO SET ACCB ACCORDING TO COMPARISON
@@ -4818,7 +4818,7 @@ LBD09           STB         FPA0            ; LOAD MANTISSA OF FPA0 WITH CONTENT
                 STB         FPA0+1
                 STB         FPA0+2
                 STB         FPA0+3
-LBD11           RTS         *
+LBD11           RTS                         ; *
 ; CONVERT ASCII STRING TO FLOATING POINT
 LBD12           LDX         ZERO            ; (X) = 0
                 STX         FP0SGN          ; ZERO OUT FPA0 & THE SIGN FLAG (COEFCT)
