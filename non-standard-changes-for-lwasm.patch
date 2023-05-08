@@ -1,14 +1,14 @@
-From 933a737398338c72bfefc9768b26e463a0a9338f Mon Sep 17 00:00:00 2001
+From 43392e79e82e254c03d6bbd1de387dc49b31efbe Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
-Date: Fri, 28 Apr 2023 09:44:34 -0400
+Date: Mon, 8 May 2023 09:41:53 -0400
 Subject: code: Re-write conditional logic for lwasm
 
 ---
- bas.asm    | 144 ++++++++++++++++++++++++++---------------------------
- disk.asm   |   6 +--
- extbas.asm |  72 +++++++++++++--------------
- supbas.asm |  78 ++++++++++++++---------------
- 4 files changed, 150 insertions(+), 150 deletions(-)
+ bas.asm    | 144 ++++++++++++++++++++---------------------
+ disk.asm   | 184 ++++++++++++++++++++++++++---------------------------
+ extbas.asm |  72 ++++++++++-----------
+ supbas.asm |  78 +++++++++++------------
+ 4 files changed, 239 insertions(+), 239 deletions(-)
 
 diff --git a/bas.asm b/bas.asm
 index 4be64d8..d5eaf6f 100644
@@ -501,19 +501,682 @@ index 4be64d8..d5eaf6f 100644
  
                  END
 diff --git a/disk.asm b/disk.asm
-index 7a613fc..9c78b25 100644
+index 27acc19..3c0a58a 100644
 --- a/disk.asm
 +++ b/disk.asm
-@@ -3,7 +3,7 @@
- ; TODO (they are just here back to back in a big if.. else..)
+@@ -7,17 +7,17 @@
+ ; $Id: $
+ 
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ DHITOK          EQU         $E1             ; HIGHEST 1.1 DISK TOKEN
+ CYEAR           EQU         '2
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+ DHITOK          EQU         $E0             ; HIGHEST 1.0 DISK TOKEN
+ CYEAR           EQU         '1
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ 
+ 
+@@ -115,12 +115,12 @@ FCBLFT          EQU         24              ; NUMBER OF CHARACTERS LEFT IN BUFFE
+ DCNVEC          FDB         DSKCON          ; DSKCON POINTER
+ DSKVAR          FDB         DCOPC           ; ADDRESS OF DSKCON VARIABLES
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ DSINIT          FDB         DOSINI          ; DISK INITIALIZATION VECTOR
+ DOSVEC          FDB         DOSCOM          ; DOS COMMAND VECTOR
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ ; ZERO OUT THE RAM USED BY DISK BASIC
+ LRC00C          LDX         #DBUF0          ; POINT X TO START OF DISK RAM
+@@ -152,12 +152,12 @@ LC03B           LDA         #$7E            ; OP CODE OF JMP INSTRUCTION
+                 LDX         #DVEC22         ; GET ROM VALUE OF 'GET'/'PUT' RAM VECTOR
+                 STX         RVEC22+1        ; SAVE IT IN RAM
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 LDX         #DVEC20         ; GET DISK COMMAND INTERPRETATION LOOP RAM VECTOR
+                 STX         RVEC20+1        ; SAVE IN RAM VECTOR TABLE
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ ; INITIALIZE DISK BASIC'S USR VECTORS
+                 LDX         #DUSRVC         ; POINT X TO START OF DISK BASIC USR VECTORS
+@@ -200,7 +200,7 @@ LC061           STU         ,X++            ; SET USR VECTOR TO 'FC' ERROR
+                 TFR         X,D             ; SAVE THE ADDRESS IN ACCD
+                 TSTB                        ;  ON AN EVEN 256 BYTE BOUNDARY?
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 BEQ         LC0BD           ; YES
+                 INCA                        ;  NO - ADD 256 TO ADDRESS
+@@ -208,12 +208,12 @@ LC0BD           BITA        #$01            ; CHECK TO SEE IF ACCD IS ON AN EVEN
+                 BEQ         LC0C2           ; 512 BYTE (ONE GRAPHIC PAGE) BOUNDARY - ADD
+                 INCA                        ;  256 (INCA) TO IT IF NOT
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 BEQ         LC0C2           ; YES
+                 INCA                        ;  NO - ADD 256 TO ADDRESS
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ LC0C2           TFR         A,B             ; COPY ACCA TO ACCB
+                 ADDB        #$18            ; SAVE ENOUGH ROOM FOR 4 GRAPHICS PAGES (PCLEAR 4)
+@@ -223,11 +223,11 @@ LC0C2           TFR         A,B             ; COPY ACCA TO ACCB
+                 ADDA        #$06            ; ADD 1.5K (6 X 256 = ONE GRAPHICS PAGE)
+                 STA         ENDGRP          ; SAVE NEW END OF GRAPHICS PAGE
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 JSR         [DSINIT]        ; INITIALIZE SWI2,3 JUMP ADDRESSES
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 BSR         LC0F0           ; GO INITIALIZE THE FLOPPY DISK CONTROLLER
+                 ANDCC       #$AF            ; TURN ON IRQ AND FIRQ
+@@ -253,15 +253,15 @@ LC0F0           CLR         NMIFLG          ; RESET NMI FLAG
+ 
+ ; DISK BASIC COMMAND INTERP TABLES
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ LC109           FCB         20              ; 20 DISK BASIC 1.1 COMMANDS
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+ LC109           FCB         19              ; 19 DISK BASIC 1.0 COMMANDS
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 FDB         LC192           ; DISK BASIC'S COMMAND DICTIONARY
+                 FDB         LC238           ; COMMAND JUMP TABLE
+@@ -280,15 +280,15 @@ LC113           FDB         DVEC0,DVEC1,DVEC2
+ 
+ ; DISK BASIC COPYRIGHT MESSAGE
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ LC139           FCC         "DISK EXTENDED COLOR BASIC 1.1"
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+ LC139           FCC         "DISK EXTENDED COLOR BASIC 1.0"
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 FCB         CR
+                 FCC         "COPYRIGHT (C) 198"
+@@ -321,11 +321,11 @@ LC192           FCS         "DIR"           ; CE
+                 FCS         "DSKO$"         ; E0
+ 
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 FCS         "DOS"           ; E1
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ 
+ ; DISK BASIC COMMAND JUMP TABLE
+@@ -351,11 +351,11 @@ LC1F1           FDB         DIR             ; DIR / CE
+                 FDB         DSKO            ; DSKO$ / E0
+ 
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 FDB         DOS             ; DOS / E1
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ 
+ ; SECONDARY FUNCTION DICTIONARY TABLE
+@@ -456,7 +456,7 @@ LC2C1           LEAS        $05,S           ; PURGE RETURN ADDRESS AND REGISTERS
+                 BEQ         LC2EA           ; BRANCH IF END OF LINE
+                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 JSR         >LB73D          ; EVALUATE EXPRESSION - RETURN IN (X)
+                 TFR         X,D             ; SAVE RECORD NUMBER IN ACCD
+@@ -466,14 +466,14 @@ LC2EA           LDD         FCBREC,X        ; GET RECORD NUMBER
+                 BEQ         LC30B           ; 'BAD RECORD' ERROR IF RECORD NUMBER = 0
+                 JSR         >LC685          ; INCREMENT RECORD NUMBER
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 JSR         LB3E6           ; EVALUATE EXPRESSION - RETURN IN ACCD
+ LC2E6           LDX         FCBTMP          ; POINT X TO FCB
+                 STD         FCBREC,X        ; SAVE RECORD NUMBER IN FCB
+ LC2EA           JSR         >LC685          ; INCREMENT RECORD NUMBER
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 LDD         FCBRLN,X        ; GET RANDOM FILE RECORD LENGTH AND RANDOM FILE
+                 LDX         FCBBUF,X        ; BUFFER POINTER AND SAVE THEM ON THE STACK -
+@@ -617,17 +617,17 @@ LC3CF           PSHS        B               ; SAVE BYTE OFFSET ON STACK
+ ; IF LAST USED SECTOR, CALCULATE HOW MANY BYTES ARE USED
+ ; IF DATA IS BEING 'PUT' PASTH THE CURRENT END OF FILE
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 CMPD        #SECLEN         ; COMPARE TO ONE SECTOR'S LENGTH
+                 BLS         LC405           ; BRANCH IF REMAINDER OF RECORD LENGTH WILL FIT IN THIS SECTOR
+                 LDD         #SECLEN         ; FORCE NUMBER OF BYTES = ONE SECTOR LENGTH
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 ANDA        #$01
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ LC405           ORA         #$80            ; SET PRE-SAVED FLAG BIT - ALL PUT RECORDS ARE
+ ; WRITTEN TO DISK BEFORE LEAVING 'PUT'
+@@ -738,15 +738,15 @@ LC4C7           ASL         ,S              ; SET FILE TYPE TO OUTPUT
+                 STX         V978            ; SAVE IT AS FIRST FREE DIRECTORY ENTRY
+ 
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ LC4E1           JSR         >LC567          ; SET UP NEW DIRECTORY ENTRY ON DISK
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+ LC4E1           BSR         LC567           ; SET UP NEW DIRECTORY ENTRY ON DISK
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 BSR         LC538           ; INITIALIZE FILE BUFFER
+                 BRA         LC4BB           ; FLAG AND MAP FCB AS BEING USED
+@@ -768,7 +768,7 @@ LC504           LDB         #2*29           ; 'OUT OF BUFFER SPACE' ERROR
+ LC509           PSHS        B,A             ; SAVE END OF RANDOM BUFFER ON STACK
+                 TST         V973            ; DID THIS FILE EXIST
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 BNE         LC514           ; BRANCH IF SO
+                 BSR         LC567           ; SET UP NEW FILE IN DIRECTORY
+@@ -777,12 +777,12 @@ LC514           LDA         #$FF            ; SET FILE TYPE MATCH = $FF (ILLEGAL
+                 JSR         >LC807          ; THIS WILL FORCE ANY OPEN MATCHED FILE TO CAUSE
+                                             ; A 'FILE ALREADY OPEN' ERROR
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 BNE         LC519           ; BRANCH IF SO
+                 BSR         LC567           ; SET UP NEW FILE IN DIRECTORY
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ 
+ LC519           BSR         LC52D           ; INITIALIZE FCB
+@@ -1053,21 +1053,21 @@ LC71E           LDU         #DBUF0          ; POINT U TO DISK BUFFER 0 AND
+                 JSR         >LA59A          ; MOVE ACCB BYTES FROM FAT RAM IMAGE TO DBUF0
+ ; ZERO OUT ALL OF THE BYTES IN THE FAT SECTOR WHICH DO NOT CONTAIN THE GRANULE DATA
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ LC739           CLR         ,U+             ; CLEAR A BYTE
+                 CMPU        #DBUF0+SECLEN   ; FINISHED THE WHOLE SECTOR?
+                 BNE         LC739           ; NO
+                 JMP         >LD6F2          ; WRITE A SECTOR
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+ LC739           CLR         ,X+             ; THIS IS A BUG; SHOULD BE CLR ,U+
+                 CMPX        #DBUF0+SECLEN   ; MORE OF THE SAME BUG; SHOULD BE CMPU
+                 ; BNE LC739 THIS INSTRUCTION HAS BEEN LEFT OUT
+                 JMP         >LD6F2          ; WRITE A SECTOR
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ 
+ ; ENTER WITH ACCB CONTAINING FILE NUMBER (1-15); EXIT WITH X POINTING
+@@ -1243,7 +1243,7 @@ DVEC6           LDA         #OUTFIL         ; OUTPUT FILE TYPE
+ ; THIS IS THE SAME AS LEAS 2,S AND PSHS X
+                 JSR         >LC744          ; POINT X TO FCB
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 PSHS        B,A             ; SAVE ACCB AND FILE TYPE ON STACK
+                 LDA         FCBTYP,X        ; GET FILE TYPE
+@@ -1254,7 +1254,7 @@ DVEC6           LDA         #OUTFIL         ; OUTPUT FILE TYPE
+                 BNE         LC845           ; 'FILE MODE' ERROR IF NOT
+ LC866           PULS        A,B,X,PC        ; RESTORE ACCB,X,ACCA (FILE TYPE) AND RETURN
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 PSHS        A               ; SAVE FILE TYPE ON STACK
+                 LDA         FCBTYP,X        ; GET FILE TYPE
+@@ -1265,11 +1265,11 @@ LC866           PULS        A,B,X,PC        ; RESTORE ACCB,X,ACCA (FILE TYPE) AN
+                 BNE         LC845           ; 'FILE MODE' ERROR IF NOT
+ LC866           PULS        A,X,PC          ; RETURN
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ 
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ LC868           LDX         $04,S           ; GET CALLING ADDRESS FROM THE STACK AND
+                 CMPX        #LB00C          ; RETURN UNLESS COMING FROM
+@@ -1285,19 +1285,19 @@ LC881           LDX         #LB01E          ; GET MODIFIED REENTRY POINT INTO BA
+                 STX         $04,S           ; AND PUT IT INTO THE RETURN ADDRESS ON THE STACK
+                 PULS        A,B,X,PC        ; RETURN TO BASIC
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ 
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ NEAREST_RTS     set         LC8AF
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+ NEAREST_RTS     set         LC806
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ 
+ ; DEVICE NUMBER VALIDITY CHECK RAM HOOK
+@@ -1323,7 +1323,7 @@ DVEC11          TST         DEVNUM          ; CHECK DEVICE NUMBER AND RETURN
+ LC8AF           RTS                         ; = DO A BREAK CHECK IF DISK FILE
+ 
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ ; COMMAND INTERPRETATION RAM HOOK
+ DVEC20          LEAS        $02,S           ; PURGE RETURN ADDRESS OFF OF THE STACK
+@@ -1368,7 +1368,7 @@ LC905           TFR         B,CC            ; RESTORE STATUS REGISTER
+                 JSR         >LADC6          ; LOOP THROUGH BASIC'S MAIN INTERPRETATION LOOP
+                 BRA         LC8B2
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ 
+ ; EOF RAM HOOK
+@@ -1383,15 +1383,15 @@ DVEC14          LEAS        $02,S           ; PURGE RETURN ADDRESS OFF OF THE ST
+                 LDB         FCBTYP,X        ; GET FILE TYPE
+                 CMPB        #RANFIL         ; RANDOM FILE?
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 LBEQ        LA616           ; 'FM' BAD FILE MODE ERROR IF RANDOM
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 BEQ         LC845           ; 'BAD FILE MODE' ERROR IF RANDOM
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 CLRB                        ;  FILE NOT EMPTY FLAG - SET TO NOT EMPTY
+                 LDA         FCBCFL,X        ; CHECK THE CACHE FLAG - BRANCH IF
+@@ -1637,11 +1637,11 @@ LCB06           STX         FCBTMP          ; SAVE FILE BUFFER POINTER
+                 LDA         #$80            ; SET THE PRE-SAVED BIT TO INDICATE THAT THE DATA
+ ; HAS ALREADY BEEN SAVED ON DISK
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 ORA         FCBCPT,X        ; 'OR' IN THE FULL SECTOR FLAG
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 STD         FCBLST,X        ; SAVE THE NUMBER OF BYTES USED IN THE LAST SECTOR
+                 INC         FCBSEC,X        ; INCREMENT THE SECTOR NUMBER
+@@ -1652,19 +1652,19 @@ LCB06           STX         FCBTMP          ; SAVE FILE BUFFER POINTER
+                 INC         FATCON,X        ; INCREMENT GRANULE DATA (ADD ONE SECTOR TO LAST
+ ; GRANULE) SKIP PAST THE SIX FAT CONTROL BYTES
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ LCB2E           JMP         >LCBC3          ; UPDATE FAT AND DIRECTORY
+ LCB31           CMPA        #RANFIL         ; RANDOM FILE?
+                 BNE         LCB2E           ; NO - UPDATE FAT AND DIRECTORY IF SEQUENTIAL INPUT FILE
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 BRA         LCBC3           ; UPDATE FAT AND DIRECTORY
+ LCB31           CMPA        #RANFIL         ; RANDOM FILE?
+                 BNE         LCBC3           ; NO - UPDATE FAT AND DIRECTORY
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ ; CLOSE A RANDOM FILE
+                 LDD         FCBRLN,X        ; GET RECORD LENGTH
+@@ -1672,11 +1672,11 @@ LCB31           CMPA        #RANFIL         ; RANDOM FILE?
+                 LEAY        D,X             ; POINT Y TO END OF RANDOM FILE BUFFER
+                 PSHS        Y,X,B,A         ; SAVE POINTERS ON STACK
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 LEAY        ,S              ; POINT Y CURRENT STACK POINTER
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 LDU         VARTAB          ; GET START OF VARIABLES
+ LCB41           CMPU        ARYTAB          ; COMPARE TO START OF ARRAYS
+@@ -1690,15 +1690,15 @@ LCB4E           LEAU        $05,U           ; MOVE POINTER TO NEXT VARIABLE
+ LCB52           PULS        U               ; GET ADDRESS OF NEXT ARRAY TO U
+ LCB54           CMPU        ARYEND          ; COMPARE TO END OF ARRAYS
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 BEQ         LCB93           ; BRANCH IF END OF ARRAYS
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 BEQ         LCBB2           ; BRANCH IF END OF ARRAYS
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 TFR         U,D             ; SAVE ARRAY START IN ACCD, ADD OFFSET
+                 ADDD        $02,U           ; TO NEXT ARRAY AND SAVE ADDRESS OF
+@@ -1725,7 +1725,7 @@ LCB76           LDX         $02,U           ; POINT X TO START OF STRING
+                 CMPX        RNBFAD          ; COMPARE TO START OF FREE RANDOM FILE BUFFER AREA
+                 BHS         LCB8B           ; RETURN IF > START OF FREE RANDOM FILE BUFFER AREA
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 CMPX        $02,Y           ; COMPARE TO START OF THIS FILE'S RANDOM BUFFER
+                 BLO         LCB8B           ; RETURN IF < START OF THIS FILE'S RANDOM BUFFER
+@@ -1734,7 +1734,7 @@ LCB76           LDX         $02,U           ; POINT X TO START OF STRING
+                 TFR         X,D             ; SAVE POINTER IN ACCD
+                 SUBD        ,Y              ; SUBTRACT RECORD LENGTH FROM START OF STRING ADDRESS
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 CMPX        $04,S           ; COMPARE TO START OF THIS FILE'S RANDOM BUFFER
+                 BLO         LCB8C           ; BRANCH IF < START OF THIS FILE'S RANDOM BUFFER
+@@ -1744,7 +1744,7 @@ LCB76           LDX         $02,U           ; POINT X TO START OF STRING
+                 TFR         X,D             ; SAVE POINTER IN ACCD
+                 SUBD        $02,S           ; SUBTRACT RECORD LENGTH FROM START OF STRING ADDRESS
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 STD         $02,U           ; SAVE NEW START OF STRING ADDRESS
+ LCB8B           RTS
+@@ -1753,7 +1753,7 @@ LCB8C           CLR         ,U              ; CLEAR THE LENGTH OF THE STRING
+                 CLR         $03,U           ; OF THE STRING
+                 RTS
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ ; REMOVE RESERVED SPACE IN RANDOM FILE BUFFER FOR A 'CLOSED' RANDOM FILE
+ ; ADJUST THE START OF RANDOM FILE BUFFER POINTER IN ALL RANDOM FCBS
+@@ -1773,7 +1773,7 @@ LCBAD           PULS        B               ; GET THE FILES COUNTER
+                 DECB                        ;  DECREMENT FILES COUNTER
+                 BNE         LCB97           ; BRANCH IF ALL FILES NOT DONE
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ LCBB2           PULS        A,B,X,U         ; U = END OF RANDOM FILE BUFFER, X = START OF RANDOM
+ 
+@@ -1879,11 +1879,11 @@ LCC6A           PULS        A,B,X,PC
+ LCC6C           PSHS        U,Y             ; SAVE REGISTERS
+                 STA         SECLEN+FCBCON-1,X ; STORE LAST CHARACTER IN BUFFER
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK<11
++                IFLT        VERDISK-11
+ ; -----------------------------------------------------------------------------
+                 JSR         LC685           ; INCREMENT RECORD NUMBER
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 LDB         FCBDRV,X        ; GET DRIVE NUMBER AND SAVE
+                 STB         DCDRV           ; IT IN DSKCON CONTROL TABLE
+@@ -1899,7 +1899,7 @@ LCC6C           PSHS        U,Y             ; SAVE REGISTERS
+                 BLO         LCC99           ; BRANCH IF NOT AT END OF GRANULE
+ 
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 DEC         FCBSEC,Y        ; DECREMENT SECTOR NUMBER AND INCREMENT ERROR FLAG IN
+                 INC         FCBCPT,Y        ; CASE ERROR FOUND WHILE LOOKING FOR NEXT GRANULE
+@@ -1918,7 +1918,7 @@ LCC99           ORA         #$C0            ; FORCE GRANULE NUMBER TO BE FINAL G
+                 PULS        Y,U             ; RESTORE REGISTERS
+                 PULS        A,B,X,PC        ; RESTORE REGISTERS AND RETURN
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 CLR         FCBSEC,Y        ; CLEAR SECTOR NUMBER
+                 JSR         LC7BF           ; GET NEXT FREE GRANULE
+@@ -1930,7 +1930,7 @@ LCC99           ORA         #$C0            ; FORCE GRANULE NUMBER TO BE FINAL G
+                 PULS        Y,U             ; RESTORE REGISTERS
+                 PULS        A,B,X,PC        ; RESTORE REGISTERS AND RETURN
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ 
+ ; DIR COMMAND
+@@ -2111,20 +2111,20 @@ MKN             JSR         >LB143          ; 'TM' ERROR IF VALTYP=STRING
+                 JMP         >LB69B          ; SAVE STRING DESCRIPTOR ON STRING STACK
+ ; LOC COMMAND
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ LOC             BSR         LCE19           ; POINT X TO FILE BUFFER
+                 LDD         FCBREC,X        ; GET RECORD NUMBER (RANDOM FILE) OR SECTOR CTR (SEQUENTIAL)
+ DKACCDTOFPA0    STD         FPA0+2          ; SAVE ACCD IN BOTTOM 2 BYTES OF FPA0 AND
+                 JMP         >L880E          ; CONVERT TO FLOATING POINT NUMBER
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+ LOC             BSR         LCE19           ; POINT X TO FILE BUFFER
+                 LDD         FCBREC,X        ; GET RECORD NUMBER (RANDOM FILE) OR SECTOR CTR (SEQUENTIAL)
+ DKACCDTOFPA0    JMP         GIVABF          ; PUT ACCD IN FPA0
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ ; STRIP A DEVICE NUMBER FROM A BASIC STATEMENT, SET PRINT
+ ; PARAMETERS ACCORDING TO IT - ERROR IF FILE NOT
+@@ -2544,11 +2544,11 @@ FILES           JSR         >L95AC          ; RESET SAM DISPLAY PAGE AND VDG MOD
+ LD181           JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
+                 JSR         >LB3E6          ; EVALUATE EXPRESSION, RETURN VALUE IN ACCD
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK<11
++                IFLT        VERDISK-11
+ ; -----------------------------------------------------------------------------
+                 ADDD        #$0001          ; ADD ONE BYTE
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 STD         $01,S           ; SAVE RANDOM FILE BUFFER SIZE ON STACK
+ LD189           JSR         DVEC7           ; CLOSE FILES
+@@ -2568,14 +2568,14 @@ LD199           ADDD        #FCBLEN         ; FCBLEN REQUIRED FOR EACH BUFFER
+ ; (COPY, BACKUP, MERGE ETC.) MAY ACCESS THIS BUFFER.
+                 TSTB                        ;  AT AN EXACT 256 BYTE BOUNDARY?
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 BEQ         LD1A8           ; YES
+                 INCA                        ;  NO - ADD 256
+                 BEQ         LD208           ; 'OUT OF MEMORY' ERROR IF PAST $FFFF
+ LD1A8           BITA        #$01            ; ON A 512 BYTE BOUNDARY?
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 BEQ         LD1AF           ; YES
+                 INCA                        ;  NO - ADD 256
+@@ -2609,7 +2609,7 @@ LD1AF           STA         ,S              ; SAVE MS BYTE OF NEW GRAPHIC RAM ST
+                 STB         FCBACT          ; NUMBER OF FILE BUFFERS
+                 STU         FCBADR          ; START OF FILE BUFFERS
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 LDA         CURLIN          ; GET CURRENT LINE NUMBER
+                 INCA                        ;  ARE WE IN DIRECT MODE?
+@@ -2619,7 +2619,7 @@ LD1AF           STA         ,S              ; SAVE MS BYTE OF NEW GRAPHIC RAM ST
+                 ADDD        CHARAD          ; ADD OLD INPUT POINTER
+                 STD         CHARAD          ; SAVE NEW INPUT POINTER
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ LD1EF           LDU         VARTAB          ; POINT U TO OLD START OF VARIABLES
+                 STX         VARTAB          ; SAVE NEW START OF VARIBLES
+@@ -2843,15 +2843,15 @@ LD3CE           BSR         LD399           ; SAVE DESTINATION FILENAME.EXT & DR
+ ; COUNT THE NUMBER OF SECTORS WORTH OF FREE RAM AVAILABLE
+                 CLR         ,-S             ; CLEAR A SECTOR COUNTER ON THE STACK
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 LEAX        -SECLEN,S       ; POINT X ONE SECTOR LENGTH DOWN FROM THE TOP OF STACK
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 LEAX        -100,S          ; BUG ; * THIS SHOULD BE $100 TO POINT X ONE SECTOR LENGTH BELOW STACK
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ LD3DC           INC         ,S              ; INCREMENT SECTOR COUNTER
+                 LEAX        -SECLEN,X       ; DECREMENT X BY ONE SECTOR
+@@ -3117,11 +3117,11 @@ LD5CE           INCA                        ;  INCREMENT PHYSICAL SECTOR NUMBER
+                 LDA         #$00            ; YOU COULD DELETE THIS INSTRUCTION AND CHANGE FOLLOWING STA TO CLR
+                 STA         DCOPC           ; RESTORE HEAD TO TRACK ZERO DSKCON OP CODE
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 CLR         DCTRK           ; SET DSKCON TRACK VARIABLE TO TRACK ZERO
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+                 JSR         >LD6F2          ; RESTORE HEAD TO TRACK ZERO
+                 CLR         RDYTMR          ; RESET THE READY TIMER
+@@ -3129,18 +3129,18 @@ LD5CE           INCA                        ;  INCREMENT PHYSICAL SECTOR NUMBER
+                 STA         FDCREG          ;
+                 JSR         >LD7D1          ; CHECK DRIVE READY - WAIT UNTIL READY
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+                 BEQ         LD620           ; BRANCH IF DRIVES READY
+                 JMP         >LD688          ; ERROR IF DRIVES NOT READY
+ ; -----------------------------------------------------------------------------
+-                else
++                ELSE
+ ; -----------------------------------------------------------------------------
+                 LBNE        LD688           ; BRANCH IF NOT READY - ISSUE AN ERROR
+                 CLR         DCTRK           ; RESET TRACK NUMBER
+                 BRA         LD620           ; START THE FORMATTING PROCESS
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ LD606           CMPA        #22             ; CHECK FOR TRACK 22 (PRECOMPENSATION)
+                 BLO         LD612           ; AND BRANCH IF < TRACK 22 - NO PRECOMP
+@@ -3263,13 +3263,13 @@ LD6D4           FCB         8,0             ; SYNC FIELD
+                 FCB         1,$F7           ; CRC REQUEST
+                 FCB         24,$4E          ; GAP III (POST DATA GAP)
+ ; -----------------------------------------------------------------------------
+-                if          VERDISK>10
++                IFGT        VERDISK-10
+ ; -----------------------------------------------------------------------------
+ ; DOS COMMAND
+ DOS             BNE         LD742           ; RETURN IF ARGUMENT GIVEN
+                 JMP         [DOSVEC]        ; JUMP TO THE DOS COMMAND
+ ; -----------------------------------------------------------------------------
+-                endif
++                ENDC
+ ; -----------------------------------------------------------------------------
+ LD6F2           PSHS        B               ; SAVE ACCB
+                 LDB         #$05            ; 5 RETRIES
+@@ -3513,7 +3513,7 @@ DIRQSV          LDA         PIA0+3          ; 63.5 MICRO SECOND OR 60 HZ INTERRU
+ LD8CD           JMP         >L8955          ; JUMP TO EXTENDED BASIC'S IRQ HANDLER
  
  ; -----------------------------------------------------------------------------
 -                if          VERDISK>10
 +                IFGT        VERDISK-10
  ; -----------------------------------------------------------------------------
  
- ; Disk Color BASIC 1.1
-@@ -3350,7 +3350,7 @@ END             RTS
+ ; THIS IS THE END OF DISK BASIC (EXCEPT FOR THE DOS COMMAND AT $DF00).
+@@ -3673,7 +3673,7 @@ END             RTS
                  FCB         $98,$C4,$07,$44,$44,$44,$39
  
  ; -----------------------------------------------------------------------------
@@ -521,8 +1184,8 @@ index 7a613fc..9c78b25 100644
 +                ELSE
  ; -----------------------------------------------------------------------------
  
- ; Disk Color BASIC 1.0
-@@ -6731,5 +6731,5 @@ LD7DA           JMP         L8955           ; JUMP TO EXTENDED BASIC'S IRQ HANDL
+ ; THIS IS THE END OF DISK BASIC.
+@@ -3814,5 +3814,5 @@ END             RTS
  
  
  ; -----------------------------------------------------------------------------
