@@ -1,7 +1,9 @@
 From 43392e79e82e254c03d6bbd1de387dc49b31efbe Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Mon, 8 May 2023 09:41:53 -0400
-Subject: code: Re-write conditional logic for lwasm
+Subject: code: Non-standard changes for lwasm
+
+Re-write conditional logic for lwasm
 
 ---
  bas.asm    | 144 ++++++++++++++++++++---------------------
@@ -425,7 +427,7 @@ index 4be64d8..d5eaf6f 100644
 -                endif
 +                ENDC
  ; -----------------------------------------------------------------------------
-                 CMPA        #'"             ; STRING DELIMITER?
+                 CMPA        #'"'            ; STRING DELIMITER?
                  BNE         LB24E           ; NO
 @@ -3412,7 +3412,7 @@ LB3E6           JSR         >LB141          ; GO EVALUATE NUMERIC EXPRESSION
  LB3E9           LDA         FP0SGN          ; GET FPA0 MANTISSA SIGN
@@ -1378,7 +1380,7 @@ index 9804ab0..b6248ba 100644
  ; -----------------------------------------------------------------------------
                  SUBB        #12             ; SUBTRACT 12 FROM EXPONENT AND ADD ONE TO TENS
                  BCC         L9177           ; DIGIT IF NO CARRY. TENS DIGIT DONE IF THERE IS A CARRY
-                 ADDB        #'9+3           ; ADD ASCII BIAS TO UNITS DIGIT
+                 ADDB        #'9'+3          ; ADD ASCII BIAS TO UNITS DIGIT
  ; -----------------------------------------------------------------------------
 -                else
 +                ELSE
@@ -1387,7 +1389,7 @@ index 9804ab0..b6248ba 100644
  
 @@ -2338,7 +2338,7 @@ L9177           INCA                        ;  ADD ONE TO TENS DIGIT COUNTER
                  BCC         L9177           ; DIGIT IF NO CARRY. TENS DIGIT DONE IF THERE IS A CARRY
-                 ADDB        #'9+1           ; ADD ASCII BIAS TO UNITS DIGIT
+                 ADDB        #'9'+1          ; ADD ASCII BIAS TO UNITS DIGIT
  ; -----------------------------------------------------------------------------
 -                endif
 +                ENDC
