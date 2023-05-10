@@ -1,0 +1,2067 @@
+From 5d7e77e542ac8b5f656c3145762b0ae2aeac4d68 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Wed, 10 May 2023 15:19:20 -0400
+Subject: Non-standard changes for mamou
+
+Remove single quotes that cause problems for mamou
+
+---
+ bas.asm    | 158 +++++++++++++++---------------
+ disk.asm   |  80 +++++++--------
+ extbas.asm | 280 ++++++++++++++++++++++++++---------------------------
+ supbas.asm |  78 +++++++--------
+ 4 files changed, 298 insertions(+), 298 deletions(-)
+
+diff --git a/bas.asm b/bas.asm
+index 64f5fa7..4be64d8 100644
+--- a/bas.asm
++++ b/bas.asm
+@@ -1149,7 +1149,7 @@ LA3CD           PSHS        CC              ; SAVE CARRY FLAG
+ ; INSERT A CHARACTER INTO THE BASIC LINE INPUT BUFFER
+ LA3D9           CMPA        #$20            ; IS IT CONTROL CHAR?
+                 BLO         LA39A           ; BRANCH IF CONTROL CHARACTER
+-                CMPA        #'z'+1
++                CMPA        #'z+1
+                 BCC         LA39A           ; IGNORE IF > LOWER CASE Z
+                 CMPB        #LBUFMX         ; HAVE 250 OR MORE CHARACTERS BEEN ENTERED?
+                 BCC         LA39A           ; YES, IGNORE ANY MORE
+@@ -1223,7 +1223,7 @@ CSAVE           JSR         >LA578          ; GO SCAN OFF NAME
+                 JSR         GETCCH          ; GET CURRENT CHARACTER IN THE BASIC LINE
+                 BEQ         LA469           ; BRANCH IF NONE
+                 JSR         >LB26D          ; SYNTAX ERROR IF NOT COMMA
+-                LDB         #'A'            ; IS THIS AN ASCII SAVE?
++                LDB         #'A             ; IS THIS AN ASCII SAVE?
+                 JSR         >LB26F          ; SYNTAX ERROR IF NOT A
+                 BNE         LA44B           ; RETURN IF NOT END OF LINE
+                 CLRA                        ;  FILE TYPE = 0
+@@ -1256,7 +1256,7 @@ LA491           NEG         BLKTYP          ; MAKE BLOCK NUMBER NEGATIVE (EOF BL
+                 JMP         >LA7E7          ; WRITE A BLOCK, TURN OFF MOTOR
+ ; CLOAD
+ CLOAD           CLR         FILSTA          ; CLOSE FILES
+-                CMPA        #'M'            ; IS IT CLOADM?
++                CMPA        #'M             ; IS IT CLOADM?
+                 BEQ         LA4FE           ; BRANCH IF SO
+                 LEAS        2,S             ; GET RID OF THE RETURN
+                 JSR         >LA5C5          ; GO GET FILE NAME
+@@ -1381,7 +1381,7 @@ LA59A           LDA         ,X+             ; GET BYTE FROM X
+ LA5A1           RTS
+ ; GET DEVICE NUMBER FROM BASIC LINE - CHECK VALIDITY
+ LA5A2           JSR         >LB26D          ; CHECK FOR COMMA, SYNTAX ERROR IF NONE
+-LA5A5           CMPA        #'#'            ; IS NEXT CHARACTER A NUMBER?
++LA5A5           CMPA        #'#             ; IS NEXT CHARACTER A NUMBER?
+                 BNE         LA5AB           ; NO
+                 JSR         GETNCH          ; GET NEXT BASIC INPUT CHARACTER
+ LA5AB           JSR         >LB141          ; EVALUATE EXPRESSION
+@@ -1437,9 +1437,9 @@ LA603           JSR         >LB26D          ; SYNTAX CHECK FOR COMMA, SYNTAX ERR
+                 LDA         DEVNUM          ; GET DEVICE NUMBER
+                 CLR         DEVNUM          ; SET DEVICE NUMBER TO SCREEN
+                 PULS        B               ; GET STATUS AGAIN
+-                CMPB        #'I'            ; IS IT INPUT MODE?
++                CMPB        #'I             ; IS IT INPUT MODE?
+                 BEQ         LA624           ; YES
+-                CMPB        #'O'            ; IS IT OUTPUT MODE?
++                CMPB        #'O             ; IS IT OUTPUT MODE?
+                 BEQ         LA658           ; YES
+ ; IF IT ISNT INPUT OR OUTPUT, BAD FILE MODE
+ LA616           LDB         #21*2           ; ERROR # 21 BAD FILE MODE
+@@ -1521,7 +1521,7 @@ LA686           LDA         CURLIN          ; GET CURRENT LINE NUMBER MSB (CURLI
+                 BNE         LA696           ; BRANCH IF NOT DIRECT MODE
+                 JSR         >CLRSCRN        ; CLEAR SCREEN
+                 LDX         CURPOS          ; CURRENT SCREEN CHAR POSITION
+-                LDB         #'S'            ; S MEANS SEARCHING
++                LDB         #'S             ; S MEANS SEARCHING
+                 STB         ,X++            ; PUT AN S ON THE SCREEN
+                 STX         CURPOS          ; STORE NEW CURSOR LOCATION
+ LA696           BSR         LA701           ; READ ONE BLOCK FROM TAPE
+@@ -1550,7 +1550,7 @@ LA6B4           SUBA        ,U+             ; SUBTRACT A CHAR FROM DESIRED NAME
+                 BSR         LA6D1           ; LOOK FOR FILE
+                 BNE         LA6D0           ; RETURN IF ERROR
+                 BRA         LA686           ; GO LOOK SOME MORE
+-LA6CB           LDA         #'F'
++LA6CB           LDA         #'F
+                 BSR         LA6F8           ; PUT F ON THE SCREEN IF DIRECT MODE
+                 CLRA                        ;  SET ZERO FLAG TO INDICATE NO ERRORS
+ LA6D0           RTS
+@@ -2050,13 +2050,13 @@ LAA12           STB         ,-X             ; SAVE THE DIGITIZED VALUE
+ ; SET CARRY IF NUMERIC - RETURN WITH
+ ; ZERO FLAG SET IF ACCA = 0 OR 3A(:) - END
+ ; OF BASIC LINE OR SUB LINE
+-BROMHK          CMPA        #'9'+1          ; IS THIS CHARACTER >=(ASCII 9)+1?
++BROMHK          CMPA        #'9+1           ; IS THIS CHARACTER >=(ASCII 9)+1?
+                 BHS         LAA28           ; BRANCH IF > 9; Z SET IF = COLON
+                 CMPA        #SPACE          ; SPACE?
+                 BNE         LAA24           ; NO - SET CARRY IF NUMERIC
+                 JMP         GETNCH          ; IF SPACE, GET NECT CHAR (IGNORE SPACES)
+-LAA24           SUBA        #'0'            ; SET CARRY IF
+-                SUBA        #-'0'           ; CHARACTER > ASCII 0
++LAA24           SUBA        #'0             ; SET CARRY IF
++                SUBA        #-'0            ; CHARACTER > ASCII 0
+ LAA28           RTS
+ 
+ ; DISPATCH TABLE FOR SECONDARY FUNCTIONS
+@@ -2509,7 +2509,7 @@ LAD9E           JSR         >RVEC20         ; HOOK INTO RAM
+                 STX         TINPTR          ; SAVE IT
+                 LDA         ,X+             ; GET CURRENT INPUT CHAR & MOVE POINTER
+                 BEQ         LADB4           ; BRANCH IF END OF LINE
+-                CMPA        #':'            ; CHECK FOR LINE SEPARATOR
++                CMPA        #':             ; CHECK FOR LINE SEPARATOR
+                 BEQ         LADC0           ; BRANCH IF COLON
+ LADB1           JMP         >LB277          ; SYNTAX ERROR-IF NOT LINE SEPARATOR
+ LADB4           LDA         ,X++            ; GET MS BYTE OF ADDRESS OF NEXT BASIC LINE
+@@ -2687,7 +2687,7 @@ REM             BSR         LAEEB           ; MOVE INPUT POINTER TO END OF LINE
+                 STX         CHARAD          ; RESET BASICS INPUT POINTER
+ LAEE7           RTS
+ ; ADVANCE INPUT POINTER TO END OF SUBLINE OR LINE
+-LAEE8           LDB         #':'            ; COLON = SUBLINE TERMINATOR CHARACTER
++LAEE8           LDB         #':             ; COLON = SUBLINE TERMINATOR CHARACTER
+ LAEEA           FCB         SKP1LD          ; SKPILD SKIP ONE BYTE; LDA #$5F
+ ; ADVANCE BASICS INPUT POINTER TO END OF
+ ; LINE - RETURN ADDRESS OF END OF LINE+1 IN X
+@@ -2705,7 +2705,7 @@ LAEF7           LDA         ,X              ; GET NEXT INPUT CHARACTER
+                 CMPA        ,S+             ; COMPARE TO INPUT CHARACTER
+                 BEQ         LAEE7           ; RETURN IF EQUAL
+                 LEAX        1,X             ; MOVE POINTER UP ONE
+-                CMPA        #'"'            ; CHECK FOR DOUBLE QUOTES
++                CMPA        #'"             ; CHECK FOR DOUBLE QUOTES
+                 BEQ         LAEF1           ; BRANCH IF " - TOGGLE TERMINATOR CHARACTERS
+                 INCA                        ;  CHECK FOR $FF AND BRANCH IF
+                 BNE         LAF0C           ; NOT SECONDARY TOKEN
+@@ -2755,7 +2755,7 @@ LAF54           DEC         FPA0+3          ; DECREMENT IS BYTE OF MANTISSA OF F
+                 JMP         >LAE88          ; GO DO A GOTO OR GOSUB
+ LAF5D           JSR         GETNCH          ; GET A CHARACTER FROM BASIC
+                 BSR         LAF67           ; CONVERT BASIC LINE NUMBER TO BINARY
+-                CMPA        #','            ; IS CHARACTER FOLLOWING LINE NUMBER A COMMA?
++                CMPA        #',             ; IS CHARACTER FOLLOWING LINE NUMBER A COMMA?
+                 BEQ         LAF54           ; YES
+                 PULS        B,PC            ; IF NOT, FALL THROUGH TO NEXT COMMAND
+ LAF67           LDX         ZERO            ; DEFAULT LINE NUMBER OF ZERO
+@@ -2764,7 +2764,7 @@ LAF67           LDX         ZERO            ; DEFAULT LINE NUMBER OF ZERO
+ ; CONVERT LINE NUMBER TO BINARY - RETURN VALUE IN BINVAL
+ 
+ LAF6B           BCC         LAFCE           ; RETURN IF NOT NUMERIC CHARACTER
+-                SUBA        #'0'            ; MASK OFF ASCII
++                SUBA        #'0             ; MASK OFF ASCII
+                 STA         CHARAC          ; SAVE DIGIT IN VO1
+                 LDD         BINVAL          ; GET ACCUMULATED LINE NUMBER VALUE
+                 CMPA        #24             ; LARGEST LINE NUMBER IS $F9FF (63999) -
+@@ -2850,15 +2850,15 @@ INPUT           LDB         #11*2           ; ID ERROR
+                 BSR         LB002           ; GET SOME INPUT DATA
+                 CLR         DEVNUM          ; SET DEVICE NUMBER TO SCREEN
+                 RTS
+-LB002           CMPA        #'#'            ; CHECK FOR DEVICE NUMBER
++LB002           CMPA        #'#             ; CHECK FOR DEVICE NUMBER
+                 BNE         LB00F           ; NO DEVICE NUMBER GIVEN
+                 JSR         >LA5A5          ; CHECK SYNTAX AND GET DEVICE NUMBER
+                 JSR         >LA3ED          ; CHECK FOR VALID INPUT FILE
+ LB00C           JSR         >LB26D          ; SYNTAX CHECK FOR COMMA
+-LB00F           CMPA        #'"'            ; CHECK FOR PROMPT STRING DELIMITER
++LB00F           CMPA        #'"             ; CHECK FOR PROMPT STRING DELIMITER
+                 BNE         LB01E           ; BRANCH IF NO PROMPT STRING
+                 JSR         >LB244          ; PUT PROMPT STRING ON STRING STACK
+-                LDB         #';'
++                LDB         #';
+                 JSR         >LB26F          ; DO A SYNTAX CHECK FOR SEMICOLON
+                 JSR         >LB99F          ; PRINT MESSAGE TO CONSOLE OUT
+ LB01E           LDX         #LINBUF         ; POINT TO BASICS LINE BUFFER
+@@ -2867,7 +2867,7 @@ LB01E           LDX         #LINBUF         ; POINT TO BASICS LINE BUFFER
+                 TST         DEVNUM          ; CHECK DEVICE NUMBER
+                 BNE         LB049           ; BRANCH IF NOT SET TO SCREEN
+                 BSR         LB02F           ; INPUT A STRING TO LINE BUFFER
+-                LDB         #','            ; INSERT A COMMA AT THE END
++                LDB         #',             ; INSERT A COMMA AT THE END
+                 STB         ,X              ; OF THE LINE INPUT BUFFER
+                 BRA         LB049
+ ; FILL BASICS LINE INPUT BUFFER CONSOLE IN
+@@ -2909,7 +2909,7 @@ LB069           STX         CHARAD          ; RESET BASICS INPUT POINTER
+ ; READ/INPUT A STRING VARIABLE
+                 LDX         CHARAD          ; LOAD X WITH CURRENT BASIC INPUT POINTER
+                 STA         CHARAC          ; SAVE CURRENT INPUT CHARACTER
+-                CMPA        #'"'            ; CHECK FOR STRING DELIMITER
++                CMPA        #'"             ; CHECK FOR STRING DELIMITER
+                 BEQ         LB08B           ; BRANCH IF STRING DELIMITER
+                 LEAX        -1,X            ; BACK UP POINTER
+                 CLRA                        ;  ZERO = END OF LINE CHARACTER
+@@ -2918,9 +2918,9 @@ LB069           STX         CHARAD          ; RESET BASICS INPUT POINTER
+                 TST         PRTDEV          ; CHECK PRINT DEVICE NUMBER
+                 BNE         LB08B           ; BRANCH IF CASSETTE - USE TWO ZEROS AS TERMINATOR
+ ; CHARACTERS FOR CASSETTE
+-                LDA         #':'            ; END OF SUBLINE CHARACTER
++                LDA         #':             ; END OF SUBLINE CHARACTER
+                 STA         CHARAC          ; SAVE AS TERMINATOR I
+-                LDA         #','            ; COMMA
++                LDA         #',             ; COMMA
+ LB08B           STA         ENDCHR          ; SAVE AS TERMINATOR 2
+                 JSR         >LB51E          ; STRIP A STRING FROM THE INPUT BUFFER
+                 JSR         >LB249          ; MOVE INPUT POINTER TO END OF STRING
+@@ -2932,7 +2932,7 @@ LB098           JSR         >LBD12          ; CONVERT AN ASCII STRING TO FP NUMB
+ ; INPUT OR READ DATA ITEM
+ LB09E           JSR         GETCCH          ; GET CURRENT INPUT CHARACTER
+                 BEQ         LB0A8           ; BRANCH IF END OF LINE
+-                CMPA        #','            ; CHECK FOR A COMMA
++                CMPA        #',             ; CHECK FOR A COMMA
+                 LBNE        LAFD6           ; 'BAD FILE DATA' ERROR OR RETRY
+ LB0A8           LDX         CHARAD          ; GET CURRENT INPUT
+                 STX         DATTMP          ; POINTER (USED AS A DATA POINTER) AND SAVE IT
+@@ -3001,7 +3001,7 @@ LB10C           TFR         X,S             ; POINT S TO START OF FOR/NEXT DATA
+ LB131           JMP         >LAD9E          ; JUMP BACK TO COMMAND INTEPR. LOOP
+ LB134           LEAS        18,S            ; PULL THE FOR-NEXT DATA OFF THE STACK
+                 JSR         GETCCH          ; GET CURRENT INPUT CHARACTER
+-                CMPA        #','            ; CHECK FOR ANOTHER ARGUMENT
++                CMPA        #',             ; CHECK FOR ANOTHER ARGUMENT
+                 BNE         LB131           ; RETURN IF NONE
+                 JSR         GETNCH          ; GET NEXT CHARACTER FROM BASIC
+                 BSR         LB0FE           ; BSR SIMULATES A CALL TO NEXT FROM COMMAND LOOP
+@@ -3149,7 +3149,7 @@ LB22C           JMP         >LBD12          ; CONVERT ASCII STRING TO FLOATING P
+ ; PROCESS A NON NUMERIC FIRST CHARACTER
+ LB22F           JSR         >LB3A2          ; SET CARRY IF NOT ALPHA
+                 BCC         LB284           ; BRANCH IF ALPHA CHARACTER
+-                CMPA        #'.'            ; IS IT . (DECIMAL POINT)?
++                CMPA        #'.             ; IS IT . (DECIMAL POINT)?
+                 BEQ         LB22C           ; CONVERT ASCII STRING TO FLOATING POINT
+                 CMPA        #$AC            ; MINUS TOKEN
+                 BEQ         LB27C           ; YES - GO PROCESS THE MINUS OPERATOR
+@@ -3165,7 +3165,7 @@ LB22F           JSR         >LB3A2          ; SET CARRY IF NOT ALPHA
+ ; -----------------------------------------------------------------------------
+                 endif
+ ; -----------------------------------------------------------------------------
+-                CMPA        #'"'            ; STRING DELIMITER?
++                CMPA        #'"             ; STRING DELIMITER?
+                 BNE         LB24E           ; NO
+ LB244           LDX         CHARAD          ; CURRENT BASIC POINTER TO X
+                 JSR         >LB518          ; SAVE STRING ON STRING STACK
+@@ -3186,12 +3186,12 @@ LB25F           INCA                        ;  CHECK FOR TOKENS PRECEEDED BY 5FF
+ LB262           BSR         LB26A           ; SYNTAX CHECK FOR A (
+                 JSR         >LB156          ; EVALUATE EXPRESSIONS WITHIN PARENTHESES AT
+ ; HIGHEST PRECEDENCE
+-LB267           LDB         #')'            ; SYNTAX CHECK FOR )
++LB267           LDB         #')             ; SYNTAX CHECK FOR )
+                 FCB         SKP2            ; SKIP 2 BYTES
+-LB26A           LDB         #'('            ; SYNTAX CHECK FOR (
++LB26A           LDB         #'(             ; SYNTAX CHECK FOR (
+                 FCB         SKP2            ; SKIP 2 BYTES
+ SYNCOMMA        EQU         *
+-LB26D           LDB         #','            ; SYNTAX CHECK FOR COMMA
++LB26D           LDB         #',             ; SYNTAX CHECK FOR COMMA
+ LB26F           CMPB        [CHARAD]        ; COMPARE ACCB TO CURRENT INPUT
+                 BNE         LB277           ; CHARACTER - SYNTAX ERROR IF NO MATCH
+                 JMP         GETNCH          ; GET A CHARACTER FROM BASIC
+@@ -3351,7 +3351,7 @@ LB373           JSR         GETNCH          ; GET AN INPUT CHARACTER
+                 BCS         LB373           ; BRANCH IF NUMERIC
+                 BSR         LB3A2           ; SET CARRY IF NOT ALPHA
+                 BCC         LB373           ; BRANCH IF ALPHA
+-LB37B           CMPA        #'$'            ; CHECK FOR A STRING VARIABLE
++LB37B           CMPA        #'$             ; CHECK FOR A STRING VARIABLE
+                 BNE         LB385           ; BRANCH IF IT IS NOT A STRING
+                 COM         VALTYP          ; SET VARIABLE TYPE TO STRING
+                 ADDB        #$80            ; SET BIT 7 OF 2ND CHARACTER (STRING)
+@@ -3359,7 +3359,7 @@ LB37B           CMPA        #'$'            ; CHECK FOR A STRING VARIABLE
+ LB385           STB         VARNAM+1        ; SAVE 2ND CHARACTER IN VARNAM+1
+                 ORA         ARYDIS          ; OR IN THE ARRAY DISABLE FLAG - IF = $80,
+ ; DONT SEARCH FOR VARIABLES IN THE ARRAYS
+-                SUBA        #'('            ; IS THIS AN ARRAY VARIABLE?
++                SUBA        #'(             ; IS THIS AN ARRAY VARIABLE?
+                 LBEQ        LEVARYV         ; BRANCH IF IT IS
+                 CLR         ARYDIS          ; RESET THE ARRAY DISABLE FLAG
+                 LDX         VARTAB          ; POINT X TO THE START OF VARIABLES
+@@ -3371,10 +3371,10 @@ LB395           CMPX        ARYTAB          ; COMPARE X TO THE END OF VARIABLES
+                 LEAX        5,X             ; MOVE POINTER TO NEXT VARIABLE AND
+                 BRA         LB395           ; KEEP LOOKING
+ ; SET CARRY IF NOT UPPER CASE ALPHA
+-LB3A2           CMPA        #'A'            ; CARRY SET IF < A
++LB3A2           CMPA        #'A             ; CARRY SET IF < A
+                 BCS         LB3AA
+-                SUBA        #'Z'+1
+-                SUBA        #-('Z'+1)       ; CARRY CLEAR IF <= 'Z'
++                SUBA        #'Z+1
++                SUBA        #-('Z+1)        ; CARRY CLEAR IF <= 'Z'
+ LB3AA           RTS
+ ; PUT A NEW VARIABLE IN TABLE OF VARIABLES
+ LB3AB           LDX         #ZERO           ; POINT X TO ZERO LOCATION
+@@ -3439,7 +3439,7 @@ LB408           LDX         VARNAM          ; GET VARIABLE NAME
+                 PSHS        Y,U             ; SAVE DIMENSION LENGTH, ARRAY FLAG,VARIABLE TYPE
+                 INCB                        ;  INCREASE DIMENSION COUNTER
+                 JSR         GETCCH          ; GET CURRENT INPUT CHARACTER
+-                CMPA        #','            ; CHECK FOR ANOTHER DIMENSION
++                CMPA        #',             ; CHECK FOR ANOTHER DIMENSION
+                 BEQ         LB408           ; BRANCH IF MORE
+                 STB         TMPLOC          ; SAVE DIMENSION COUNTER
+                 JSR         >LB267          ; SYNTAX CHECK FOR A ")"
+@@ -3475,7 +3475,7 @@ LB40A           LDX         VARNAM          ; GET VARIABLE NAME
+                 PSHS        U,Y             ; SAVE DIMENSION LENGTH, ARRAY FLAG, VARIABLE TYPE
+                 INCB                        ;  INCREASE DIMENSION COUNTER
+                 JSR         GETCCH          ; GET CURRENT INPUT CHARACTER
+-                CMPA        #','            ; CHECK FOR ANOTHER DIMENSION
++                CMPA        #',             ; CHECK FOR ANOTHER DIMENSION
+                 BEQ         LB40A           ; BRANCH IF MORE
+                 STB         TMPLOC          ; SAVE DIMENSION COUNTER
+                 JSR         >LB267          ; SYNTAX CHECK FOR A )
+@@ -3633,7 +3633,7 @@ LB516           LEAX        -1,X            ; MOVE POINTER BACK ONE
+ ; EITHER OF THE TWO TERMINATORS STORED IN CHARAC OR ENDCHR IS MATCHED.
+ ; THE RESULTING STRING IS STORED IN THE STRING SPACE
+ ; ONLY IF THE START OF THE STRING IS <= STRBUF+2
+-LB518           LDA         #'"'            ; INITIALIZE
++LB518           LDA         #'"             ; INITIALIZE
+ LB51A           STA         CHARAC          ; TERMINATORS
+                 STA         ENDCHR          ; TO "
+ LB51E           LEAX        1,X             ; MOVE POINTER UP ONE
+@@ -3647,7 +3647,7 @@ LB526           INCB                        ;  INCREMENT CHARACTER COUNTER
+                 BEQ         LB533           ; IN CHARAC AND ENDCHR
+                 CMPA        ENDCHR          ; DONT MOVE POINTER BACK
+                 BNE         LB526           ; ONE IF TERMINATOR IS "MATCHED"
+-LB533           CMPA        #'"'            ; COMPARE CHARACTER TO STRING DELIMITER
++LB533           CMPA        #'"             ; COMPARE CHARACTER TO STRING DELIMITER
+                 BEQ         LB539           ; & DONT MOVE POINTER BACK IF SO
+ LB537           LEAX        -1,X            ; MOVE POINTER BACK ONE
+ LB539           STX         COEFPT          ; SAVE END OF STRING ADDRESS
+@@ -3897,7 +3897,7 @@ RIGHT           BSR         LB6F5           ; GET ARGUMENTS FROM STACK
+ MID             LDB         #$FF            ; GET DEFAULT VALUE OF LENGTH AND
+                 STB         FPA0+3          ; SAVE IT IN FPA0
+                 JSR         GETCCH          ; GET CURRENT CHARACTER FROM BASIC
+-                CMPA        #')'            ; ARGUMENT DELIMITER?
++                CMPA        #')             ; ARGUMENT DELIMITER?
+                 BEQ         LB6DE           ; YES - NO LENGTH PARAMETER GIVEN
+                 JSR         >LB26D          ; SYNTAX CHECK FOR COMMA
+                 BSR         LB70B           ; EVALUATE NUMERIC EXPRESSION (LENGTH)
+@@ -4030,7 +4030,7 @@ LB7C2           JSR         >RVEC24         ; HOOK INTO RAM
+ LB7CB           LDA         ,X+             ; GET A CHARACTER
+                 BEQ         LB820           ; BRANCH IF END OF LINE
+                 BMI         LB7E6           ; BRANCH IF ITS A TOKEN
+-                CMPA        #':'            ; CHECK FOR END OF SUB LINE
++                CMPA        #':             ; CHECK FOR END OF SUB LINE
+                 BNE         LB7E2           ; BRNCH IF NOT END OF SUB LINE
+                 LDB         ,X              ; GET CHARACTER FOLLOWING COLON
+                 CMPB        #$84            ; TOKEN FOR ELSE?
+@@ -4038,7 +4038,7 @@ LB7CB           LDA         ,X+             ; GET A CHARACTER
+                 CMPB        #$83            ; TOKEN FOR REMARK?
+                 BEQ         LB7CB           ; YES - DONT PUT IT IN BUFFER
+                 FCB         SKP2            ; SKIP TWO BYTES
+-LB7E0           LDA         #'!'            ; EXCLAMATION POINT
++LB7E0           LDA         #'!             ; EXCLAMATION POINT
+ LB7E2           BSR         LB814           ; PUT CHARACTER IN BUFFER
+                 BRA         LB7CB           ; GET ANOTHER CHARACTER
+ ; UNCRUNCH A TOKEN
+@@ -4088,22 +4088,22 @@ LB82D           LDA         ,X+             ; GET INPUT CHAR
+                 BEQ         LB844           ; PROCESSING AN ILLEGAL TOKEN
+                 JSR         >LB3A2          ; SET CARRY IF NOT UPPER CASE ALPHA
+                 BCC         LB852           ; BRANCH IF UPPER CASE ALPHA
+-                CMPA        #'0'            ; DONT CRUNCH ASCII NUMERIC CHARACTERS
++                CMPA        #'0             ; DONT CRUNCH ASCII NUMERIC CHARACTERS
+                 BLO         LB842           ; BRANCH IF NOT NUMERIC
+-                CMPA        #'9'
++                CMPA        #'9
+                 BLS         LB852           ; BRANCH IF NUMERIC
+ ; END UP HERE IF NOT UPPER CASE ALPHA OR NUMERIC
+ LB842           CLR         V43             ; CLEAR ILLEGAL TOKEN FLAG
+ LB844           CMPA        #SPACE          ; SPACE?
+                 BEQ         LB852           ; DO NOT REMOVE SPACES
+                 STA         V42             ; SAVE INPUT CHARACTER AS SCAN DELIMITER
+-                CMPA        #'"'            ; CHECK FOR STRING DELIMITER
++                CMPA        #'"             ; CHECK FOR STRING DELIMITER
+                 BEQ         LB886           ; BRANCH IF STRING
+                 TST         V44             ; CHECK DATA FLAG AND BRANCH IF CLEAR
+                 BEQ         LB86B           ; DO NOT CRUNCH DATA
+ LB852           STA         ,U+             ; SAVE CHARACTER IN BUFFER
+                 BEQ         LB85C           ; BRANCH IF END OF LINE
+-                CMPA        #':'            ; CHECK FOR END OF SUBLINE
++                CMPA        #':             ; CHECK FOR END OF SUBLINE
+                 BEQ         LB829           ; AND RESET FLAGS IF END OF SUBLINE
+ LB85A           BRA         LB82D           ; GO GET ANOTHER CHARACTER
+ LB85C           CLR         ,U+             ; DOUBLE ZERO AT END OF LINE
+@@ -4113,11 +4113,11 @@ LB85C           CLR         ,U+             ; DOUBLE ZERO AT END OF LINE
+                 LDX         #LINBUF-1       ; SET THE INPUT POINTER TO ONE BEFORE
+                 STX         CHARAD          ; THE START OF THE CRUNCHED LINE
+                 RTS                         ; EXIT 'CRUNCH'
+-LB86B           CMPA        #'?'            ; CHECK FOR "?" - PRINT ABBREVIATION
++LB86B           CMPA        #'?             ; CHECK FOR "?" - PRINT ABBREVIATION
+                 BNE         LB873           ; BRANCH IF NOT PRINT ABBREVIATION
+                 LDA         #$87            ; GET THE PRINT TOKEN AND SAVE IT
+                 BRA         LB852           ; IN BUFFER
+-LB873           CMPA        #'''            ; APOSTROPHE IS SAME AS REM
++LB873           CMPA        #''             ; APOSTROPHE IS SAME AS REM
+                 BNE         LB88A           ; BRANCH IF NOT REMARK
+                 LDD         #$3A83          ; COLON, REM TOKEN
+                 STD         ,U++            ; SAVE IN BUFFER
+@@ -4128,9 +4128,9 @@ LB87E           LDA         ,X+             ; SCAN TILL WE MATCH [V42]
+                 BEQ         LB852           ; BRANCH OUT IF SO
+ LB886           STA         ,U+             ; DONT CRUNCH REMARKS OR STRINGS
+                 BRA         LB87E           ; GO GET MORE STRING OR REMARK
+-LB88A           CMPA        #'0'            ; LESS THAN ASCII ZERO?
++LB88A           CMPA        #'0             ; LESS THAN ASCII ZERO?
+                 BCS         LB892           ; BRANCH IF SO
+-                CMPA        #';'+1          ; CHECK FOR NUMERIC VALUE, COLON OR SEMICOLON
++                CMPA        #';+1           ; CHECK FOR NUMERIC VALUE, COLON OR SEMICOLON
+                 BCS         LB852           ; AND INSERT IN BUFFER IF SO
+ LB892           LEAX        -1,X            ; MOVE INPUT POINTER BACK ONE
+                 PSHS        U,X             ; SAVE POINTERS TO INPUT STRING, OUTPUT STRING
+@@ -4158,7 +4158,7 @@ LB8A8           LDB         ,Y+             ; GET A BYTE FROM DICTIONARY TABLE
+                 BNE         LB8C2           ; IF SECONDARY
+                 CMPB        #$84            ; IS IT ELSE TOKEN?
+                 BNE         LB8C6           ; NO
+-                LDA         #':'            ; PUT A COLON (SUBLINE) BEFORE ELSE TOKEN
++                LDA         #':             ; PUT A COLON (SUBLINE) BEFORE ELSE TOKEN
+ LB8C2           STD         ,U++            ; SECONDARY TOKENS PRECEEDED BY $FF
+                 BRA         LB85A           ; GO PROCESS MORE INPUT CHARACTERS
+ LB8C6           STB         ,U+             ; SAVE THIS TOKEN
+@@ -4193,11 +4193,11 @@ PRINT           BEQ         LB958           ; BRANCH IF NO ARGUMENT
+                 BSR         LB8FE           ; CHECK FOR ALL PRINT OPTIONS
+                 CLR         DEVNUM          ; SET DEVICE NUMBER TO SCREEN
+                 RTS
+-LB8FE           CMPA        #'@'            ; CHECK FOR PRINT @
++LB8FE           CMPA        #'@             ; CHECK FOR PRINT @
+                 BNE         LB907           ; NOT PRINT @
+ LB902           JSR         >LA554          ; MOVE CURSOR TO PROPER PRINT LOCATION
+ LB905           BRA         LB911           ; GO PRINT THE DATA
+-LB907           CMPA        #'#'            ; CHECK FOR PRINT NUMBER
++LB907           CMPA        #'#             ; CHECK FOR PRINT NUMBER
+                 BNE         LB918           ; NOT PRINT#
+                 JSR         >LA5A5          ; CHECK FOR A VALID DEVICE NUMBER
+                 JSR         >LA406          ; CHECK FOR A VALID OUTPUT FILE
+@@ -4208,9 +4208,9 @@ LB918           JSR         >RVEC9          ; HOOK INTO RAM
+ LB91B           BEQ         LB965           ; RETURN IF END OF LINE
+ LB91D           CMPA        #$A4            ; TOKEN FOR TAB( ?
+                 BEQ         LB97E           ; YES
+-                CMPA        #','            ; COMMA?
++                CMPA        #',             ; COMMA?
+                 BEQ         LB966           ; YES - ADVANCE TO NEXT TAB FIELD
+-                CMPA        #';'            ; SEMICOLON?
++                CMPA        #';             ; SEMICOLON?
+                 BEQ         LB997           ; YES - DO NOT ADVANCE CURSOR
+                 JSR         >LB156          ; EVALUATE EXPRESSION
+                 LDA         VALTYP          ; GET VARIABLE TYPE AND
+@@ -4230,7 +4230,7 @@ LB938           BSR         LB99F           ; PRINT STRING POINTED TO BY X
+ LB949           TSTB                        ;  CHECK CURRENT PRINT POSITION
+                 BNE         LB954           ; BRANCH IF NOT AT START OF LINE
+                 JSR         GETCCH          ; GET CURRENT INPUT CHARACTER
+-                CMPA        #','            ; COMMA?
++                CMPA        #',             ; COMMA?
+                 BEQ         LB966           ; SKIP TO NEXT TAB FIELD
+                 BSR         LB9AC           ; SEND A SPACE TO CONSOLE OUT
+ LB954           JSR         GETCCH          ; GET CURRENT INPUT CHARACTER
+@@ -4258,7 +4258,7 @@ LB977           SUBB        DEVCFW          ; SUBTRACT TAB FIELD WIDTH FROM CURR
+                 BRA         LB98E           ; GO ADVANCE TO NEXT TAB ZONE
+ ; PRINT TAB(
+ LB97E           JSR         >LB709          ; EVALUATE EXPRESSION - RETURN VALUE IN B
+-                CMPA        #')'            ; 'SYNTAX' ERROR IF NOT ')'
++                CMPA        #') ; 'SYNTAX' ERROR IF NOT ')'
+                 LBNE        LB277
+                 JSR         >LA35F          ; SET UP TAB WIDTH, ZONE ETC
+                 SUBB        DEVPOS          ; GET DIFFERENCE OF PRINT POSITION & TAB POSITION
+@@ -4284,7 +4284,7 @@ LB9A3           DECB                        ;  DECREMENT COUNTER
+                 BRA         LB9A3           ; KEEP LOOPING
+ LB9AC           LDA         #SPACE          ; SPACE TO CONSOLE OUT
+                 FCB         SKP2            ; SKIP NEXT TWO BYTES
+-LB9AF           LDA         #'?'            ; QUESTION MARK TO CONSOLE OUT
++LB9AF           LDA         #'?             ; QUESTION MARK TO CONSOLE OUT
+ LB9B1           JMP         >PUTCHR         ; JUMP TO CONSOLE OUT
+ ; FLOATING POINT MATH PACKAGE
+ ; ADD .5 TO FPA0
+@@ -4830,28 +4830,28 @@ LBD12           LDX         ZERO            ; (X) = 0
+                 BCS         LBD86           ; IF CARRY SET (NUMERIC CHARACTER), ASSUME ACCA CONTAINS FIRST
+ ; NUMERIC CHAR, SIGN IS POSITIVE AND SKIP THE RAM HOOK
+                 JSR         >RVEC19         ; HOOK INTO RAM
+-                CMPA        #'-'            ; CHECK FOR A LEADING MINUS SIGN AND BRANCH
++                CMPA        #'-             ; CHECK FOR A LEADING MINUS SIGN AND BRANCH
+                 BNE         LBD2D           ; IF NO MINUS SIGN
+                 COM         COEFCT          ; TOGGLE SIGN; 0 = +; FF = -
+                 BRA         LBD31           ; INTERPRET THE REST OF THE STRING
+-LBD2D           CMPA        #'+'            ; CHECK FOR LEADING PLUS SlGN AND BRANCH
++LBD2D           CMPA        #'+             ; CHECK FOR LEADING PLUS SlGN AND BRANCH
+                 BNE         LBD35           ; IF NOT A PLUS SIGN
+ LBD31           JSR         GETNCH          ; GET NEXT INPUT CHARACTER FROM BASIC
+                 BCS         LBD86           ; BRANCH IF NUMERIC CHARACTER
+-LBD35           CMPA        #'.'            ; DECIMAL POlNT?
++LBD35           CMPA        #'.             ; DECIMAL POlNT?
+                 BEQ         LBD61           ; YES
+-                CMPA        #'E'            ; "E" SHORTHAND FORM (SCIENTIFIC NOTATION)?
++                CMPA        #'E             ; "E" SHORTHAND FORM (SCIENTIFIC NOTATION)?
+                 BNE         LBD65           ; NO
+ ; EVALUATE EXPONENT OF EXPONENTIAL FORMAT
+                 JSR         GETNCH          ; GET NEXT INPUT CHARACTER FROM BASIC
+                 BCS         LBDA5           ; BRANCH IF NUMERIC
+                 CMPA        #$AC            ; MINUS TOKEN?
+                 BEQ         LBD53           ; YES
+-                CMPA        #'-'            ; ASCII MINUS?
++                CMPA        #'-             ; ASCII MINUS?
+                 BEQ         LBD53           ; YES
+                 CMPA        #$AB            ; PLUS TOKEN?
+                 BEQ         LBD55           ; YES
+-                CMPA        #'+'            ; ASCII PLUS?
++                CMPA        #'+             ; ASCII PLUS?
+                 BEQ         LBD55           ; YES
+                 BRA         LBD59           ; BRANCH IF NO SIGN FOUND
+ LBD53           COM         V48             ; SET EXPONENT SIGN FLAG TO NEGATIVE
+@@ -4889,7 +4889,7 @@ LBD86           LDB         V45             ; GET THE RIGHT DECIMAL COUNTER AND
+                 PSHS        A               ; SAVE NEW DIGIT ON STACK
+                 JSR         >LBB6A          ; MULTIPLY FPA0 BY 10
+                 PULS        B               ; GET NEW DIGIT BACK
+-                SUBB        #'0'            ; MASK OFF ASCII
++                SUBB        #'0             ; MASK OFF ASCII
+                 BSR         LBD99           ; ADD ACCB TO FPA0
+                 BRA         LBD31           ; GET ANOTHER CHARACTER FROM BASIC
+ LBD99           JSR         >LBC2F          ; PACK FPA0 AND SAVE IT IN FPA3
+@@ -4903,7 +4903,7 @@ LBDA5           LDB         V47
+                 ASLB                        ;  TIMES 4
+                 ADDB        V47             ; ADD 1 = TIMES 5
+                 ASLB                        ;  TIMES 10
+-                SUBA        #'0'            ; MASK OFF ASCII FROM ACCA, PUSH
++                SUBA        #'0             ; MASK OFF ASCII FROM ACCA, PUSH
+                 PSHS        B               ; RESULT ONTO THE STACK AND
+                 ADDA        ,S+             ; ADD lT TO ACCB
+                 STA         V47             ; SAVE IN V47
+@@ -4931,11 +4931,11 @@ LBDD9           LDU         #STRBUF+3       ; POINT U TO BUFFER WHICH WILL NOT C
+ LBDDC           LDA         #SPACE          ; SPACE = DEFAULT SIGN FOR POSITIVE #
+                 LDB         FP0SGN          ; GET SIGN OF FPA0
+                 BPL         LBDE4           ; BRANCH IF POSITIVE
+-                LDA         #'-'            ; ASCII MINUS SIGN
++                LDA         #'-             ; ASCII MINUS SIGN
+ LBDE4           STA         ,U+             ; STORE SIGN OF NUMBER
+                 STU         COEFPT          ; SAVE BUFFER POINTER
+                 STA         FP0SGN          ; SAVE SIGN (IN ASCII)
+-                LDA         #'0'            ; ASCII ZERO IF EXPONENT = 0
++                LDA         #'0             ; ASCII ZERO IF EXPONENT = 0
+                 LDB         FP0EXP          ; GET FPA0 EXPONENT
+                 LBEQ        LBEB8           ; BRANCH IF FPA0 = 0
+                 CLRA                        ;  BASE 10 EXPONENT=0 FOR FP NUMBER > 1
+@@ -4983,11 +4983,11 @@ LBE36           DECA                        ;  SUBTRACT TWO (WITHOUT AFFECTING C
+ ; LEFT OF DECIMAL POINT
+                 BGT         LBE4B           ; BRANCH IF >= 1
+                 LDU         COEFPT          ; POINT U TO THE STRING BUFFER
+-                LDA         #'.'            ; STORE A PERIOD
++                LDA         #'.             ; STORE A PERIOD
+                 STA         ,U+             ; IN THE BUFFER
+                 TSTB                        ;  CHECK DECIMAL POINT FLAG
+                 BEQ         LBE4B           ; BRANCH IF NOTHING TO LEFT OF DECIMAL POINT
+-                LDA         #'0'            ; STORE A ZERO
++                LDA         #'0             ; STORE A ZERO
+                 STA         ,U+             ; IN THE BUFFER
+ ; CONVERT FPA0 INTO A STRING OF ASCII DIGITS
+ LBE4B           LDX         #LBEC5          ; POINT X TO FP POWER OF 10 MANTISSA
+@@ -5015,14 +5015,14 @@ LBE50           LDA         FPA0+3          ; ADD MANTISSA LS
+                 BCC         LBE72           ; BRANCH IF NEGATIVE MANTISSA
+                 SUBB        #10+1           ; TAKE THE 9S COMPLEMENT IF
+                 NEGB                        ;  ADDING MANTISSA
+-LBE72           ADDB        #'0'-1          ; ADD ASCII OFFSET TO DIGIT
++LBE72           ADDB        #'0-1           ; ADD ASCII OFFSET TO DIGIT
+                 LEAX        4,X             ; MOVE TO NEXT POWER OF 10 MANTISSA
+                 TFR         B,A             ; SAVE DIGIT IN ACCA
+                 ANDA        #$7F            ; MASK OFF BIT 7 (ADD/SUBTRACT FLAG)
+                 STA         ,U+             ; STORE DIGIT IN STRING BUFFER
+                 DEC         V45             ; DECREMENT DECIMAL POINT FLAG
+                 BNE         LBE84           ; BRANCH IF NOT TIME FOR DECIMAL POINT
+-                LDA         #'.'            ; STORE DECIMAL POINT IN
++                LDA         #'.             ; STORE DECIMAL POINT IN
+                 STA         ,U+             ; STRING BUFFER
+ LBE84           COMB                        ;  TOGGLE BIT 7 (ADD/SUBTRACT FLAG)
+                 ANDB        #$80            ; MASK OFF ALL BUT ADD/SUBTRACT FLAG
+@@ -5030,27 +5030,27 @@ LBE84           COMB                        ;  TOGGLE BIT 7 (ADD/SUBTRACT FLAG)
+                 BNE         LBE50           ; BRANCH IF NOT AT END OF TABLE
+ ; BLANK TRAILING ZEROS AND STORE EXPONENT IF ANY
+ LBE8C           LDA         ,-U             ; GET THE LAST CHARACTER; MOVE POINTER BACK
+-                CMPA        #'0'            ; WAS IT A ZERO?
++                CMPA        #'0             ; WAS IT A ZERO?
+                 BEQ         LBE8C           ; IGNORE TRAILING ZEROS IF SO
+-                CMPA        #'.'            ; CHECK FOR DECIMAL POINT
++                CMPA        #'.             ; CHECK FOR DECIMAL POINT
+                 BNE         LBE98           ; BRANCH IF NOT DECIMAL POINT
+                 LEAU        -1,U            ; STEP OVER THE DECIMAL POINT
+-LBE98           LDA         #'+'            ; ASCII PLUS SIGN
++LBE98           LDA         #'+             ; ASCII PLUS SIGN
+                 LDB         V47             ; GET SCIENTIFIC NOTATION EXPONENT
+                 BEQ         LBEBA           ; BRANCH IF NOT SCIENTIFIC NOTATION
+                 BPL         LBEA3           ; BRANCH IF POSITIVE EXPONENT
+-                LDA         #'-'            ; ASCII MINUS SIGN
++                LDA         #'-             ; ASCII MINUS SIGN
+                 NEGB                        ;  NEGATE EXPONENT IF NEGATIVE
+ LBEA3           STA         2,U             ; STORE EXPONENT SIGN IN STRING
+-                LDA         #'E'            ; GET ASCII E (SCIENTIFIC NOTATION
++                LDA         #'E             ; GET ASCII E (SCIENTIFIC NOTATION
+                 STA         1,U             ; FLAG) AND SAVE IT IN THE STRING
+-                LDA         #'0'-1          ; INITIALIZE ACCA TO ASCII ZERO
++                LDA         #'0-1           ; INITIALIZE ACCA TO ASCII ZERO
+ ; CONVERT BINARY VALUE IN ACCB TO DECIMAL
+ ; ASCII NUMBER (< 100) IN ACCD
+ LBEAB           INCA                        ;  ADD ONE TO 10S DIGIT OF EXPONENT
+                 SUBB        #10             ; SUBTRACT 10 FROM ACCB
+                 BCC         LBEAB           ; ADD 1 TO 10S DIGIT IF NO CARRY
+-                ADDB        #'9'+1          ; CONVERT UNITS DIGIT TO ASCII
++                ADDB        #'9+1           ; CONVERT UNITS DIGIT TO ASCII
+                 STD         3,U             ; SAVE EXPONENT IN STRING
+                 CLR         5,U             ; CLEAR LAST BYTE (TERMINATOR)
+                 BRA         LBEBC           ; GO RESET POINTER
+diff --git a/disk.asm b/disk.asm
+index 7b13783..27acc19 100644
+--- a/disk.asm
++++ b/disk.asm
+@@ -437,7 +437,7 @@ DVEC22          PSHS        X,CC            ; SAVE X REG AND STATUS
+                 LDX         $03,S           ; LOAD X WITH CALLING ADDRESS
+                 CMPX        #L975F          ; COMING FROM EXBAS' GET/PUT?
+                 BNE         LC2BF           ; NO
+-                CMPA        #'#'            ; NUMBER SIGN (GET#, PUT#)?
++                CMPA        #'#             ; NUMBER SIGN (GET#, PUT#)?
+                 BEQ         LC2C1           ; BRANCH IF GET OR PUT TO RANDOM FILE
+ LC2BF           PULS        CC,X,PC         ; RESTORE X REG, STATUS AND RETURN
+ 
+@@ -708,7 +708,7 @@ LC48D           PSHS        A               ; SAVE MODE ON STACK
+                 PULS        B               ; GET MODE
+                 LDA         #INPFIL         ; INPUT TYPE FILE
+                 PSHS        A               ; SAVE FILE TYPE ON STACK
+-                CMPB        #'I'            ; INPUT MODE?
++                CMPB        #'I             ; INPUT MODE?
+                 BNE         LC4C7           ; BRANCH IF NOT
+ ; OPEN A SEQUENTIAL FILE FOR INPUT
+                 JSR         >LC6E5          ; CHECK TO SEE IF DIRECTORY MATCH IS FOUND
+@@ -725,7 +725,7 @@ LC4BB           JSR         >LC755          ; POINT X TO PROPER FILE ALLOCATION
+                 STA         FCBTYP,X        ; SAVE IT IN FCB
+                 RTS
+ LC4C7           ASL         ,S              ; SET FILE TYPE TO OUTPUT
+-                CMPB        #'O'            ; FILE MODE = OUTPUT?
++                CMPB        #'O             ; FILE MODE = OUTPUT?
+                 BNE         LC4E8           ; BRANCH IF NOT
+ 
+ ; OPEN A SEQUENTIAL FILE FOR OUTPUT
+@@ -750,9 +750,9 @@ LC4E1           BSR         LC567           ; SET UP NEW DIRECTORY ENTRY ON DISK
+ ; -----------------------------------------------------------------------------
+                 BSR         LC538           ; INITIALIZE FILE BUFFER
+                 BRA         LC4BB           ; FLAG AND MAP FCB AS BEING USED
+-LC4E8           CMPB        #'R'            ; FILE MODE = R (RANDOM)?
++LC4E8           CMPB        #'R             ; FILE MODE = R (RANDOM)?
+                 BEQ         LC4F2           ; BRANCH IF SO
+-                CMPB        #'D'            ; FILE MODE = D (DIRECT)?
++                CMPB        #'D             ; FILE MODE = D (DIRECT)?
+                 LBNE        LA616           ; 'BAD FILE MODE' ERROR IF NOT
+ 
+ ; OPEN A RANDOM/DIRECT FILE
+@@ -1275,11 +1275,11 @@ LC868           LDX         $04,S           ; GET CALLING ADDRESS FROM THE STACK
+                 CMPX        #LB00C          ; RETURN UNLESS COMING FROM
+                 BNE         LC866           ; BASIC'S 'INPUT' STATEMENT
+                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR A COMMA
+-                CMPA        #'"'            ; CHECK FOR A DOUBLE QUOTE
++                CMPA        #'"             ; CHECK FOR A DOUBLE QUOTE
+                 BNE         LC881           ; RETURN TO BASIC'S 'INPUT' COMMAND
+                 JSR         >LB244          ; STRIP PROMPT STRING FROM BASIC AND PUT IT ON THE STRING STACK
+                 JSR         >LB657          ; PURGE THE STRING PUT ON THE STRING STACK
+-                LDB         #';'            ; SEMICOLON
++                LDB         #';             ; SEMICOLON
+                 JSR         >LB26F          ; DO A SYNTAX CHECK FOR SEMICOLON
+ LC881           LDX         #LB01E          ; GET MODIFIED REENTRY POINT INTO BASIC
+                 STX         $04,S           ; AND PUT IT INTO THE RETURN ADDRESS ON THE STACK
+@@ -1338,7 +1338,7 @@ LC8C2           LDX         CHARAD          ; GET INPUT POINTER INTO X
+                 STX         TINPTR          ; TEMP SAVE IT
+                 LDA         ,X+             ; SEARCH FOR THE END OF CURRENT LINE
+                 BEQ         LC8D1           ; BRANCH IF END OF LINE
+-                CMPA        #':'            ; CHECK FOR END OF SUB LINE, TOO
++                CMPA        #':             ; CHECK FOR END OF SUB LINE, TOO
+                 BEQ         LC8F3           ; BRANCH IF END OF SUB LINE
+                 JMP         >LB277          ; 'SYNTAX' ERROR IF NOT END OF LINE
+ LC8D1           LDA         ,X++            ; GET MS BYTE OF ADDRESS OF NEXT BASIC LINE
+@@ -1350,11 +1350,11 @@ LC8DA           LDD         ,X+             ; GET LINE NUMBER OF THIS LINE AND
+                 STX         CHARAD          ; RESET BASIC'S INPUT POINTER
+                 LDA         TRCFLG          ; CHECK THE TRACE FLAG AND
+                 BEQ         LC8F3           ; BRANCH IF TRACE OFF
+-                LDA         #'['            ; [ LEFT DELIMITER OF TRON
++                LDA         #'[             ; [ LEFT DELIMITER OF TRON
+                 JSR         PUTCHR          ; SEND CHARACTER TO CONSOLE OUT
+                 LDA         CURLIN          ; GET NUMBER OF CURRENT LINE NUMBER
+                 JSR         >LBDCC          ; CONVERT ACCD TO DECIMAL & PRINT IT ON SCREEN
+-                LDA         #']'            ; ] RIGHT DELIMITER OF TRON
++                LDA         #']             ; ] RIGHT DELIMITER OF TRON
+                 JSR         PUTCHR          ; SEND A CHARACTER TO CONSOLE OUT
+ LC8F3           JSR         GETNCH          ; GET NEXT CHARACTER FROM BASIC
+                 TFR         CC,B            ; SAVE STATUS REGISTER IN ACCB
+@@ -1415,12 +1415,12 @@ LC945           STA         ,U+             ; STORE A BLANK IN FILE NAME
+                 CMPB        #$02            ; CHECK LENGTH OF STRING AND
+                 BLO         LC96A           ; BRANCH IF < 2
+                 LDA         $01,U           ; GET 2ND CHARACTER IN STRING AND
+-                CMPA        #':'            ; = CHECK FOR COLON
++                CMPA        #':             ; = CHECK FOR COLON
+                 BNE         LC96A           ; BRANCH IF NO DRIVE NUMBER
+                 LDA         ,U              ; GET 1ST CHARACTER
+-                CMPA        #'0'            ; IN STRING AND
++                CMPA        #'0             ; IN STRING AND
+                 BLO         LC96A           ; CHECK TO SEE
+-                CMPA        #'3'            ; IF IT IS IN
++                CMPA        #'3             ; IF IT IS IN
+                 BHI         LC96A           ; THE RANGE 0-3
+                 BSR         LC99D           ; GET DRIVE NUMBER
+ LC96A           LDX         #DNAMBF         ; POINT X TO FILE NAME BUFFER
+@@ -1433,11 +1433,11 @@ LC973           CMPX        #DNAMBF         ; POINTER STILL AT START OF BUFFER?
+ LC978           LDB         #2*31           ; 'BAD FILENAME' ERROR IF NULL FILENAME
+                 JMP         >LAC46          ; ERROR HANDLER
+ LC97D           LDA         ,U+             ; GET A CHARACTER FROM STRING
+-                CMPA        #'.'            ; LOOK FOR PERIOD?
++                CMPA        #'.             ; LOOK FOR PERIOD?
+                 BEQ         LC9B0           ; YES
+-                CMPA        #'/'            ; SLASH?
++                CMPA        #'/             ; SLASH?
+                 BEQ         LC9B0           ; YES
+-                CMPA        #':'            ; COLON?
++                CMPA        #':             ; COLON?
+                 BEQ         LC994           ; YES
+                 CMPX        #DEXTBF         ; COMPARE POINTER TO END OF FILENAME BUFFER
+                 BEQ         LC978           ; 'BAD FILENAME' ERROR - FILENAME TOO LONG
+@@ -1453,7 +1453,7 @@ LC99D           COM         $02,S           ; TOGGLE DRIVE FLAG
+                 BEQ         LC978           ; 'BAD FILENAME' ERROR IF DRIVE NUMBER DEFINED TWICE
+                 LDA         ,U++            ; ASCII VALUE OF DRIVE NUMBER TO ACCA
+                 SUBB        #$02            ; DECREMENT STRING LENGTH BY 2 FOR DRIVE (:X)
+-                SUBA        #'0'            ; SUBTRACT ASCII BIAS
++                SUBA        #'0             ; SUBTRACT ASCII BIAS
+                 BLO         LC978           ; DRIVE NUMBER TOO LOW - 'BAD FILENAME' ERROR
+                 CMPA        #$03            ; MAX OF 4 DRIVES
+                 BHI         LC978           ; DRIVE NUMBER TOO HIGH - 'BAD FILENAME' ERROR
+@@ -1469,7 +1469,7 @@ LC9B7           STA         ,-X             ;
+ LC9BE           DECB                        ;  DECREMENT STRING COUNTER
+                 BEQ         LC99B           ; RETURN IF ZERO
+                 LDA         ,U+             ; GET A CHARACTER FROM STRING
+-                CMPA        #':'            ; CHECK FOR DRIVE SEPARATOR
++                CMPA        #':             ; CHECK FOR DRIVE SEPARATOR
+                 BEQ         LC994           ;
+                 CMPX        #DFLTYP         ; CHECK FOR END OF ESTENSION RAM BUFFER &
+                 BEQ         LC978           ; 'BAD FILENAME' ERROR IF EXTENSION TOO LONG
+@@ -1478,15 +1478,15 @@ LC9BE           DECB                        ;  DECREMENT STRING COUNTER
+ ; INSERT CHARACTER INTO FILENAME OR EXTENSION
+ LC9D0           STA         ,X+             ; STORE CHARACTER IN FILENAME BUFFER
+                 BEQ         LC978           ; 'BAD FILENAME' ERROR; ZEROES ARE ILLEGAL
+-                CMPA        #'.'            ; PERIOD?
++                CMPA        #'.             ; PERIOD?
+                 BEQ         LC978           ; 'BAD FILENAME' ERROR IF PERIOD
+-                CMPA        #'/'            ; SLASH?
++                CMPA        #'/             ; SLASH?
+                 BEQ         LC978           ; 'BAD FILENAME' ERROR IF SLASH
+                 INCA                        ;  CHECK FOR $FF
+                 BEQ         LC978           ; 'BAD FILENAME' ERROR IF $FF
+ LC9DF           RTS
+ ; SAVE COMMAND
+-SAVE            CMPA        #'M'            ;
++SAVE            CMPA        #'M             ;
+                 LBEQ        LCF68           ; BRANCH IF SAVEM
+                 BSR         LCA33           ; GO GET FILENAME, ETC. FROM BASIC
+                 LDX         ZERO            ; ZERO OUT X REG
+@@ -1494,7 +1494,7 @@ SAVE            CMPA        #'M'            ;
+                 JSR         GETCCH          ; GET CURRENT INPUT CHARACTER FROM BASIC
+                 BEQ         LCA12           ; BRANCH IF END OF LINE
+                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
+-                LDB         #'A'            ; ASCII FILE?
++                LDB         #'A             ; ASCII FILE?
+                 JSR         >LB26F          ; SYNTAX CHECK ON CONTENTS OF ACCB
+                 BNE         LC9DF           ; RETURN IF NO MORE CHARACTERS ON LINE
+                 COM         DASCFL          ; SET CRUNCHED/ASCII FLAG TO ASCII
+@@ -1503,9 +1503,9 @@ SAVE            CMPA        #'M'            ;
+                 JMP         LIST            ; 'LIST' THE FILE TO CONSOLE OUT
+ ; OPEN A SEQUENTIAL FILE FOR INPUT/OUTPUT - USE THE SYSTEM
+ ; FCB LOCATED AT THE TOP OF FCBS
+-LCA04           LDA         #'O'            ; OUTPUT FILE TYPE
++LCA04           LDA         #'O             ; OUTPUT FILE TYPE
+ LCA06           FCB         $8C             ; SKIP TWO BYTES (THROWN AWAY CMPX INSTRUCTION)
+-LCA07           LDA         #'I'            ; INPUT FILE TYPE
++LCA07           LDA         #'I             ; INPUT FILE TYPE
+                 LDB         FCBACT          ; GET NUMBER OF RESERVED FILES CURRENTLY RESERVED
+                 INCB                        ; ADD ONE - USE ONE ABOVE HIGHEST RESERVED FCB
+                 STB         DEVNUM          ; SAVE IT IN DEVICE NUMBER
+@@ -1533,12 +1533,12 @@ MERGE           CLRA                        ;  RUN FLAG (0 = DON'T RUN)
+                 LDB         #$FF            ; MERGE FLAG ($FF = MERGE)
+                 BRA         LCA50           ; GO LOAD THE FILE
+ ; RUN RAM VECTOR
+-DVEC18          CMPA        #'"'            ; CHECK FOR FILENAME DELIMITER (DOUBLE QUOTE)
++DVEC18          CMPA        #'"             ; CHECK FOR FILENAME DELIMITER (DOUBLE QUOTE)
+                 LBNE        XVEC18          ; NONE - JUMP TO EXBAS RUN RAM HOOK
+                 LDA         #$02            ; RUN FLAG - DON'T CLOSE ALL FILES BEFORE RUN
+                 BRA         LCA4F           ; LOAD THE FILE
+ ; LOAD COMMAND
+-LOAD            CMPA        #'M'            ;
++LOAD            CMPA        #'M             ;
+                 LBEQ        LCFC1           ; BRANCH IF LOADM
+                 CLRA                        ;  RUN FLAG = ZERO (DON'T RUN)
+ LCA4F           CLRB                        ;  CLEAR MERGE FLAG
+@@ -1548,7 +1548,7 @@ LCA50           STA         DRUNFL          ; RUN FLAG (0 = DON'T RUN, 2 = RUN)
+                 JSR         GETCCH          ; GET CURRENT INPUT CHAR
+                 BEQ         LCA6C           ; BRANCH IF END OF LINE
+                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
+-                LDB         #'R'            ;
++                LDB         #'R             ;
+                 JSR         >LB26F          ; IS NEXT CHAR 'R'? RUN AFTER LOAD
+                 JSR         >LA5C7          ; SYNTAX ERROR IF ANY MORE CHARS ON LINE
+                 LDA         #$03            ; SET FLAGS TO RUN AND CLOSE ALL FILES
+@@ -1971,7 +1971,7 @@ LCCEB           CLRA                        ;  CLEAR MS BYTE OF ACCO
+                 JSR         >LBDCC          ; PRINT ACCD IN DECIMAL TO CONSOLE OUT
+                 BSR         LCD1B           ; SEND BLANK TO CONSOLE OUT
+                 LDX         ,S              ; X NOW POINTS TO DIRECTORY ENTRY
+-                LDA         #'A'+1          ; ASCII BIAS
++                LDA         #'A+1           ; ASCII BIAS
+                 ADDA        DIRASC,X        ; ADD TO ASCII FLAG
+                 BSR         LCD18           ; PRINT CHARACTER AND BLANK TO CONSOLE OUT
+                 LDB         DIRGRN,X        ; GET FIRST GRANULE IN FILE
+@@ -2011,7 +2011,7 @@ DVEC10          TST         DEVNUM          ; CHECK DEVICE NUMBER AND RETURN
+                 LDX         #LB069          ; CHANGE THE RETURN ADDRESS ON THE STACK TO RE-ENTER BASIC'S INPUT
+                 STX         ,S              ; ROUTINE AT A DIFFERENT PLACE THAN THE CALLING ROUTINE
+                 LDX         #LINBUF+1       ; POINT X TO THE LINE INPUT BUFFER
+-                LDB         #','            ; =
++                LDB         #',             ; =
+                 STB         CHARAC          ; COMMA IS READ ITEM SEPARATOR (TEMPORARY STRING SEARCH FLAG)
+                 LDA         VALTYP          ; GET VARIABLE TYPE AND BRANCH IF
+                 BNE         LCD4B           ; IT IS A STRING
+@@ -2019,14 +2019,14 @@ DVEC10          TST         DEVNUM          ; CHECK DEVICE NUMBER AND RETURN
+ LCD4B           BSR         LCDBC           ; GET AN INPUT CHARACTER
+                 CMPA        #SPACE          ; SPACE?
+                 BEQ         LCD4B           ; YES - GET ANOTHER CHARACTER
+-                CMPA        #'"'            ; QUOTE?
++                CMPA        #'"             ; QUOTE?
+                 BNE         LCD5F           ; NO
+-                CMPB        #','            ; SEARCH CHARACTER = COMMA?
++                CMPB        #',             ; SEARCH CHARACTER = COMMA?
+                 BNE         LCD5F           ; NO - NUMERIC SEARCH
+                 TFR         A,B             ; SAVE DOUBLE QUOTE AS
+                 STB         CHARAC          ; THE SEARCH FLAG
+                 BRA         LCD81           ; SAVE DOUBLE QUOTES AS FIRST ITEM IN BUFFER
+-LCD5F           CMPB        #'"'            ;
++LCD5F           CMPB        #'"             ;
+                 BEQ         LCD74           ; BRANCH IF INPUTTING A STRING VARIABLE
+                 CMPA        #CR             ; IS THE INPUT CHARACTER A CARRIAGE RETURN
+                 BNE         LCD74           ; NO
+@@ -2055,7 +2055,7 @@ LCD92           CLR         ,X              ; PUT A ZERO AT END OF BUFFER WHEN D
+                 LDX         #LINBUF         ; POINT (X) TO LINBUF - RESET POINTER
+ LCD97           RTS
+ ; CHECK FOR ITEM SEPARATOR OR TERMINATOR AND EXIT THE INPUT ROUTINE
+-LCD98           CMPA        #'"'            ; QUOTE?
++LCD98           CMPA        #'"             ; QUOTE?
+                 BEQ         LCDA0           ; YES
+                 CMPA        #SPACE          ; SPACE?
+                 BNE         LCD92           ; NO - EXIT ROUTINE
+@@ -2063,7 +2063,7 @@ LCDA0           BSR         LCDD0           ; GET A CHARACTER FROM CONSOLE IN
+                 BNE         LCD92           ; EXIT ROUTINE IF BUFFER EMPTY
+                 CMPA        #SPACE          ; SPACE?
+                 BEQ         LCDA0           ; YES - GET ANOTHER CHARACTER
+-                CMPA        #','            ; COMMA (ITEM SEPARATOR)?
++                CMPA        #',             ; COMMA (ITEM SEPARATOR)?
+                 BEQ         LCD92           ; YES - EXIT ROUTINE
+ LCDAC           CMPA        #CR             ; CARRIAGE RETURN?
+                 BNE         LCDB8           ; NO
+@@ -2248,7 +2248,7 @@ DXCVEC          CMPA        #$CA            ; TOKEN FOR DLOAD?
+                 LBNE        L813C           ; NO
+ ; DISK BASIC MODIFIER FOR PMODE - ALLOWS FOR THE RAM THE DOS USES
+                 JSR         GETNCH          ; GET NEXT CHARACTER FROM BASIC
+-                CMPA        #','            ; CHECK FOR COMMA
++                CMPA        #',             ; CHECK FOR COMMA
+                 LBEQ        L9650           ; BRANCH IF COMMA
+                 JSR         EVALEXPB        ; EVALUATE EXPRESSION; RETURN VALUE IN ACCB
+                 CMPB        #$04            ; CHECK FOR PMODE 4
+@@ -2402,7 +2402,7 @@ WRITE           LBEQ        LB958           ; PRINT CARRIAGE RETURN TO CONSOLE O
+                 BSR         LD06F           ; GO WRITE AN ITEM LIST
+                 CLR         DEVNUM          ; SET DEVICE NUMBER TO SCREEN
+ LD06E           RTS
+-LD06F           CMPA        #'#'            ; CHECK FOR DEVICE NUMBER FLAG
++LD06F           CMPA        #'#             ; CHECK FOR DEVICE NUMBER FLAG
+                 BNE         LD082           ; DEFAULT TO CURRENT DEVICE NUMBER IF NONE GIVEN
+                 JSR         >LA5A5          ; SET DEVICE NUMBER; CHECK VALIDITY
+                 JSR         >LA406          ; MAKE SURE SELECTED FILE IS AN OUTPUT FILE
+@@ -2418,7 +2418,7 @@ LD082           JSR         >LB156          ; EVALUATE EXPRESSION
+ ; PRINT ITEM SEPARATOR TO CONSOLE OUT
+ LD092           JSR         GETCCH          ; GET CURRENT CHARACTER
+                 LBEQ        LB958           ; PUT CR TO CONSOLE OUT IF END OF LINE
+-                LDA         #','            ; COMMA: NON-CASSETTE SEPARATOR
++                LDA         #',             ; COMMA: NON-CASSETTE SEPARATOR
+                 JSR         >LA35F          ; SET PRINT PARAMETERS
+                 TST         PRTDEV          ; GET CONSOLE PRINT DEVICE AND
+                 BEQ         LD0A3           ; BRANCH IF NOT CASSETTE
+@@ -2434,7 +2434,7 @@ LD0A7           BSR         LD0B0           ; PRINT LEADING STRING DELIMITER (")
+ LD0B0           JSR         >LA35F          ; SET PRINT PARAMETERS
+                 TST         PRTDEV          ; GET CONSOLE PRINT DEVICE AND
+                 BNE         LD06E           ; RETURN IF CASSETTE
+-                LDA         #'"'            ; QUOTE: NON-CASSETTE STRING DELIMITER
++                LDA         #'"             ; QUOTE: NON-CASSETTE STRING DELIMITER
+ LD0B9           JMP         PUTCHR          ; SEND TO CONSOLE OUT
+ ; FIELD COMMAND
+ FIELD           JSR         >LC82E          ; EVALUATE DEVICE NUMBER & VERIFY RANDOM FILE OPEN
+@@ -2533,7 +2533,7 @@ FILES           JSR         >L95AC          ; RESET SAM DISPLAY PAGE AND VDG MOD
+                 LDB         FCBACT          ; GET CURRENT NUMBER OF FCBS
+                 PSHS        B               ; AND SAVE ON THE STACK (DEFAULT VALUE)
+                 JSR         GETCCH          ; GET CURRENT INPUT CHAR
+-                CMPA        #','            ; CHECK FOR COMMA
++                CMPA        #',             ; CHECK FOR COMMA
+                 BEQ         LD181           ; BRANCH IF COMMA - NO BUFFER NUMBER PARAMETER GIVEN
+                 JSR         EVALEXPB        ; EVALUATE EXPRESSION (BUFFER NUMBER)
+                 CMPB        #15             ; 15 FCBS MAX
+@@ -2953,7 +2953,7 @@ LD486           STA         VD8             ; SAVE THE 'GET'/'PUT' FLAG
+                 STX         DFLTYP          ; THEM IN THE DISK RAM VARIABLES
+                 LDX         #SECLEN         ; SAVE ONE SECTOR LENGTH IN
+                 STX         DFFLEN          ; RAM RECORD LENGTH VARIABLE
+-                LDA         #'R'            ; RANDOM FILE TYPE FLAG
++                LDA         #'R             ; RANDOM FILE TYPE FLAG
+                 LDB         FCBACT          ; GET THE HIGHEST RESERVED FCB NUMBER, ADD ONE
+                 INCB                        ;  AND OPEN A RANDOM FILE WHOSE FCB WILL BE ONE ABOVE
+                 JSR         >LC48D          ; THE HIGHEST RESERVED FCB (THE SYSTEM FCB)
+diff --git a/extbas.asm b/extbas.asm
+index e06ad21..9804ab0 100644
+--- a/extbas.asm
++++ b/extbas.asm
+@@ -354,7 +354,7 @@ L82BB           ANDCC       #$AF            ; ENABLE INTERRUPTS
+                 STX         TINPTR          ; POINTER AND SAVE IT
+                 LDA         ,X+             ; GET CURRENT INPUT CHARACTER AND ADVANCE POINTER
+                 BEQ         L82CF           ; BRANCH IF END OF LINE
+-                CMPA        #':'            ; CHECK FOR COLON
++                CMPA        #':             ; CHECK FOR COLON
+                 BEQ         L82F1           ; CONTINUE INTERPRETING IF COLON
+                 JMP         >LB277          ; SNYTAX ERROR - COLON ONLY LEGAL LINE SEPARATOR
+ L82CF           LDA         ,X++            ; GET 1ST BYTE OF ADDRESS OF NEXT
+@@ -393,7 +393,7 @@ L8311           JSR         >L8C62          ; CHECK EXBAS CLOAD HANDLER
+ L8316           BSR         L831A           ; DO A CSAVE
+                 BRA         L82BB           ; GO TO MAIN INTERPRETATION LOOP
+ L831A           JSR         GETNCH          ; GET A CHAR FROM BASIC
+-                CMPA        #'M'            ; CHECK FOR CSAVEM
++                CMPA        #'M             ; CHECK FOR CSAVEM
+                 LBNE        CSAVE           ; BRANCH IF ITS NOT CSAVEM
+ ; CSAVEM
+                 JSR         GETNCH          ; GET A CHAR FROM BASIC
+@@ -650,7 +650,7 @@ L855C           CLRB                        ;  RESET DIGIT ACCUMULATOR - DEFAULT
+ L855D           JSR         >L8687          ; GET KEY STROKE
+                 JSR         >L90AA          ; SET CARRY IF NOT NUMERIC
+                 BLO         L8570           ; BRANCH IF NOT NUMERIC
+-                SUBA        #'0'            ; MASK OFF ASCII
++                SUBA        #'0             ; MASK OFF ASCII
+                 PSHS        A               ; SAVE IT ON STACK
+                 LDA         #10             ; NUMBER BEING CONVERTED IS BASE 10
+                 MUL                         ;  MULTIPLY ACCUMULATED VALUE BY BASE (10)
+@@ -658,11 +658,11 @@ L855D           JSR         >L8687          ; GET KEY STROKE
+                 BRA         L855D           ; CHECK FOR ANOTHER DIGIT
+ L8570           SUBB        #$01            ; REPEAT PARAMETER IN ACCB; IF IT
+                 ADCB        #$01            ; IS 0, THEN MAKE IT 1
+-                CMPA        #'A'            ; ABORT?
++                CMPA        #'A             ; ABORT?
+                 BNE         L857D           ; NO
+                 JSR         >LB958          ; PRINT CARRIAGE RETURN TO SCREEN
+                 BRA         L8538           ; RESTART EDIT PROCESS - CANCEL ALL CHANGES
+-L857D           CMPA        #'L'            ; LIST?
++L857D           CMPA        #'L             ; LIST?
+                 BNE         L858C           ; NO
+ L8581           BSR         L85B4           ; LIST THE LINE
+                 CLR         VD8             ; RESET THE LIST FLAG TO NO LIST
+@@ -676,9 +676,9 @@ L8592           JSR         >LB958          ; PRINT CARRIAGE RETURN
+                 LDX         #LINBUF+1       ; RESET BASICS INPUT POINTER
+                 STX         CHARAD          ; TO THE LINE INPUT BUFFER
+                 JMP         >LACA8          ; GO PUT LINE BACK IN PROGRAM
+-L859D           CMPA        #'E'            ; EXIT?
++L859D           CMPA        #'E             ; EXIT?
+                 BEQ         L8592           ; YES - SAME AS ENTER EXCEPT NO ECHO
+-                CMPA        #'Q'            ; QUIT?
++                CMPA        #'Q             ; QUIT?
+                 BNE         L85AB           ; NO
+                 JSR         >LB958          ; PRINT CARRIAGE RETURN TO SCREEN
+                 JMP         >LAC73          ; GO TO COMMAND LEVEL - MAKE NO CHANGES
+@@ -697,7 +697,7 @@ L85B6           LDA         ,X              ; GET A CHARACTER FROM BUFFER
+                 DECB                        ;  DECREMENT CHARACTER COUNTER
+                 BNE         L85B6           ; LOOP IF NOT DONE
+ L85C2           RTS
+-L85C3           CMPA        #'D'            ; DELETE?
++L85C3           CMPA        #'D             ; DELETE?
+                 BNE         L860F           ; NO
+ L85C7           TST         ,X              ; CHECK FOR END OF LINE
+                 BEQ         L85C2           ; AND BRANCH IF SO
+@@ -713,11 +713,11 @@ L85D5           LEAY        $01,Y           ; INCREMENT TEMPORARY BUFFER POINTER
+                 STA         ,Y              ; PUT IT IN CURRENT POSITION
+                 BNE         L85D5           ; BRANCH IF NOT END OF LINE
+                 RTS
+-L85DE           CMPA        #'I'            ; INSERT?
++L85DE           CMPA        #'I             ; INSERT?
+                 BEQ         L85F5           ; YES
+-                CMPA        #'X'            ; EXTEND?
++                CMPA        #'X             ; EXTEND?
+                 BEQ         L85F3           ; YES
+-                CMPA        #'H'            ; HACK?
++                CMPA        #'H             ; HACK?
+                 BNE         L8646           ; NO
+                 CLR         ,X              ; TURN CURRENT BUFFER POINTER INTO END OF LINE FLAG
+                 TFR         X,D             ; PUT CURRENT BUFFER POINTER IN ACCD
+@@ -736,7 +736,7 @@ L85F5           JSR         >L8687          ; GET A KEYSTROKE
+                 BSR         L8650           ; MOVE POINTER BACK ONE, BS TO SCREEN
+                 BSR         L85D1           ; REMOVE ONE CHARACTER FROM BUFFER
+                 BRA         L85F5           ; GET INSERT SUB COMMAND
+-L860F           CMPA        #'C'            ; CHANGE?
++L860F           CMPA        #'C             ; CHANGE?
+                 BNE         L85DE           ; NO
+ L8613           TST         ,X              ; CHECK CURRENT BUFFER CHARACTER
+                 BEQ         L8625           ; BRANCH IF END OF LINE
+@@ -775,9 +775,9 @@ L8650           CMPX        #LINBUF+1       ; COMPARE POINTER TO START OF BUFFER
+                 LEAX        -1,X            ; MOVE POINTER BACK ONE
+                 LDA         #BS             ; BACK SPACE
+ L8659           JMP         PUTCHR          ; SEND TO CONSOLE OUT
+-L865C           CMPA        #'K'            ; KILL?
++L865C           CMPA        #'K             ; KILL?
+                 BEQ         L8665           ; YES
+-                SUBA        #'S'            ; SEARCH?
++                SUBA        #'S             ; SEARCH?
+                 BEQ         L8665           ; YES
+                 RTS
+ L8665           PSHS        A               ; SAVE KILL/SEARCH FLAG ON STACK
+@@ -863,7 +863,7 @@ L86FD           JSR         >LB738          ; SYNTAX CHECK FOR COMMA AND EVALUAT
+                 TSTB                        ;  CHECK POSITION PARAMETER AND BRANCH
+                 BEQ         L8724           ; IF START OF STRING
+                 LDB         #$FF            ; DEFAULT REPLACEMENT LENGTH = $FF
+-                CMPA        #')'            ; CHECK FOR END OF MID$ STATEMENT AND
++                CMPA        #')             ; CHECK FOR END OF MID$ STATEMENT AND
+                 BEQ         L870E           ; BRANCH IF AT END OF STATEMENT
+                 JSR         >LB738          ; SYNTAX CHECK FOR COMMA AND EVALUATE LENGTH EXPRESSION
+ L870E           PSHS        B               ; SAVE LENGTH PARAMETER ON STACK
+@@ -976,7 +976,7 @@ L87DF           INC         $06,S           ; INCREMENT SEARCH POSITION
+                 LEAX        $01,Y           ; MOVE X TO NEXT SEARCH POSITION
+                 BRA         L87BE           ; KEEP LOOKING FOR A MATCH
+ ; ASCII TO FLOATING POINT CONVERSION RAM HOOK
+-XVEC19          CMPA        #'&'
++XVEC19          CMPA        #'&
+ L87E7           BNE         L8845           ; RETURN IF NOT HEX OR OCTAL VARIABLE
+                 LEAS        $02,S           ; PURGE RETURN ADDRESS FROM STACK
+ ; PROCESS A VARIABLE PRECEEDED BY A & (&H,&O)
+@@ -984,13 +984,13 @@ L87EB           CLR         FPA0+2          ; CLEAR BOTTOM TWO
+                 CLR         FPA0+3          ; BYTES OF FPA0
+                 LDX         #FPA0+2         ; BYTES 2,3 OF FPA0 = (TEMPORARY ACCUMULATOR)
+                 JSR         GETNCH          ; GET A CHARACTER FROM BASIC
+-                CMPA        #'O'            ; OCTAL VALUE?
++                CMPA        #'O             ; OCTAL VALUE?
+                 BEQ         L880A           ; YES
+-                CMPA        #'H'            ; HEX VALUE?
++                CMPA        #'H             ; HEX VALUE?
+                 BEQ         L881F           ; YES
+                 JSR         GETCCH          ; GET CURRENT INPUT CHARACTER
+                 BRA         L880C           ; DEFAULT TO OCTAL (&O)
+-L8800           CMPA        #'8'
++L8800           CMPA        #'8
+                 LBHI        LB277           ; SYNTAX ERROR IF
+                 LDB         #$03            ; BASE 8 MULTIPLIER
+                 BSR         L8834           ; ADD DIGIT TO TEMPORARY ACCUMULATOR
+@@ -1010,9 +1010,9 @@ L881F           JSR         GETNCH          ; GET A CHARACTER FROM BASIC
+                 BLO         L882E           ; BRANCH IF NUMERIC
+                 JSR         >LB3A2          ; SET CARRY IF NOT ALPHA
+ L8826           BLO         L880E           ; BRANCH IF NOT ALPHA OR NUMERIC
+-                CMPA        #'G'            ; CHECK FOR LETTERS A-F
++                CMPA        #'G             ; CHECK FOR LETTERS A-F
+                 BCC         L880E           ; BRANCH IF >= G (ILLEGAL HEX LETTER)
+-                SUBA        #'A'-('9'+1)    ; SUBTRACT ASCII DIFFERENCE BETWEEN A AND 9
++                SUBA        #'A-('9+1)      ; SUBTRACT ASCII DIFFERENCE BETWEEN A AND 9
+ L882E           LDB         #$04            ; BASE 16 DIGIT MULTIPLIER = 2**4
+                 BSR         L8834           ; ADD DIGIT TO TEMPORARY ACCUMULATOR
+                 BRA         L881F           ; KEEP EVALUATING VARIABLE
+@@ -1021,7 +1021,7 @@ L8834           ASL         $01,X           ; MULTIPLY TEMPORARY
+                 LBCS        LBA92           ; OV' OVERFLOW ERROR
+                 DECB                        ;  DECREMENT SHIFT COUNTER
+                 BNE         L8834           ; MULTIPLY TEMPORARY ACCUMULATOR AGAIN
+-L883F           SUBA        #'0'            ; MASK OFF ASCII
++L883F           SUBA        #'0             ; MASK OFF ASCII
+                 ADDA        $01,X           ; ADD DIGIT TO TEMPORARY
+                 STA         $01,X           ; ACCUMULATOR AND SAVE IT
+ L8845           RTS
+@@ -1030,7 +1030,7 @@ XVEC15          PULS        U               ; PULL RETURN ADDRESS AND SAVE IN U
+                 CLR         VALTYP          ; SET VARIABLE TYPE TO NUMERIC
+                 LDX         CHARAD          ; CURRENT INPUT POINTER TO X
+                 JSR         GETNCH          ; GET CHARACTER FROM BASIC
+-                CMPA        #'&'            ; HEX AND OCTAL VARIABLES ARE PRECEEDED BY &
++                CMPA        #'&             ; HEX AND OCTAL VARIABLES ARE PRECEEDED BY &
+                 BEQ         L87EB           ; PROCESS A & VARIABLE
+                 CMPA        #$CC            ; TOKEN FOR FN
+                 BEQ         L88B4           ; PROCESS FN CALL
+@@ -1127,7 +1127,7 @@ L890F           JSR         GETNCH          ; SKIP PAST SECOND BYTE OF DEF USR T
+ L891C           CLRB                        ;  DEFAULT TO USR0 IF NO ARGUMENT
+                 JSR         GETNCH          ; GET A CHARACTER FROM BASIC
+                 BCC         L8927           ; BRANCH IF NOT NUMERIC
+-                SUBA        #'0'            ; MASK OFF ASCII
++                SUBA        #'0             ; MASK OFF ASCII
+                 TFR         A,B             ; SAVE USR NUMBER IN ACCB
+                 JSR         GETNCH          ; GET A CHARACTER FROM BASIC
+ L8927           LDX         USRADR          ; GET ADDRESS OF STORAGE LOCs FOR USR ADDRESS
+@@ -1206,15 +1206,15 @@ L89BF           RTS
+ ; LINE INPUT
+ L89C0           JSR         >L8866          ; BS ERROR IF IN DIRECT MODE
+                 JSR         GETNCH          ; GET A CHAR FROM BASIC
+-                CMPA        #'#'            ; CHECK FOR DEVICE NUMBER FLAG AND
++                CMPA        #'#             ; CHECK FOR DEVICE NUMBER FLAG AND
+                 BNE         L89D2           ; BRANCH IF NOT THERE
+                 JSR         >LA5A5          ; CHECK FOR VALID DEVICE NUMBER
+                 JSR         >LA3ED          ; CHECK FOR OPEN FILE
+                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
+-L89D2           CMPA        #'"'            ; CHECK FOR PROMPT STRING
++L89D2           CMPA        #'"             ; CHECK FOR PROMPT STRING
+                 BNE         L89E1           ; BRANCH IF NO PROMPT STRING
+                 JSR         >LB244          ; STRIP OFF PROMPT STRING & PUT IT ON STRING STACK
+-                LDB         #';'
++                LDB         #';
+                 JSR         >LB26F          ; DO A SYNTAX CHECK FOR;
+                 JSR         >LB99F          ; REMOVE PROMPT STRING FROM STRING STACK & SEND TO CONSOLE OUT
+ L89E1           LEAS        -2,S            ; RESERVE TWO STORAGE SLOTS ON STACK
+@@ -1422,7 +1422,7 @@ L8B67           STB         $01,X           ; SAVE MS BYTE OF BINARY LINE NUMBER
+                 INC         $04,X           ; IF 4,X = 2, THEN PREVIOUS BYTE WAS A 0
+ L8B71           STB         $03,X           ; SAVE LS BYTE OF BINARY LINE NUMBER
+                 JSR         GETCCH          ; GET CURRENT INPUT CHARACTER
+-                CMPA        #','            ; IS IT A COMMA?
++                CMPA        #',             ; IS IT A COMMA?
+                 BEQ         L8B13           ; YES - PROCESS ANOTHER NUMERIC VALUE
+                 BRA         L8B17           ; NO - GO GET AND PROCESS AN INPUT CHARACTER
+ L8B7B           LDX         TXTTAB          ; POINT X TO START OF BASIC PROGRAM
+@@ -1490,10 +1490,10 @@ L8BEA           ASL         FPA0+3          ; SHIFT BOTTOM TWO BYTES OF
+                 BEQ         L8BFF           ; BRANCH IF DONE
+                 CMPX        #STRBUF+2       ; DO NOT DO A CONVERSION UNTIL A NON-ZERO
+                 BEQ         L8C0B           ; BYTE IS FOUND - LEADING ZERO SUPPRESSION
+-L8BFF           ADDB        #'0'            ; ADD IN ASCII ZERO
+-                CMPB        #'9'            ; COMPARE TO ASCII 9
++L8BFF           ADDB        #'0             ; ADD IN ASCII ZERO
++                CMPB        #'9             ; COMPARE TO ASCII 9
+                 BLS         L8C07           ; BRANCH IF < 9
+-                ADDB        #'A'-('9'+1)    ; ADD ASCII OFFSET IF HEX LETTER
++                ADDB        #'A-('9+1)      ; ADD ASCII OFFSET IF HEX LETTER
+ L8C07           STB         ,X+             ; STORE HEX VALUE AND ADVANCE POINTER
+                 CLR         ,X              ; CLEAR NEXT BYTE - END OF STRING FLAG
+ L8C0B           PULS        B               ; GET NIBBLE COUNTER,
+@@ -1522,7 +1522,7 @@ DLOAD           JSR         >LA429          ; CLOSE FILES
+ ; CLOSEing of cassette files (JSR LA429).
+ 
+ DLDBUG          CLR         ,-S             ; SAVE DEFAULT TOKEN (NON DLOADM) ON STACK
+-                CMPA        #'M'            ; IS IT DLOADM?
++                CMPA        #'M             ; IS IT DLOADM?
+                 BNE         L8C25           ; NO
+                 STA         ,S              ; SAVE THE M ON THE STACK
+ ; -----------------------------------------------------------------------------
+@@ -1531,7 +1531,7 @@ DLDBUG          CLR         ,-S             ; SAVE DEFAULT TOKEN (NON DLOADM) ON
+ ; patch to fix the DLOAD bug.
+ 
+ DLDBUG          JSR         GETCCH          ; GET THE CURRENT INPUT CHARACTER
+-                SUBA        #'M'            ; CHECK FOR DLOADM
++                SUBA        #'M             ; CHECK FOR DLOADM
+                 PSHS        A               ; SAVE DLOADM (=0), OLOAD (<>0) FLAG
+                 BNE         L8C25           ; BRANCH IF OLOAD
+ ; -----------------------------------------------------------------------------
+@@ -1543,7 +1543,7 @@ L8C25           JSR         >LA578          ; GET THE NAME OF FILE FROM BASIC
+                 JSR         GETCCH          ; GET CURRENT INPUT CHAR FROM BASIC
+                 BEQ         L8C44           ; BRANCH IF END OF LINE
+                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
+-                CMPA        #','            ; CHECK FOR TWO CONSECUTIVE COMMAS
++                CMPA        #',             ; CHECK FOR TWO CONSECUTIVE COMMAS
+                 BEQ         L8C44           ; BRANCH IF,, - IF THIS CASE IS SELECTED
+ ; THE BAUD DELAY MUST HAVE BEEN PREVIOUSLY STORED IN DIBAUD
+                 JSR         EVALEXPB        ; EVAL EXPR, RETURN VALUE IN ACCB
+@@ -1620,7 +1620,7 @@ L8C4F           PULS        CC
+ L8C5F           JMP         >LA616          ; BAD FILE MODE ERROR
+ ; EXBAS CLOAD PROCESSOR
+ L8C62           JSR         GETNCH          ; GET A CHAR FROM BASIC
+-                CMPA        #'M'            ; CHECK FOR CLOADM
++                CMPA        #'M             ; CHECK FOR CLOADM
+                 LBNE        CLOAD           ; GO DO A CLOAD
+                 CLR         FILSTA          ; CLOSE FILES
+                 JSR         GETNCH          ; GET A CHAR FROM BASIC
+@@ -1906,7 +1906,7 @@ L8E69           STB         VD3             ; SAVE THE CURRENT FORMAT STRING
+                 LDA         #$02            ; INITIAL SPACES COUNTER = 2
+                 STA         VD9             ; SAVE IN SPACES COUNTER
+ L8E71           LDA         ,X              ; GET A CHARACTER FROM FORMAT STRING
+-                CMPA        #'%'            ; COMPARE TO TERMINATOR CHARACTER
++                CMPA        #'%             ; COMPARE TO TERMINATOR CHARACTER
+                 BEQ         L8E3B           ; BRANCH IF END OF SPACES COMMAND
+                 CMPA        #$20            ; BLANK SPACE
+                 BNE         L8E82           ; BRANCH IF ILLEGAL CHARACTER
+@@ -1916,7 +1916,7 @@ L8E71           LDA         ,X              ; GET A CHARACTER FROM FORMAT STRING
+                 BNE         L8E71           ; BRANCH IF NOT END OF FORMAT STRING
+ L8E82           LDX         TEMPTR          ; RESTORE CURRENT FORMAT STRING COUNTER
+                 LDB         VD3             ; AND POINTER TO POSITION BEFORE SPACES COMMAND
+-                LDA         #'%'            ; SEND A % TO CONSOLE OUT AS A DEBUGGING AID
++                LDA         #'%             ; SEND A % TO CONSOLE OUT AS A DEBUGGING AID
+ ; ERROR PROCESSOR - ILLEGAL CHARACTER OR BAD SYNTAX IN FORMAT STRING
+ L8E88           JSR         >L8FD8          ; SEND A +' TO CONSOLE OUT IF VDA <> 0
+                 JSR         PUTCHR          ; SEND CHARACTER TO CONSOLE OUT
+@@ -1932,7 +1932,7 @@ XVEC9           CMPA        #$CD            ; USING TOKEN
+ L8E95           LEAS        $02,S           ; PURGE RETURN ADDRESS OFF THE STACK
+                 JSR         >LB158          ; EVALUATE FORMAT STRING
+                 JSR         >LB146          ; TM ERROR IF VARIABLE TYPE = NUMERIC
+-                LDB         #';'            ; CHECK FOR ITEM LIST SEPARATOR
++                LDB         #';             ; CHECK FOR ITEM LIST SEPARATOR
+                 JSR         >LB26F          ; SYNTAX CHECK FOR ;
+                 LDX         FPA0+2          ; GET FORMAT STRING DESCRIPTOR ADDRESS
+                 STX         VD5             ; AND SAVE IT IN VD5
+@@ -1949,9 +1949,9 @@ L8EB7           LDX         $02,X           ; POINT X TO START OF FORMAT STRING
+ L8EB9           CLR         VDA             ; CLEAR THE STATUS BYTE
+ L8EBB           CLR         VD9             ; CLEAR LEFT DIGIT COUNTER
+                 LDA         ,X+             ; GET A CHARACTER FROM FORMAT STRING
+-                CMPA        #'!'            ; EXCLAMATION POINT?
++                CMPA        #'!             ; EXCLAMATION POINT?
+                 LBEQ        L8E37           ; YES - STRING TYPE FORMAT
+-                CMPA        #'#'            ; NUMBER SIGN? (DIGIT LOCATOR)
++                CMPA        #'#             ; NUMBER SIGN? (DIGIT LOCATOR)
+                 BEQ         L8F24           ; YES - NUMERIC TYPE FORMAT
+                 DECB                        ;  DECREMENT FORMAT STRING LENGTH
+                 BNE         L8EE2           ; BRANCH IF NOT DONE
+@@ -1964,23 +1964,23 @@ L8ED8           BNE         L8EDD           ; BRANCH IF MORE PRINT ITEMS
+                 JSR         >LB958          ; SEND A CARRIAGE RETURN TO CONSOLE OUT
+ L8EDD           LDX         VD5             ; POINT X TO FORMAT STRING DESCRIPTOR
+                 JMP         >LB659          ; RETURN ADDRESS AND LENGTH OF FORMAT STRING - EXIT PRINT USING
+-L8EE2           CMPA        #'+'            ; CHECK FOR + (PRE-SIGN FORCE)
++L8EE2           CMPA        #'+             ; CHECK FOR + (PRE-SIGN FORCE)
+                 BNE         L8EEF           ; NO PLUS
+                 JSR         >L8FD8          ; SEND A +' TO CONSOLE OUT IF VDA <> 0
+                 LDA         #$08            ; LOAD THE STATUS BYTE WITH 8;
+                 STA         VDA             ; PRE-SIGN FORCE FLAG
+                 BRA         L8EBB           ; INTERPRET THE REST OF THE FORMAT STRING
+-L8EEF           CMPA        #'.'            ; DECIMAL POINT?
++L8EEF           CMPA        #'.             ; DECIMAL POINT?
+                 BEQ         L8F41           ; YES
+-                CMPA        #'%'            ; PERCENT SIGN?
++                CMPA        #'%             ; PERCENT SIGN?
+                 LBEQ        L8E69           ; YES
+                 CMPA        ,X              ; COMPARE THE PRESENT FORMAT STRING INPUT
+ ; CHARACTER TO THE NEXT ONE IN THE STRING
+ L8EFB           BNE         L8E88           ; NO MATCH - ILLEGAL CHARACTER
+ ; TWO CONSECUTIVE EQUAL CHARACTERS IN FORMAT STRING
+-                CMPA        #'$'            ; DOLLAR SIGN?
++                CMPA        #'$             ; DOLLAR SIGN?
+                 BEQ         L8F1A           ; YES - MAKE THE DOLLAR SIGN FLOAT
+-                CMPA        #'*'            ; ASTERISK?
++                CMPA        #'*             ; ASTERISK?
+                 BNE         L8EFB           ; NO - ILLEGAL CHARACTER
+                 LDA         VDA             ; GRAB THE STATUS BYTE AND BET BIT 5
+                 ORA         #$20            ; TO INDICATE THAT THE OUTPUT WILL
+@@ -1988,7 +1988,7 @@ L8EFB           BNE         L8E88           ; NO MATCH - ILLEGAL CHARACTER
+                 CMPB        #2              ; CHECK TO SEE IF THE $$ ARE THE LAST TWO
+                 BLO         L8F20           ; CHARACTERS IN THE FORMAT STRING AND BRANCH IF SO
+                 LDA         $01,X           ; GET THE NEXT CHARACTER AFTER **
+-                CMPA        #'$'            ; CHECK FOR **$
++                CMPA        #'$             ; CHECK FOR **$
+                 BNE         L8F20           ; CHECK FOR MORE CHARACTERS
+                 DECB                        ;  DECREMENT STRING LENGTH COUNTER
+                 LEAX        $01,X           ; MOVE FORMAT STRING POINTER UP ONE
+@@ -2005,11 +2005,11 @@ L8F26           INC         VD9             ; ADD ONE TO LEFT DIGIT COUNTER
+                 DECB                        ;  DECREMENT FORMAT STRING LENGTH COUNTER
+                 BEQ         L8F74           ; BRANCH IF END OF FORMAT STRING
+                 LDA         ,X+             ; GET THE NEXT FORMAT CHARACTER
+-                CMPA        #'.'            ; DECIMAL POINT?
++                CMPA        #'.             ; DECIMAL POINT?
+                 BEQ         L8F4F           ; YES
+-                CMPA        #'#'            ; NUMBER SIGN?
++                CMPA        #'#             ; NUMBER SIGN?
+                 BEQ         L8F26           ; YES
+-                CMPA        #','            ; COMMA?
++                CMPA        #',             ; COMMA?
+                 BNE         L8F5A           ; NO
+                 LDA         VDA             ; GET THE STATUS BYTE
+                 ORA         #$40            ; AND SET BIT 6 WHICH IS THE
+@@ -2017,7 +2017,7 @@ L8F26           INC         VD9             ; ADD ONE TO LEFT DIGIT COUNTER
+                 BRA         L8F26           ; PROCESS MORE CHARACTERS TO LEFT OF DECIMAL POINT
+ ; PROCESS DECIMAL POINT IF NO DIGITS TO LEFT OF IT
+ L8F41           LDA         ,X              ; GET NEXT FORMAT CHARACTER
+-                CMPA        #'#'            ; IS IT A NUMBER SIGN?
++                CMPA        #'#             ; IS IT A NUMBER SIGN?
+                 LBNE        L8E88           ; NO
+                 LDA         #1              ; SET THE RIGHT DIGIT COUNTER TO 1 -
+                 STA         VD8             ; ALLOW ONE SPOT FOR DECIMAL POINT
+@@ -2027,7 +2027,7 @@ L8F4F           INC         VD8             ; ADD ONE TO RIGHT DIGIT COUNTER
+                 DECB                        ;  DECREMENT FORMAT LENGTH COUNTER
+                 BEQ         L8F74           ; BRANCH IF END OF FORMAT STRING
+                 LDA         ,X+             ; GET A CHARACTER FROM FORMAT STRING
+-                CMPA        #'#'            ; IS IT NUMBER SIGN?
++                CMPA        #'#             ; IS IT NUMBER SIGN?
+                 BEQ         L8F4F           ; YES - KEEP CHECKING
+ ; CHECK FOR EXPONENTIAL FORCE
+ L8F5A           CMPA        #$5E            ; CHECK FOR UP ARROW
+@@ -2053,9 +2053,9 @@ L8F74           LEAX        -1,X            ; MOVE POINTER BACK ONE
+                 TSTB                        ;  CHECK LENGTH COUNTER AND BRANCH
+                 BEQ         L8F96           ; IF END OF FORMAT STRING
+                 LDA         ,X              ; GET NEXT FORMAT STRING CHARACTER
+-                SUBA        #'-'            ; CHECK FOR MINUS SIGN
++                SUBA        #'-             ; CHECK FOR MINUS SIGN
+                 BEQ         L8F8F           ; BRANCH IF MINUS SIGN
+-                CMPA        #('+')-('-')    ; CHECK FOR PLUS SIGN
++                CMPA        #('+)-('-)      ; CHECK FOR PLUS SIGN
+                 BNE         L8F96           ; BRANCH IF NO PLUS SIGN
+                 LDA         #$08            ; GET THE PRE-SIGN FORCE FLAG
+ L8F8F           ORA         #$04            ; OR IN POST-SIGN FORCE FLAG
+@@ -2078,7 +2078,7 @@ L8FB3           CLR         VD7             ; RESET NEXT PRINT ITEM FLAG
+                 JSR         GETCCH          ; GET CURRENT INPUT CHARACTER
+                 BEQ         L8FC6           ; BRANCH IF END OF LINE
+                 STA         VD7             ; SAVE CURRENT CHARACTER (<>0) IN NEXT PRINT ITEM FLAG
+-                CMPA        #';'            ; CHECK FOR ; - ITEM-LIST SEPARATOR AND
++                CMPA        #';             ; CHECK FOR ; - ITEM-LIST SEPARATOR AND
+                 BEQ         L8FC4           ; BRANCH IF SEMICOLON
+                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
+                 BRA         L8FC6           ; PROCESS NEXT PRINT ITEM
+@@ -2094,7 +2094,7 @@ L8FC6           LDX         VD5             ; GET FORMAT STRING DESCRIPTOR ADDRE
+ ; USED ON LAST PRINT ITEM
+ ; PRINT A + TO CONSOLE OUT IF THE STATUS BYTE <> 0
+ L8FD8           PSHS        A               ; RESTORE ACCA AND RETURN
+-                LDA         #'+'            ; GET ASCII PLUS SIGN
++                LDA         #'+             ; GET ASCII PLUS SIGN
+                 TST         VDA             ; CHECK THE STATUS BYTE AND
+                 BEQ         L8FE3           ; RETURN IF = 0
+                 JSR         PUTCHR          ; SEND A CHARACTER TO CONSOLE OUT
+@@ -2105,13 +2105,13 @@ L8FE5           LDU         #STRBUF+4       ; POINT U TO STRING BUFFER
+                 LDA         VDA             ; GET THE STATUS FLAG AND
+                 BITA        #$08            ; CHECK FOR A PRE-SIGN FORCE
+                 BEQ         L8FF2           ; BRANCH IF NO PRE-SIGN FORCE
+-                LDB         #'+'            ; PLUS SIGN
++                LDB         #'+             ; PLUS SIGN
+ L8FF2           TST         FP0SGN          ; CHECK THE SIGN OF FPA0
+                 BPL         L8FFA           ; BRANCH IF POSITIVE
+                 CLR         FP0SGN          ; FORCE FPA0 SIGN TO BE POSITIVE
+-                LDB         #'-'            ; MINUS SIGN
++                LDB         #'-             ; MINUS SIGN
+ L8FFA           STB         ,U+             ; SAVE THE SIGN IN BUFFER
+-                LDB         #'0'            ; PUT A ZERO INTO THE BUFFER
++                LDB         #'0             ; PUT A ZERO INTO THE BUFFER
+                 STB         ,U+             ;
+                 ANDA        #$01            ; CHECK THE EXPONENTIAL FORCE FLAG IN
+                 LBNE        L910D           ; THE STATUS BYTE - BRANCH IF ACTIVE
+@@ -2125,7 +2125,7 @@ L9015           LDA         ,-X             ; MOVE THE
+                 STA         $01,X           ; ENTIRE STRING
+                 CMPX        #STRBUF+3       ; UP ONE
+                 BNE         L9015           ; BYTE
+-                LDA         #'%'            ; INSERT A % SIGN AT START OF
++                LDA         #'%             ; INSERT A % SIGN AT START OF
+                 STA         ,X              ; STRING - OVERFLOW ERROR
+                 RTS
+ L9023           LDA         FP0EXP          ; GET EXPONENT OF FPA0
+@@ -2154,7 +2154,7 @@ L9050           DECA                        ;  SUBTRACT ONE (DECIMAL POINT)
+ L9054           JSR         >L9185          ; INSERT ASTERISK PADDING, FLOATING $, AND POST-SIGN
+                 TSTA                        ;  WAS THERE A POST-SIGN?
+                 BEQ         L9060           ; NO
+-                CMPB        #'*'            ; IS THE FIRST CHARACTER AN $?
++                CMPB        #'*             ; IS THE FIRST CHARACTER AN $?
+                 BEQ         L9060           ; YES
+                 STB         ,U+             ; STORE THE POST-SIGN
+ L9060           CLR         ,U              ; CLEAR THE LAST CHARACTER IN THE BUFFER
+@@ -2172,18 +2172,18 @@ L9065           LEAX        $01,X           ; MOVE BUFFER POINTER UP ONE
+                 LDA         ,X              ; GET THE CURRENT BUFFER CHARACTER
+                 CMPA        #SPACE          ; SPACE?
+                 BEQ         L9065           ; YES - ADVANCE POINTER
+-                CMPA        #'*'            ; ASTERISK?
++                CMPA        #'*             ; ASTERISK?
+                 BEQ         L9065           ; YES - ADVANCE POINTER
+                 CLRA                        ;  A ZERO ON THE STACK IS END OF DATA POINTER
+ L907C           PSHS        A               ; PUSH A CHARACTER ONTO THE STACK
+                 LDA         ,X+             ; GET NEXT CHARACTER FROM BUFFER
+-                CMPA        #'-'            ; MINUS SIGN?
++                CMPA        #'-             ; MINUS SIGN?
+                 BEQ         L907C           ; YES
+-                CMPA        #'+'            ; PLUS SIGN?
++                CMPA        #'+             ; PLUS SIGN?
+                 BEQ         L907C           ; YES
+-                CMPA        #'$'            ; DOLLAR SIGN?
++                CMPA        #'$             ; DOLLAR SIGN?
+                 BEQ         L907C           ; YES
+-                CMPA        #'0'            ; ZERO?
++                CMPA        #'0             ; ZERO?
+                 BNE         L909E           ; NO - ERROR
+                 LDA         $01,X           ; GET CHARACTER FOLLOWING ZERO
+                 BSR         L90AA           ; CLEAR CARRY IF NUMERIC
+@@ -2196,15 +2196,15 @@ L909E           PULS        A               ; REMOVE THE CHARACTERS ON
+                 TSTA                        ;  = THE STACK AND EXIT WHEN
+                 BNE         L909E           ; ZERO FLAG FOUND
+                 LDX         TEMPTR          ; GET THE STRING BUFFER START POINTER
+-                LDA         #'%'            ; PUT A % SIGN BEFORE THE ERROR POSITION TO
++                LDA         #'%             ; PUT A % SIGN BEFORE THE ERROR POSITION TO
+                 STA         ,-X             ; INDICATE AN ERROR
+ L90A9           RTS
+ 
+ ; CLEAR CARRY IF NUMERIC
+-L90AA           CMPA        #'0'            ; ASCII ZERO
++L90AA           CMPA        #'0             ; ASCII ZERO
+                 BLO         L90B2           ; RETURN IF ACCA < ASCII 0
+-                SUBA        #'9'+1          ;
+-                SUBA        #-('9'+1)       ; CARRY CLEAR IF NUMERIC
++                SUBA        #'9+1           ;
++                SUBA        #-('9+1)        ; CARRY CLEAR IF NUMERIC
+ L90B2           RTS
+ 
+ ; PROCESS AN ITEM-LIST WHICH IS < 100,000,000
+@@ -2237,7 +2237,7 @@ L90CB           LDA         V47             ; GET BASE 10 EXPONENT OFFSET, ADD I
+ 
+ ; PUT (ACCA+1) ASCII ZEROES IN BUFFER
+ L90E2           PSHS        A               ; SAVE ZERO COUNTER
+-                LDA         #'0'            ; INSERT A ZERO INTO
++                LDA         #'0             ; INSERT A ZERO INTO
+                 STA         ,U+             ; THE BUFFER
+                 PULS        A               ; RESTORE ZERO COUNTER
+ ; PUT ACCA ASCII ZEROES INTO THE BUFFER
+@@ -2310,15 +2310,15 @@ L915A           LDB         ,S+             ; GET ORIGINAL EXPONENT OF FPA0
+                 ADDB        #$09            ; ADD 9 FOR 9 SIGNIFICANT DIGIT CONVERSION
+                 SUBB        VD9             ; SUBTRACT LEFT DIGIT COUNTER
+                 SUBB        STRBUF+3        ; ADD ONE TO EXPONENT IF POST-SIGN FORCE
+-L9167           LDA         #'+'            ; PLUS SIGN
++L9167           LDA         #'+             ; PLUS SIGN
+                 TSTB                        ;  TEST EXPONENT
+                 BPL         L916F           ; BRANCH IF POSITIVE EXPONENT
+-                LDA         #'-'            ; MINUS SIGN
++                LDA         #'-             ; MINUS SIGN
+                 NEGB                        ;  CONVERT EXPONENT TO POSITIVE NUMBER
+ L916F           STA         $01,U           ; PUT SIGN OF EXPONENT IN STRING BUFFER
+-                LDA         #'E'            ; PUT AN E (EXPONENTIATION FLAG) IN
++                LDA         #'E             ; PUT AN E (EXPONENTIATION FLAG) IN
+                 STA         ,U++            ; BUFFER AND SKIP OVER THE SIGN
+-                LDA         #'0'-1          ; INITIALIZE TENS DIGIT TO ASCII ZERO MINUS ONE
++                LDA         #'0-1           ; INITIALIZE TENS DIGIT TO ASCII ZERO MINUS ONE
+ ; BINARY EXPONENT IN ACCB TO ASCII VALUE IN ACCA
+ L9177           INCA                        ;  ADD ONE TO TENS DIGIT COUNTER
+ 
+@@ -2328,7 +2328,7 @@ L9177           INCA                        ;  ADD ONE TO TENS DIGIT COUNTER
+ ; -----------------------------------------------------------------------------
+                 SUBB        #12             ; SUBTRACT 12 FROM EXPONENT AND ADD ONE TO TENS
+                 BCC         L9177           ; DIGIT IF NO CARRY. TENS DIGIT DONE IF THERE IS A CARRY
+-                ADDB        #'9'+3          ; ADD ASCII BIAS TO UNITS DIGIT
++                ADDB        #'9+3           ; ADD ASCII BIAS TO UNITS DIGIT
+ ; -----------------------------------------------------------------------------
+                 else
+ ; -----------------------------------------------------------------------------
+@@ -2336,7 +2336,7 @@ L9177           INCA                        ;  ADD ONE TO TENS DIGIT COUNTER
+ 
+                 SUBB        #10             ; SUBTRACT 10 FROM EXPONENT AND ADD ONE TO TENS
+                 BCC         L9177           ; DIGIT IF NO CARRY. TENS DIGIT DONE IF THERE IS A CARRY
+-                ADDB        #'9'+1          ; ADD ASCII BIAS TO UNITS DIGIT
++                ADDB        #'9+1           ; ADD ASCII BIAS TO UNITS DIGIT
+ ; -----------------------------------------------------------------------------
+                 endif
+ ; -----------------------------------------------------------------------------
+@@ -2355,7 +2355,7 @@ L9185           LDX         #STRBUF+4       ; POINT X TO START OF PRINT ITEM BUF
+                 BITB        #$20            ; ASTERISK LEFT PADDING
+                 PULS        B               ; GET SIGN BYTE AGAIN
+                 BEQ         L919E           ; BRANCH IF NO PADDING
+-                LDA         #'*'            ; PAD WITH ASTERISK
++                LDA         #'*             ; PAD WITH ASTERISK
+                 CMPB        #SPACE          ; WAS THE FIRST BYTE A BLANK (POSITIVE)?
+                 BNE         L919E           ; NO
+                 TFR         A,B             ; TRANSFER PAD CHARACTER TO ACCB
+@@ -2363,20 +2363,20 @@ L919E           PSHS        B               ; SAVE FIRST CHARACTER ON STACK
+ L91A0           STA         ,X+             ; STORE PAD CHARACTER IN BUFFER
+                 LDB         ,X              ; GET NEXT CHARACTER IN BUFFER
+                 BEQ         L91B6           ; INSERT A ZERO IF END OF BUFFER
+-                CMPB        #'E'            ; CHECK FOR AN E AND
++                CMPB        #'E             ; CHECK FOR AN E AND
+                 BEQ         L91B6           ; PUT A ZERO BEFORE IT
+-                CMPB        #'0'            ; REPLACE LEADING ZEROES WITH
++                CMPB        #'0             ; REPLACE LEADING ZEROES WITH
+                 BEQ         L91A0           ; PAD CHARACTERS
+-                CMPB        #','            ; REPLACE LEADING COMMAS
++                CMPB        #',             ; REPLACE LEADING COMMAS
+                 BEQ         L91A0           ; WITH PAD CHARACTERS
+-                CMPB        #'.'            ; CHECK FOR DECIMAL POINT
++                CMPB        #'.             ; CHECK FOR DECIMAL POINT
+                 BNE         L91BA           ; AND DONT PUT A ZERO BEFORE IT
+-L91B6           LDA         #'0'            ; REPLACE PREVIOUS CHARACTER
++L91B6           LDA         #'0             ; REPLACE PREVIOUS CHARACTER
+                 STA         ,-X             ; WITH A ZERO
+ L91BA           LDA         VDA             ; GET STATUS BYTE, CHECK
+                 BITA        #$10            ; FOR FLOATING $
+                 BEQ         L91C4           ; BRANCH IF NO FLOATING $
+-                LDB         #'$'            ; STORE A $ IN
++                LDB         #'$             ; STORE A $ IN
+                 STB         ,-X             ; BUFFER
+ L91C4           ANDA        #$04            ; CHECK PRE-SIGN FLAG
+                 PULS        B               ; GET SIGN CHARACTER
+@@ -2445,7 +2445,7 @@ L9213           LDA         FPA0+3          ; ADD A POWER OF 10 MANTISSA TO FPA0
+                 BCC         L9235           ; BRANCH IF SUBTRACTING MANTISSA
+                 SUBB        #10+1           ; TAKE THE 9S COMPLEMENT
+                 NEGB                        ;  IF ADDING MANTISSA
+-L9235           ADDB        #'0'-1          ; ADD IN ASCII OFFSET
++L9235           ADDB        #'0-1           ; ADD IN ASCII OFFSET
+                 LEAX        $04,X           ; MOVE TO NEXT POWER OF 10 MANTISSA
+                 TFR         B,A             ; SAVE DIGIT IN ACCA
+                 ANDA        #$7F            ; MASK OFF ADD/SUBTRACT FLAG (BIT 7)
+@@ -2459,7 +2459,7 @@ L9235           ADDB        #'0'-1          ; ADD IN ASCII OFFSET
+ L9249           DEC         V45             ; DECREMENT DECIMAL POINT COUNTER
+                 BNE         L9256           ; NOT TIME FOR DECIMAL POINT
+ L924D           STU         VARPTR          ; SAVE BUFFER POINTER-POSITION OF THE DECIMAL POINT
+-                LDA         #'.'            ; STORE A DECIMAL
++                LDA         #'.             ; STORE A DECIMAL
+                 STA         ,U+             ; POINT IN THE OUTPUT BUFFER
+                 CLR         VD7             ; =CLEAR COMMA COUNTER - NOW IT WILL TAKE 255
+ ; =DECREMENTS BEFORE ANOTHER COMMA WILL BE INSERTED
+@@ -2468,7 +2468,7 @@ L9256           DEC         VD7             ; DECREMENT COMMA COUNTER
+                 BNE         L9262           ; RETURN IF NOT TIME FOR COMMA
+                 LDA         #$03            ; RESET COMMA COUNTER TO 3; THREE
+                 STA         VD7             ; DIGITS BETWEEN COMMAS
+-                LDA         #','            ; PUT A COMMA INTO
++                LDA         #',             ; PUT A COMMA INTO
+                 STA         ,U+             ; THE BUFFER
+ L9262           RTS
+ ; INITIALIZE DECIMAL POINT AND COMMA COUNTERS
+@@ -2493,7 +2493,7 @@ L927B           PSHS        A               ; SAVE ZEROES COUNTER
+ L9281           DECA                        ;  DECREMENT ZEROES COUNTER AND
+                 BMI         L928E           ; RETURN IF < 0
+                 PSHS        A               ; SAVE ZEROES COUNTER
+-                LDA         #'0'            ; PUT A ZERO INTO
++                LDA         #'0             ; PUT A ZERO INTO
+                 STA         ,U+             ; THE BUFFER
+                 LDA         ,S+             ; RESTORE THE ZEROES COUNTER
+                 BNE         L927B           ; BRANCH IF NOT DONE
+@@ -2703,11 +2703,11 @@ L93B2           JSR         >LB26A          ; SYNTAX CHECK FOR (
+ L93B8           JMP         >LB267          ; SYNTAX CHECK FOR ) AND RETURN LINE
+ LINE            CMPA        #$89            ; INPUT TOKEN
+                 LBEQ        L89C0           ; GO DO LINE INPUT COMMAND
+-                CMPA        #'('            ; CHECK FOR (
++                CMPA        #'(             ; CHECK FOR (
+                 BEQ         L93CE           ; GO LOOK FOR START AND END POINTS
+                 CMPA        #$AC            ; CHECK TOKEN FOR MINUS SIGN
+                 BEQ         L93CE           ; GO GET START AND END POINTS
+-                LDB         #'@'            ; CHECK FOR @ SIGN
++                LDB         #'@             ; CHECK FOR @ SIGN
+                 JSR         >LB26F          ; DO A SYNTAX CHECK
+ L93CE           JSR         >L938F          ; GET STARTING AND ENDING COORDINATES
+                 LDX         HOREND          ; GET ENDING HORIZ COORDINATE
+@@ -2731,7 +2731,7 @@ L93E9           CLRB                        ;  PRESET FLAG
+                 JSR         GETCCH          ; GET ANOTHER CHARACTER
+                 LBEQ        L94A1           ; BRANCH IF NO BOX TO BE DRAWN
+                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
+-                LDB         #'B'            ; BOX?
++                LDB         #'B             ; BOX?
+                 JSR         >LB26F          ; GO DO A SYNTAX CHECK FOR A B
+                 BNE         L9429           ; FOUND A B AND SOMETHING FOLLOWS
+                 BSR         L9444           ; DRAW A HORIZ LINE
+@@ -2750,7 +2750,7 @@ L93E9           CLRB                        ;  PRESET FLAG
+ L9420           JSR         >L931D          ; NORMALIZE COORDS IN (HORBEG,VERBEG)
+                 LDU         #HOREND
+                 JMP         >L9320          ; NORMALIZE COORDS IN (HOREND,VEREND)
+-L9429           LDB         #'F'            ;
++L9429           LDB         #'F             ;
+                 JSR         >LB26F          ; GO DO A SYNTAX CHECK FOR AN F
+                 BRA         L9434           ; FILL THE BOX
+ L9430           LEAX        -1,X            ; MOVE VER COORD UP ONE
+@@ -2917,7 +2917,7 @@ L953B           STB         ,X+             ; SET BYTE TO PROPER COLOR
+ L9542           LDB         BAKCOL          ; GET BACKGROUND COLOR
+                 BRA         L9536
+ ; COLOR
+-COLOR           CMPA        #','            ; CHECK FOR COMMA AND
++COLOR           CMPA        #',             ; CHECK FOR COMMA AND
+                 BEQ         L9552           ; BRANCH IF FOREGROUND COLOR ARGUMENT MISSING
+                 BSR         L955A           ; EVALUATE FIRST ARGUMENT
+                 STB         FORCOL          ; STORE IN FOREGROUND LOCATION
+@@ -2958,10 +2958,10 @@ L957B           RORB                        ;  CHECK ONLY THE LSB OF COLOR IF IN
+ L9581           JSR         >L959A          ; GET THE COLOR OF A BYTE
+                 JSR         GETCCH          ; CHECK CURRENT INPUT CHARACTER
+                 BEQ         L9598           ; BRANCH IF NONE
+-                CMPA        #')'            ; CHECK FOR ) AND BRANCH IF
++                CMPA        #')             ; CHECK FOR ) AND BRANCH IF
+                 BEQ         L9598           ; NO MORE ARGUMENTS
+                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
+-                CMPA        #','            ; WAS NEXT CHARACTER A COMMA?
++                CMPA        #',             ; WAS NEXT CHARACTER A COMMA?
+                 BEQ         L9598           ; YES
+                 JSR         >L955A          ; EVALUATE EXPRESSION, RETURN COLOR IN ACCB
+                 BSR         L95A2           ; TEMP STORE COLOR AND ALL PIXEL BYTE
+@@ -3042,7 +3042,7 @@ L9616           LDA         PIA1+2          ; GET PIA1, PORT B
+                 STA         PIA1+2          ; RESTORE IT IN PIA1
+                 RTS
+ ; PMODE
+-PMODETOK        CMPA        #','            ; CHECK FOR COMMA - FIRST ARGUMENT MAY BE MISSING
++PMODETOK        CMPA        #',             ; CHECK FOR COMMA - FIRST ARGUMENT MAY BE MISSING
+                 BEQ         L9650           ; IT IS A COMMA
+                 JSR         EVALEXPB        ; EVALUATE EXPRESSION
+                 CMPB        #$05            ; > 4?
+@@ -3105,7 +3105,7 @@ L9650           JSR         >LB738          ; EVALUATE EXPRESSION
+ L966C           RTS
+ L966D           JMP         >LB44A          ; ILLEGAL FUNCTION CALL'
+ ; SCREEN
+-SCREEN          CMPA        #','            ; CHECK FOR A COMMA
++SCREEN          CMPA        #',             ; CHECK FOR A COMMA
+                 BEQ         L967F           ; BRANCH IF COMMA - FIRST ARGUMENT MISSING
+                 JSR         EVALEXPB        ; EVALUATE EXPRESSION
+                 TSTB                        ;  ZERO FLAG SET IF ALPHA, NOT SET IF GRAPHIC SCREEN
+@@ -3259,7 +3259,7 @@ GET             CLRB                        ;  GET FLAG
+ PUT             LDB         #$01            ; PUT FLAG
+ L975A           STB         VD8             ; SAVE GET/PUT FLAG
+                 JSR         RVEC22          ; HOOK INTO RAM
+-L975F           CMPA        #'@'            ; CHECK FOR @ SIGN
++L975F           CMPA        #'@             ; CHECK FOR @ SIGN
+                 BNE         L9765           ; NO @ SIGN
+                 JSR         GETNCH          ; GO GET NEXT INPUT CHARACTER
+ L9765           JSR         >L938F          ; GO EVALUATE START AND END POINTS - STORE START AT (HORBEG,VERSEG), END AT (HOREND,VEREND)
+@@ -3284,7 +3284,7 @@ L9765           JSR         >L938F          ; GO EVALUATE START AND END POINTS -
+                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
+                 TST         VD8             ; CHECK GET/PUT FLAG
+                 BNE         L979A           ; BRANCH IF PUT
+-                LDB         #'G'            ; CHECK FOR FULL GRAPHIC OPTION
++                LDB         #'G             ; CHECK FOR FULL GRAPHIC OPTION
+                 JSR         >LB26F          ; DO A SYNTAX CHECK FOR A G
+                 BRA         L97CA           ; SKIP AROUND THE NO G OPTION CODE
+ L979A           LDB         #$05            ; FIVE LEGAL TOKENS AT END OF PUT
+@@ -3455,7 +3455,7 @@ L98E8           LEAX        $02,X           ; MOVE POINTER TO OFFSET TO NEXT ARR
+                 RTS                         ; WASTED BYTE
+ L98EB           RTS
+ ; PAINT
+-PAINT           CMPA        #'@'            ; CHECK FOR @ SIGN
++PAINT           CMPA        #'@             ; CHECK FOR @ SIGN
+                 BNE         L98F2           ; SKIP IF NOT
+                 JSR         GETNCH          ; READ A CHARACTER FROM BASIC INPUT LINE
+ L98F2           JSR         >L93B2          ; SYNTAX CHECK FOR (, TWO EXPRESSION, AND ).
+@@ -3670,16 +3670,16 @@ L9A39           STB         VD8             ; LENGTH OF PLAY COMMAND
+ L9A43           TST         VD8             ; SEE IF LENGTH OF STRING = 0
+                 BEQ         L9A37           ; GET NEW DATA IF SO
+                 JSR         >L9B98          ; GET A COMMAND CHARACTER IF NOT
+-                CMPA        #';'            ; SUB COMMAND TERMINATED
++                CMPA        #';             ; SUB COMMAND TERMINATED
+                 BEQ         L9A43           ; IGNORE SEMICOLONS
+                 CMPA        #''             ; CHECK FOR APOSTROPHE
+                 BEQ         L9A43           ; IGNORE THEM TOO
+-                CMPA        #'X'            ; CHECK FOR AN EXECUTABLE SUBSTRING
++                CMPA        #'X             ; CHECK FOR AN EXECUTABLE SUBSTRING
+                 LBEQ        L9C0A           ; GO PROCESS SUB COMMAND
+                 BSR         L9A5C           ; CHECK FOR OTHER COMMANDS
+                 BRA         L9A43           ; KEEP GOING THROUGH INTERPRETATION LOOP
+ ; OCTAVE
+-L9A5C           CMPA        #'O'            ; ADJUST OCTAVE?
++L9A5C           CMPA        #'O             ; ADJUST OCTAVE?
+                 BNE         L9A6D           ; NO
+                 LDB         OCTAVE          ; GET CURRENT OCTAVE
+                 INCB                        ;  LEGAL VALUES ARE 1-5 BUT INTERNALLY THE COMPUTER USES 0-4
+@@ -3690,7 +3690,7 @@ L9A5C           CMPA        #'O'            ; ADJUST OCTAVE?
+                 STB         OCTAVE          ; SAVE NEW VALUE OF OCTAVE
+                 RTS
+ ; VOLUME
+-L9A6D           CMPA        #'V'            ; ADJUST VOLUME?
++L9A6D           CMPA        #'V             ; ADJUST VOLUME?
+                 BNE         L9A8B           ; NO
+                 LDB         VOLHI           ; GET CURRENT HIGH VOLUME LIMIT
+                 LSRB                        ;  SHIFT 2 BITS TO RIGHT DA IS ONLY 6 BITS (BIT 2 - BIT 7) -
+@@ -3708,7 +3708,7 @@ L9A6D           CMPA        #'V'            ; ADJUST VOLUME?
+                 STD         VOLHI           ; SAVE NEW VOLUME LIMITS
+                 RTS
+ ; NOTE LENGTH
+-L9A8B           CMPA        #'L'            ; SET NOTE LENGTH?
++L9A8B           CMPA        #'L             ; SET NOTE LENGTH?
+                 BNE         L9AB2           ; NO
+                 LDB         NOTELN          ; GET CURRENT LENGTH
+                 BSR         L9AC0           ; MODIFIER CHECK
+@@ -3723,7 +3723,7 @@ L9A9A           BSR         L9A9F           ; CHECK FOR A DOTTED NOTE
+ L9A9F           TST         VD8             ; CHECK COMMAND LENGTH
+                 BEQ         L9AAD           ; ITS EMPTY
+                 JSR         >L9B98          ; GET COMMAND CHARACTER
+-                CMPA        #'.'            ; CHECK FOR DOTTED NOTE
++                CMPA        #'.             ; CHECK FOR DOTTED NOTE
+                 BEQ         L9AAF           ; BRANCH ON DOTTED NOTE AND CLEAR CARRY FLAG
+                 JSR         >L9BE2          ; MOVE COMMAND STRING POINTER BACK ONE AND ADD ONE TO
+ ; LENGTH
+@@ -3732,7 +3732,7 @@ L9AAD           COMA                        ;  SET CARRY FLAG
+ L9AAF           INC         DOTVAL          ; ADD ONE TO NOTE TIMER SCALE FACTOR
+                 RTS
+ ; TEMPO
+-L9AB2           CMPA        #'T'            ; MODIFY TEMPO?
++L9AB2           CMPA        #'T             ; MODIFY TEMPO?
+                 BNE         L9AC3           ; NO
+                 LDB         TEMPO           ; GET CURRENT TEMPO
+                 BSR         L9AC0           ; EVALUATE MODIFIER
+@@ -3742,7 +3742,7 @@ L9AB2           CMPA        #'T'            ; MODIFY TEMPO?
+                 RTS
+ L9AC0           JMP         >L9BAC          ; EVALUATE THE >,<,+,-,= OPERATORS
+ ; PAUSE
+-L9AC3           CMPA        #'P'            ; PAUSE COMMAND?
++L9AC3           CMPA        #'P             ; PAUSE COMMAND?
+                 BNE         L9AEB           ; NO
+                 JSR         >L9CCB          ; EVALUATE A DECIMAL COMMAND STRING VALUE
+                 TSTB                        ;  CHECK FOR LEGAL EXPRESSION AND
+@@ -3763,29 +3763,29 @@ L9AD0           LDA         DOTVAL          ; SAVE CURRENT VALUE OF VOLUME AND N
+ L9AE7           CLR         ,-S             ; PUSH NOTE NUMBER 0 ONTO STACK
+                 BRA         L9B2B           ; GO PLAY IT
+ ; NOTE
+-L9AEB           CMPA        #'N'            ; LETTER N BEFORE THE NUMBER OF A NOTE?
++L9AEB           CMPA        #'N             ; LETTER N BEFORE THE NUMBER OF A NOTE?
+                 BNE         L9AF2           ; NO - ITS OPTIONAL
+                 JSR         >L9B98          ; GET NEXT COMMAND CHARACTER
+-L9AF2           CMPA        #'A'            ; CHECK FOR NOTE A
++L9AF2           CMPA        #'A             ; CHECK FOR NOTE A
+                 BLO         L9AFA           ; BELOW
+-                CMPA        #'G'            ; CHECK FOR NOTE B
++                CMPA        #'G             ; CHECK FOR NOTE B
+                 BLS         L9AFF           ; FOUND NOTE A-G
+ L9AFA           JSR         >L9BBE          ; EVALUATE DECIMAL NUMERIC EXPRESSION IN COMMAND STRING
+                 BRA         L9B22           ; PROCESS NOTE VALUE
+ ; PROCESS A NOTE HERE
+-L9AFF           SUBA        #'A'            ; MASK OFF ASCII
++L9AFF           SUBA        #'A             ; MASK OFF ASCII
+                 LDX         #L9C5B          ; LOAD X WITH NOTE JUMP TABLE
+                 LDB         A,X             ; GET NOTE
+                 TST         VD8             ; ANY COMMAND CHARACTERS LEFT?
+                 BEQ         L9B22           ; NO
+                 JSR         >L9B98          ; GET COMMAND CHARACTER
+-                CMPA        #'#'            ; SHARP NOTE?
++                CMPA        #'#             ; SHARP NOTE?
+                 BEQ         L9B15           ; YES
+-                CMPA        #'+'            ; SHARP NOTE?
++                CMPA        #'+             ; SHARP NOTE?
+                 BNE         L9B18           ; NO
+ L9B15           INCB                        ;  ADD 1 TO NOTE NUMBER (SHARP)
+                 BRA         L9B22           ; PROCESS NOTE
+-L9B18           CMPA        #'-'            ; FLAT NOTE?
++L9B18           CMPA        #'-             ; FLAT NOTE?
+                 BNE         L9B1F           ; NO
+                 DECB                        ;  SUBTR 1 FROM NOTE NUMBER (FLAT)
+                 BRA         L9B22           ; PROCESS NOTE
+@@ -3884,15 +3884,15 @@ L9B9A           TST         VD8             ; CHECK COMMAND COUNTER
+ ; EVALUATE THE >,<,+,-,= OPERATORS - ENTER WITH THE VALUE TO
+ ; BE OPERATED ON IN ACCB, RETURN NEW VALUE IN SAME
+ L9BAC           BSR         L9B98           ; GET A COMMAND CHARACTER
+-                CMPA        #'+'            ; ADD ONE?
++                CMPA        #'+             ; ADD ONE?
+                 BEQ         L9BEE           ; YES
+-                CMPA        #'-'            ; SUBTRACT ONE?
++                CMPA        #'-             ; SUBTRACT ONE?
+                 BEQ         L9BF2           ; YES
+-                CMPA        #'>'            ; MULTIPLY BY TWO?
++                CMPA        #'>             ; MULTIPLY BY TWO?
+                 BEQ         L9BFC           ; YES
+-                CMPA        #'<'            ; DIVIDE BY TWO?
++                CMPA        #'<             ; DIVIDE BY TWO?
+                 BEQ         L9BF7           ; YES
+-L9BBE           CMPA        #'='            ; CHECK FOR VARIABLE EQUATE - BRANCH IF SO; ACCB WILL BE
++L9BBE           CMPA        #'=             ; CHECK FOR VARIABLE EQUATE - BRANCH IF SO; ACCB WILL BE
+                 BEQ         L9C01           ; SET TO THE VALUE OF THE BASIC VARIABLE IN THE COMMAND
+ ; STRING WHICH MUST BE NUMERIC, LESS THAN 256
+ ; AND THE VARIABLE MUST BE FOLLOWED BY A SEMICOLON.
+@@ -3901,7 +3901,7 @@ L9BBE           CMPA        #'='            ; CHECK FOR VARIABLE EQUATE - BRANCH
+                 CLRB                        ;  UNITS DIGIT = 0
+ ; STRIP A DECIMAL ASCII VALUE OFF OF THE COMMAND STRING
+ ; AND RETURN BINARY VALUE IN ACCB
+-L9BC8           SUBA        #'0'            ; MASK OFF ASCII
++L9BC8           SUBA        #'0             ; MASK OFF ASCII
+                 STA         VD7             ; SAVE VALUE TEMPORARILY
+                 LDA         #10             ; BASE 10
+                 MUL                         ;  MULT BY DIGIT
+@@ -3953,7 +3953,7 @@ L9C1B           LDX         VD9             ; GET COMMAND POINTER
+                 JSR         >LB3A2          ; SET CARRY IF NOT ALPHA
+                 BLO         L9BEB           ; FC ERROR IF NOT ALPHA - ILLEGAL VARIABLE NAME
+ L9C27           JSR         >L9B98          ; GET A COMMAND CHARACTER
+-                CMPA        #';'            ; CHECK FOR SEMICOLON - COMMAND SEPARATOR
++                CMPA        #';             ; CHECK FOR SEMICOLON - COMMAND SEPARATOR
+                 BNE         L9C27           ; BRANCH UNTIL FOUND
+                 PULS        X               ; GET SAVED COMMAND POINTER
+                 LDU         CHARAD          ; GET BASICS INPUT POINTER
+@@ -4020,21 +4020,21 @@ L9CD3           STB         VD8             ; SET COMMAND LENGTH CTR
+ L9CDD           TST         VD8             ; TEST COMMAND LENGTH CTR
+                 BEQ         L9CD1           ; GET NEW LINE IF 0
+                 JSR         >L9B98          ; GET A COMMAND CHAR
+-                CMPA        #';'            ; CHECK FOR SEMICOLON
++                CMPA        #';             ; CHECK FOR SEMICOLON
+                 BEQ         L9CDD           ; IGNORE SEMICOLONS
+                 CMPA        #''             ; CHECK FOR APOSTROPHES
+                 BEQ         L9CDD           ; IGNORE APOSTROPHES
+-                CMPA        #'N'            ; UPDATE CHECK?
++                CMPA        #'N             ; UPDATE CHECK?
+                 BNE         L9CF4           ; NO
+                 COM         VD5             ; TOGGLE UPDATE FLAG 0 = UPDATE, FF = NO UPDATE
+                 BRA         L9CDD           ; GET NEXT COMMAND
+-L9CF4           CMPA        #'B'            ; CHECK DRAW FLAG?
++L9CF4           CMPA        #'B             ; CHECK DRAW FLAG?
+                 BNE         L9CFC           ; NO
+                 COM         VD6             ; TOGGLE DRAW FLAG 0 = DRAW LINE, FF = DONT DRAW LINE
+                 BRA         L9CDD           ; GET NEXT COMMAND
+-L9CFC           CMPA        #'X'            ; SUBSTRING?
++L9CFC           CMPA        #'X             ; SUBSTRING?
+                 LBEQ        L9D98           ; GO EXECUTE A COMMAND
+-                CMPA        #'M'            ; MOVE THE DRAW POSITION ?
++                CMPA        #'M             ; MOVE THE DRAW POSITION ?
+                 LBEQ        L9E32           ; YES; GO MOVE IT
+                 PSHS        A               ; SAVE CURRENT COMMAND
+                 LDB         #$01            ; DEFAULT VALUE IF NO NUMBER FOLLOWS COMMAND
+@@ -4048,21 +4048,21 @@ L9CFC           CMPA        #'X'            ; SUBSTRING?
+                 BCC         L9D21           ; BRANCH IF NEXT COMMAND IS ALPHA
+                 BSR         L9CCB           ; EVALUATE A DECIMAL COMMAND LINE VALUE - RETURN VALUE IN ACCB
+ L9D21           PULS        A               ; GET CURRENT COMMAND BACK
+-                CMPA        #'C'            ; CHANGE COLOR?
++                CMPA        #'C             ; CHANGE COLOR?
+                 BEQ         L9D4F           ; YES
+-                CMPA        #'A'            ; CHANGE ANGLE?
++                CMPA        #'A             ; CHANGE ANGLE?
+                 BEQ         L9D59           ; YES
+-                CMPA        #'S'            ; CHANGE SCALE?
++                CMPA        #'S             ; CHANGE SCALE?
+                 BEQ         L9D61           ; YES
+-                CMPA        #'U'            ; GO UP?
++                CMPA        #'U             ; GO UP?
+                 BEQ         L9D8F           ; YES
+-                CMPA        #'D'            ; GO DOWN?
++                CMPA        #'D             ; GO DOWN?
+                 BEQ         L9D8C           ; YES
+-                CMPA        #'L'            ; GO LEFT?
++                CMPA        #'L             ; GO LEFT?
+                 BEQ         L9D87           ; YES
+-                CMPA        #'R'            ; GO RIGHT?
++                CMPA        #'R             ; GO RIGHT?
+                 BEQ         L9D82           ; YES
+-                SUBA        #'E'            ; MASK OFF ASCII FOR LETTER E-H COMMAND CHECKS
++                SUBA        #'E             ; MASK OFF ASCII FOR LETTER E-H COMMAND CHECKS
+                 BEQ         L9D72           ; BRANCH IF E (45 DEGREES)
+                 DECA                        ;
+                 BEQ         L9D6D           ; BRANCH IF F (135 DEGREES)
+@@ -4213,22 +4213,22 @@ L9E32           JSR         >L9B98          ; GET A CHAR FROM COMMAND LINE
+                 JSR         >L9E5E          ; EVALUATE HORIZ DIFFERENCE
+                 PSHS        B,A             ; SAVE IT ON STACK
+                 JSR         >L9B98          ; GET A CHAR FROM COMMAND LINE
+-                CMPA        #','            ; CHECK FOR COMMA
++                CMPA        #',             ; CHECK FOR COMMA
+                 LBNE        L9D4C           ; FC ERROR IF NO COMMA
+                 JSR         >L9E5B          ; EVALUATE VERT DIFFERENCE
+                 TFR         D,X             ; SAVE VERT DIFFERENCE IN X
+                 PULS        U               ; GET HORIZ DIFFERENCE IN U
+                 PULS        A               ; GET FIRST COMMAND CHARACTER
+-                CMPA        #'+'            ; IF FIRST COMMAND CHAR WAS EITHER + OR -, TREAT
++                CMPA        #'+             ; IF FIRST COMMAND CHAR WAS EITHER + OR -, TREAT
+                 BEQ         L9E56           ; THE VALUES IN U & X AS DIFFERENCES AND MOVE
+-                CMPA        #'-'            ; POINTER, OTHERWISE TREAT U & X AS AN ABSOLUTE
++                CMPA        #'-             ; POINTER, OTHERWISE TREAT U & X AS AN ABSOLUTE
+                 BNE         L9DFC           ; POSITION AND MOVE THE CURRENT POSITION THERE.
+ L9E56           TFR         U,D             ; PUT HORIZ DIFFERENCE IN ACCD
+                 JMP         >L9DCB          ; GO MOVE THE DRAW POSITION
+ L9E5B           JSR         >L9B98          ; GET A CHAR FROM COMMAND LINE
+-L9E5E           CMPA        #'+'            ; CHECK FOR A LEADING PLUS SIGN (RELATIVE MOTION)
++L9E5E           CMPA        #'+             ; CHECK FOR A LEADING PLUS SIGN (RELATIVE MOTION)
+                 BEQ         L9E69           ; AND BRANCH IF RELATIVE
+-                CMPA        #'-'            ; CHECK FOR A LEADING MINUS SIGN (RELATIVE MOTION)
++                CMPA        #'-             ; CHECK FOR A LEADING MINUS SIGN (RELATIVE MOTION)
+                 BEQ         L9E6A           ; =AND BRANCH IF RELATIVE
+                 JSR         >L9BE2          ; MOVE COMMAND STRING BACK ONE IF NOT RELATIVE MOTION
+ L9E69           CLRA                        ;  ACCA 0 IS + ACCA <> 0 IS -'
+@@ -4258,7 +4258,7 @@ L9E99           FDB         $B506,$B506     ; SUBARC 8
+ ; CIRCLE
+ ; THE CIRCLE IS ACTUALLY DRAWN AS A 64 SIDED
+ ; POLYGON. IT IS COMPOSED OF 64 LINE COMMANDS
+-CIRCLE          CMPA        #'@'            ; CHECK FOR @ SIGN
++CIRCLE          CMPA        #'@             ; CHECK FOR @ SIGN
+                 BNE         L9EA3           ; SKIP IF NOT
+                 JSR         GETNCH          ; GET ANOTHER CHARACTER FROM BASIC
+ L9EA3           JSR         >L9522          ; GET MAX HOR & VER COORD VALUES AND PUT THEM IN VD3 AND VD5
+diff --git a/supbas.asm b/supbas.asm
+index ea8d934..134cf22 100644
+--- a/supbas.asm
++++ b/supbas.asm
+@@ -211,9 +211,9 @@ SC10C           LDA         ,Y+             ; GET A BYTE
+                 STA         INIT0
+                 LDD         DOSBAS          ; GET THE FIRST TWO BYTES OF AN EXTERNAL ROM, IF ANY
+ ; CHECK FOR A 'DK' AT $C000 (DISK BASIC) - THIS SHOULD BE CMPD
+-                CMPA        #'D'
++                CMPA        #'D
+                 BNE         SC137
+-                CMPB        #'K'
++                CMPB        #'K
+                 BNE         SC137
+ ; COPY THE DISK BASIC ROM INTO RAM
+                 LDX         #SUPERVAR       ; POINT TO THE END OF THE DISK BASIC ROM
+@@ -1569,7 +1569,7 @@ ALINK6A         LSL         $02,X           ;
+                 LBCS        LBA92           ; 'OV' OVERFLOW ERROR ($BA92)
+                 DECB                        ;  DECREMENT THE SHIFT COUNTER
+                 BNE         ALINK6A         ; LOOP UNTIL DONE
+-                SUBA        #'0'            ; MASK OFF ASCII
++                SUBA        #'0             ; MASK OFF ASCII
+                 ADDA        $02,X           ; ADD DIGIT TO TEMPORARY
+                 STA         $02,X           ; ACCUMULATOR AND SAVE IT
+                 RTS
+@@ -1940,7 +1940,7 @@ SE6E4           STB         ,X+             ; 'CLEAR' A BYTE
+ SE6EF           LDB         #38*2           ; 'HR' ERROR
+                 JMP         LAC46           ; JUMP TO THE ERROR HANDLER
+ ; HCOLOR
+-HCOLOR          CMPA        #','            ; CHECK FOR COMMA, FIRST ARGUMENT NOT GIVEN
++HCOLOR          CMPA        #',             ; CHECK FOR COMMA, FIRST ARGUMENT NOT GIVEN
+                 LBRN        RAMLINK         ; RAM HOOK
+                 BEQ         SE705           ; BRANCH IF FIRST ARGUMENT NOT GIVEN
+                 BSR         SE70E           ; EVALUATE EXPRESSION, SYNTAX CHECK FOR EXPRESSION > 16
+@@ -1958,10 +1958,10 @@ SE711           CMPB        #16             ; MAXIMUM OF 16 DIFFERENT COLORS
+ SE718           JSR         >SE731          ; SET THE WORKING COLOR AND ALL PIXEL BYTES TO DEFAULT VALUES
+                 JSR         GETCCH          ; GET BASIC'S CURRENT INPUT CHARACTER
+                 BEQ         SE72F           ; BRANCH IF END OF LINE
+-                CMPA        #')'            ; SYNTAX CHECK FOR ')'
++                CMPA        #') SYNTAX CHECK FOR ')'
+                 BEQ         SE72F           ; EXIT IF ')'
+                 JSR         >SYNCOMMA       ; DO A SYNTAX CHECK FOR A COMMA
+-                CMPA        #','            ; SYNTAX CHECK FOR A COMMA
++                CMPA        #',             ; SYNTAX CHECK FOR A COMMA
+                 BEQ         SE72F           ; USE DEFAULT COLORS IF TWO COMMAS
+                 JSR         >SE70E          ; EVALUATE COLOR ARGUMENT
+                 BSR         SE73B           ; SET THE WORKING AND ALL COLOR BYTES TO THE COLOR ARGUMENT
+@@ -2149,11 +2149,11 @@ SE87B           JSR         LB4F3           ; CONVERT ACCB INTO A FLOATING POINT
+ HLINE           TST         HRMODE          ; CHECK HI-RES GRAPHICS MODE
+                 LBEQ        SE6EF           ; 'HR' ERROR IF NOT GRAPHICS
+                 LBRN        RAMLINK         ; RAM HOOK
+-                CMPA        #'('            ; CHECK FOR '('
++                CMPA        #'( CHECK FOR '('
+                 BEQ         SE899           ; GO LOOK FOR START AND END POINTS
+                 CMPA        #$AC            ; CHECK FOR MINUS SIGN TOKEN
+                 BEQ         SE899           ; BRANCH IF NO STARTING POINTS GIVEN
+-                LDB         #'@'            ; CHECK FOR '@' SIGN
++                LDB         #'@ CHECK FOR '@' ; SIGN
+                 JSR         LB26F           ; GO DO A SYNTAX CHECK
+ SE899           JSR         >SE9E1          ; GET STARTING AND ENDING COORDINATES
+                 LDX         HOREND          ; GET ENDING HORIZONTAL COORDINATE
+@@ -2177,7 +2177,7 @@ SE8B4           CLRB                        ;  PRESET FLAG
+                 JSR         GETCCH          ; GET BASIC'S CURRENT INPUT CHARACTER
+                 LBEQ        SE94E           ; BRANCH IF NO BOX TO BE DRAWN
+                 JSR         >SYNCOMMA       ; DO A SYNTAX CHECK FOR A COMMA
+-                LDB         #'B'            ; DRAW A BOX?
++                LDB         #'B             ; DRAW A BOX?
+                 JSR         LB26F           ; GO DO A SYNTAX CHECK FOR A 'B'
+                 BNE         SE8EB           ; FOUND A 'B' AND SOMETHING FOLLOWS
+                 BSR         SE906           ; DRAW A HORIZONTAL LINE
+@@ -2192,7 +2192,7 @@ SE8B4           CLRB                        ;  PRESET FLAG
+                 LDX         VEREND          ; GET VERTICAL END COORDINATE
+                 STX         VERBEG          ; PUT INTO START COORD
+                 BRA         SE906           ; DRAW A HORIZONTAL LINE
+-SE8EB           LDB         #'F'            ; CHECK FOR FILL OPTION
++SE8EB           LDB         #'F             ; CHECK FOR FILL OPTION
+                 JSR         LB26F           ; GO DO A SYNTAX CHECK FOR AN 'F'
+                 BRA         SE8F6           ; GO 'FILL' THE BOX
+ SE8F2           LEAX        -01,X           ; MOVE VERTICAL COORD UP ONE
+@@ -2393,7 +2393,7 @@ SEA45           LDB         HORBYT          ; GET NUMBER OF BYTES PER HORIZONTAL
+ HCIRCLE         TST         HRMODE          ; CHECK HI-RES GRAPHICS MODE
+                 LBEQ        SE6EF           ; BRANCH IF NOT HI-RES GRAPHICS
+                 LBRN        RAMLINK         ; RAM HOOK
+-                CMPA        #'@'            ; CHECK FOR @ SIGN (HCIRCLE@ IS LEGAL SYNTAX)
++                CMPA        #'@             ; CHECK FOR @ SIGN (HCIRCLE@ IS LEGAL SYNTAX)
+                 BNE         SEA59           ; BRANCH IF NOT
+                 JSR         GETNCH          ; GET THE NEXT CHARACTER FROM BASIC'S INPUT LINE
+ SEA59           JSR         >SEB60          ; GET MAX HORIZONTAL & VERTICAL COORD VALUES AND PUT THEM IN VD3 & VD5
+@@ -2610,7 +2610,7 @@ SEBEA           LDA         ,S              ;
+ HPAINT          TST         HRMODE          ; CHECK HI-RES GRAPHICS MODE
+                 LBEQ        SE6EF           ; 'HR' ERROR IF HI-RES GRAPHICS MODE NOT SET UP
+                 LBRN        RAMLINK         ; RAM HOOK
+-                CMPA        #'@'            ; CHECK FOR @ SIGN
++                CMPA        #'@             ; CHECK FOR @ SIGN
+                 BNE         SEC05           ; BRANCH IF NOT
+                 JSR         GETNCH          ; GET THE NEXT CHARACTER FROM BASIC'S INPUT LINE
+ SEC05           JSR         >SEA04          ; SYNTAX CHECK FOR '(', TWO EXPRESSIONS, AND ')'
+@@ -2884,7 +2884,7 @@ SEDF4           TST         HRMODE          ; IS THE HI-RES GRAPHICS MODE ENABLE
+                 LBEQ        SE6EF           ; 'HR' ERROR IF NOT IN HI-RES MODE
+                 LBRN        RAMLINK         ; RAM HOOK
+                 STB         VD8             ; SAVE THE GET/PUT FLAG
+-                CMPA        #'@'            ; ALLOW HGET@, HPUT@ AS LEGAL SYNTAX
++                CMPA        #'@             ; ALLOW HGET@, HPUT@ AS LEGAL SYNTAX
+                 BNE         SEE06           ; BRANCH IF NOT @
+                 JSR         GETNCH          ; GET THE NEXT CHARACTER FROM BASIC'S INPUT LINE IF @ WAS THERE
+ SEE06           JSR         >SE9E1          ; EVALUATE THE RECTANGLE BOUNDS
+@@ -3427,21 +3427,21 @@ SF3C5           STB         VD8             ; SET COMMAND LENGTH COUNTER
+ SF3CF           TST         VD8             ; TEST COMMAND LENGTH COUNTER
+                 BEQ         SF3C3           ; GET NEW LINE IF 0
+                 JSR         >SF591          ; GET A COMMAND CHARACTER
+-                CMPA        #';'            ; CHECK FOR A SEMI-COLON
++                CMPA        #';             ; CHECK FOR A SEMI-COLON
+                 BEQ         SF3CF           ; IGNORE SEMI-COLONS
+                 CMPA        #''             ; CHECK FOR APOSTROPHE
+                 BEQ         SF3CF           ; IGNORE APOSTROPHE
+-                CMPA        #'N'            ; UPDATE CHECK?
++                CMPA        #'N             ; UPDATE CHECK?
+                 BNE         SF3E6           ; BRANCH IF NOT
+                 COM         VD5             ; TOGGLE UPDATE FLAG; 0 = UPDATE, FF = NO UPDATE
+                 BRA         SF3CF           ; GET NEXT COMMAND
+-SF3E6           CMPA        #'B'            ; CHECK DRAW FLAG?
++SF3E6           CMPA        #'B             ; CHECK DRAW FLAG?
+                 BNE         SF3EE           ; BRANCH IF NOT
+                 COM         VD6             ; TOGGLE DRAW FLAG; 0 = DRAW LINE, FF = DON'T DRAW LINE
+                 BRA         SF3CF           ; GET ENXT COMMAND
+-SF3EE           CMPA        #'X'            ; SUBSTRING?
++SF3EE           CMPA        #'X             ; SUBSTRING?
+                 LBEQ        SF4A1           ; GO EXECUTE A COMMAND SUBSTRING
+-                CMPA        #'M'            ; MOVE THE DRAW POSITION?
++                CMPA        #'M             ; MOVE THE DRAW POSITION?
+                 LBEQ        SF54C           ; BRANCH IF YES, GO MOVE IT
+                 PSHS        A               ; SAVE CURRENT COMMAND
+                 LDB         #$01            ; DEFAULT VALUE IF NO NUMBER FOLLOWS COMMAND
+@@ -3457,21 +3457,21 @@ SF3EE           CMPA        #'X'            ; SUBSTRING?
+                 BCC         SF417           ; BRANCH IF NEXT COMMAND IS ALPHA
+                 BSR         SF3BD           ; EVALUATE DECIMAL COMMAND LINE VALUE - RETURN VALUE IN ACCD & VD3
+ SF417           PULS        A               ; GET CURRENT COMMAND BACK
+-                CMPA        #'C'            ; CHANGE COLOR?
++                CMPA        #'C             ; CHANGE COLOR?
+                 BEQ         SF445           ; BRANCH IF YES
+-                CMPA        #'A'            ; CHANGE ANGLE?
++                CMPA        #'A             ; CHANGE ANGLE?
+                 BEQ         SF451           ; BRANCH IF YES
+-                CMPA        #'S'            ; CHANGE SCALE?
++                CMPA        #'S             ; CHANGE SCALE?
+                 BEQ         SF45C           ; BRANCH IF YES
+-                CMPA        #'U'            ; GO UP?
++                CMPA        #'U             ; GO UP?
+                 BEQ         SF496           ; BRANCH IF YES
+-                CMPA        #'D'            ; GO DOWN?
++                CMPA        #'D             ; GO DOWN?
+                 BEQ         SF492           ; BRANCH IF YES
+-                CMPA        #'L'            ; GO LEFT?
++                CMPA        #'L             ; GO LEFT?
+                 BEQ         SF48C           ; BRANCH IF YES
+-                CMPA        #'R'            ; GO RIGHT?
++                CMPA        #'R             ; GO RIGHT?
+                 BEQ         SF485           ; BRANCH IF YES
+-                SUBA        #'E'            ; MASK OFF ASCII FOR LETTER E-H COMMAND CHECKS
++                SUBA        #'E             ; MASK OFF ASCII FOR LETTER E-H COMMAND CHECKS
+                 BEQ         SF473           ; BRANCH IF E (45 DEGREES)
+                 DECA                        ;  CHECK FOR F
+                 BEQ         SF46D           ; BRANCH IF F (135 DEGREES)
+@@ -3625,22 +3625,22 @@ SF54C           JSR         >SF591          ; GET A CHAR FROM COMMAND LINE
+                 JSR         >SF578          ; EVALUATE THE HORIZONTAL DIFFERENCE
+                 PSHS        B,A             ; SAVE IT ON THE STACK
+                 JSR         >SF591          ; GET A CHAR FROM COMMAND LINE
+-                CMPA        #','            ; CHECK FOR COMMA
++                CMPA        #',             ; CHECK FOR COMMA
+                 LBNE        LB44A           ; ILLEGAL FUCNTION CALL ERROR IF NO COMMA
+                 JSR         >SF575          ; EVALUATE THE VERTICAL DIFFERENCE
+                 TFR         D,X             ; SAVE VERTICAL DIFFERENCE IN X
+                 PULS        U               ; GET HORIZONTAL DIFFERENCE IN U
+                 PULS        A               ; GET FIRST COMMAND CHARACTER
+-                CMPA        #'+'            ; CHECK FOR PLUS
++                CMPA        #'+             ; CHECK FOR PLUS
+                 BEQ         SF570           ; TREAT VALUES IN X AND U AS DIFFERENCES AND MOVE POINTER
+-                CMPA        #'-'            ; CHECK FOR MINUS
++                CMPA        #'-             ; CHECK FOR MINUS
+                 BNE         SF507           ; IF NOT '+' OR '-', MOVE THE POINTER TO THE COORDINATES IN U AND ACCD
+ SF570           TFR         U,D             ; PUT HORIZONTAL DIFFERENCE IN ACCD; X CONTAINS THE VERTICAL DIFFERENCE
+                 JMP         >SF4D4          ; GOMOVE THE DRAW POSITION
+ SF575           JSR         >SF591          ; GET A CHAR FROM COMMAND LINE
+-SF578           CMPA        #'+'            ; CHECK FOR LEADING + (RELATIVE MOTION)
++SF578           CMPA        #'+             ; CHECK FOR LEADING + (RELATIVE MOTION)
+                 BEQ         SF583           ; BRANCH IF RELATIVE
+-                CMPA        #'-'            ; DO THE SAME FOR THE MINUS SIGN
++                CMPA        #'-             ; DO THE SAME FOR THE MINUS SIGN
+                 BEQ         SF584           ; BRANCH IF RELATIVE
+                 JSR         >SF5F2          ; MOVE COMMAND STRING BACK ONE IF NOT RELATIVE MOTION
+ SF583           CLRA                        ;  IF ACCA=0, THEN '+' IF ACCA <> 0, THEN '-'
+@@ -3663,7 +3663,7 @@ SF593           TST         VD8             ; CHECK COMMAND COUNTER
+                 CMPA        #SPACE          ; CHECK FOR BLANK
+                 BEQ         SF593           ; IGNORE BLANKS
+                 PULS        X,PC            ; RESTORE X REGISTER AND RETURN
+-SF5A7           CMPA        #'='            ; CHECK FOR A VARIABLE EQUATE
++SF5A7           CMPA        #'=             ; CHECK FOR A VARIABLE EQUATE
+                 BNE         SF5B6           ; BRANCH IF NOT VARIABLE EQUATE
+                 PSHS        U,Y             ; SAVE REGISTERS
+                 BSR         SF611           ; INTERPRET THE VARIABLE IN THE COMMAND LINE
+@@ -3675,7 +3675,7 @@ SF5B6           JSR         >SF608          ; CLEAR CARRY IF NUMERIC
+                 CLR         VD3             ;
+                 CLR         VD4             ; INITIALIZE THE SUBCOMMAND VALUE TO ZERO
+ ; STRIP A DECIMAL ASCII VALUE FROM THE COMMAND STRING AND RETURN THE BINARY VALUE IN VD3
+-SF5C1           SUBA        #'0'            ; MASK OFF ASCII
++SF5C1           SUBA        #'0             ; MASK OFF ASCII
+                 STA         VD7             ; SAVE TEMPORARILY
+                 LDD         VD3             ; GET THE CURRENT SUBCOMMAND VALUE
+                 BSR         SF5FD           ; MULTIPLY ACCD BY 10
+@@ -3713,10 +3713,10 @@ SF5FD           ASLB                        ;
+                 ADDD        ,S++            ; ADD ACCD*2; THE RESULT IS NOW ACCD*10
+                 RTS
+ ; CLEAR THE CARRY FLAG IF ACCA CONTAINS A NUMERIC ASCII VALUE ($30-$39)
+-SF608           CMPA        #'0'
++SF608           CMPA        #'0
+                 BCS         SF610           ; RETURN IF LESS THAN ASCII ZERO
+-                SUBA        #'9'+1
+-                SUBA        #-('9'+1)       ; SET CARRY IF NOT 0-9
++                SUBA        #'9+1
++                SUBA        #-('9+1)        ; SET CARRY IF NOT 0-9
+ SF610           RTS
+ ; INTERPRET THE CURRENT COMMAND STRING AS IF IT WERE A BASIC VARIABLE
+ SF611           LDX         VD9             ; GET THE COMMAND POINTER
+@@ -3725,7 +3725,7 @@ SF611           LDX         VD9             ; GET THE COMMAND POINTER
+                 JSR         LB3A2           ; SET CARRY IF NOT UPPER CASE ALPHA
+                 LBCS        LB44A           ; ILLEGAL FUNCTION CALL ERROR IF NOT ALPHA - ILLEGAL VARIABLE NAME
+ SF61F           JSR         >SF591          ; GET COMMAND STRING CHARACTER
+-                CMPA        #';'            ; CHECK FOR A SEMICOLON (SUBCOMMAND SEPARATOR)
++                CMPA        #';             ; CHECK FOR A SEMICOLON (SUBCOMMAND SEPARATOR)
+                 BNE         SF61F           ; LOOP UNTIL SEMICOLON FOUND
+                 PULS        X               ; GET THE START OF THE VARIABLE NAME
+                 LDU         CHARAD          ; GET THE CURRENT ADDRESS OF THE VARIABLE NAME
+@@ -4151,14 +4151,14 @@ ATTR            JSR         EVALEXPB        ; EVALUATE EXPRESSION, RETURN VALUE
+                 JSR         GETCCH          ; GET THE CURRENT INPUT CHARACTER
+ SF9E3           BEQ         SFA06           ; BRANCH IF END OF LINE
+                 JSR         >SYNCOMMA       ; SYNTAX CHECK FOR A COMMA
+-                CMPA        #'B'            ; CHECK FOR THE BLINK ATTRIBUTE FLAG
++                CMPA        #'B             ; CHECK FOR THE BLINK ATTRIBUTE FLAG
+                 BNE         SF9F6           ; BRANCH IF NOR BLINK ATTRIBUTE FLAG
+                 PULS        B
+                 ORB         #$80            ; SET BIT 7 WHICH IS THE BLINK ATTRIBUTE BIT
+                 PSHS        B
+                 JSR         GETNCH          ; GET A CHARACTER FROM BASIC'S INPUT LINE
+                 BRA         SF9E3           ; KEEP CHECKING FOR ATTRIBUTE FLAGS
+-SF9F6           CMPA        #'U'            ; CHECK FOR THE UNDERLINE ATTRIBUTE
++SF9F6           CMPA        #'U             ; CHECK FOR THE UNDERLINE ATTRIBUTE
+                 LBNE        LB44A           ; ILLEGAL FUNCION CALL ERROR
+                 PULS        B
+                 ORB         #$40            ; SET BIT 6 WHICH IS THE UNDERLINE ATTRIBUTE BIT
+-- 
