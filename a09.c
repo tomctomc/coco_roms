@@ -7134,7 +7134,7 @@ if (warnings)
   }
 
 if (symbols & SYMBOLS_ON) {
-    fprintf( symbolsfile, "/**\n * AUTO GENERATED - DO NOT EDIT BY HAND\n */\n\n" );
+    fprintf( symbolsfile, ";\n; AUTO GENERATED - DO NOT EDIT BY HAND\n;\n\n" );
     for( i = 0; i < symcounter; i++ ) {
 
         /* skip empties */
