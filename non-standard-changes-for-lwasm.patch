@@ -1,7 +1,9 @@
 From 43392e79e82e254c03d6bbd1de387dc49b31efbe Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Mon, 8 May 2023 09:41:53 -0400
-Subject: code: Re-write conditional logic for lwasm
+Subject: code: Non-standard changes for lwasm
+
+Re-write conditional logic for lwasm
 
 ---
  bas.asm    | 144 ++++++++++++++++++++---------------------
@@ -425,7 +427,7 @@ index 4be64d8..d5eaf6f 100644
 -                endif
 +                ENDC
  ; -----------------------------------------------------------------------------
-                 CMPA        #'"             ; STRING DELIMITER?
+                 CMPA        #'"'            ; STRING DELIMITER?
                  BNE         LB24E           ; NO
 @@ -3412,7 +3412,7 @@ LB3E6           JSR         >LB141          ; GO EVALUATE NUMERIC EXPRESSION
  LB3E9           LDA         FP0SGN          ; GET FPA0 MANTISSA SIGN
@@ -1378,7 +1380,7 @@ index 9804ab0..b6248ba 100644
  ; -----------------------------------------------------------------------------
                  SUBB        #12             ; SUBTRACT 12 FROM EXPONENT AND ADD ONE TO TENS
                  BCC         L9177           ; DIGIT IF NO CARRY. TENS DIGIT DONE IF THERE IS A CARRY
-                 ADDB        #'9+3           ; ADD ASCII BIAS TO UNITS DIGIT
+                 ADDB        #'9'+3          ; ADD ASCII BIAS TO UNITS DIGIT
  ; -----------------------------------------------------------------------------
 -                else
 +                ELSE
@@ -1387,7 +1389,7 @@ index 9804ab0..b6248ba 100644
  
 @@ -2338,7 +2338,7 @@ L9177           INCA                        ;  ADD ONE TO TENS DIGIT COUNTER
                  BCC         L9177           ; DIGIT IF NO CARRY. TENS DIGIT DONE IF THERE IS A CARRY
-                 ADDB        #'9+1           ; ADD ASCII BIAS TO UNITS DIGIT
+                 ADDB        #'9'+1          ; ADD ASCII BIAS TO UNITS DIGIT
  ; -----------------------------------------------------------------------------
 -                endif
 +                ENDC
@@ -1513,7 +1515,7 @@ index 134cf22..5525edb 100644
  
                  FCB         $00,$18,$00,$0E,$00
 @@ -974,7 +974,7 @@ AUTHPIC         FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,
- ENDPIC          =           *               ; THE END OF THE AUTHOR'S PICTURE DATA
+ ENDPIC          EQU         *               ; THE END OF THE AUTHOR'S PICTURE DATA
  
  ; -----------------------------------------------------------------------------
 -                if          COCOPAL<1
@@ -1521,7 +1523,7 @@ index 134cf22..5525edb 100644
  ; -----------------------------------------------------------------------------
  ; UNUSED GARBAGE BYTES?
                  FCB         $FF,$00,$00,$A0,$27,$00,$00,$00,$00,$00,$00
-@@ -1042,7 +1042,7 @@ ENDPIC          =           *               ; THE END OF THE AUTHOR'S PICTURE DA
+@@ -1042,7 +1042,7 @@ ENDPIC          EQU         *               ; THE END OF THE AUTHOR'S PICTURE DA
                  FCB         $00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
                  FCB         $00,$00,$00,$00,$00,$00,$00,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
  ; -----------------------------------------------------------------------------
@@ -1530,7 +1532,7 @@ index 134cf22..5525edb 100644
  ; -----------------------------------------------------------------------------
  ; UNUSED GARBAGE BYTES?
                  FCB         $FF,$00,$00,$A0,$27,$0D,$71,$01,$00,$02,$00
-@@ -1110,7 +1110,7 @@ ENDPIC          =           *               ; THE END OF THE AUTHOR'S PICTURE DA
+@@ -1110,7 +1110,7 @@ ENDPIC          EQU         *               ; THE END OF THE AUTHOR'S PICTURE DA
                  FCB         $00,$18,$40,$00,$00,$00,$01,$10,$95,$1E,$05,$90,$8F,$15,$A5,$F4
                  FCB         $90,$1E,$01,$00,$00,$00,$00,$40,$6F,$E1,$BE,$FF,$FF,$FB,$DE,$F7
  ; -----------------------------------------------------------------------------

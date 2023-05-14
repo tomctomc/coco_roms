@@ -1,18 +1,16 @@
-From 45b307d7ce2391d76a646cbe1f4cc9444dfe8473 Mon Sep 17 00:00:00 2001
+From ebd8ad00077849fac5dd9a2de17df5ef0db8620f Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
-Date: Mon, 8 May 2023 09:09:57 -0400
+Date: Wed, 10 May 2023 14:53:35 -0400
 Subject: Non-standard changes for asm6809
 
 Use "<<" to force 5-bit offset mode with asm6809
-And, revert mamou build fixes
 ---
- bas.asm    | 22 +++++++++++-----------
- disk.asm   | 48 ++++++++++++++++++++++++------------------------
- supbas.asm |  4 ++--
- 3 files changed, 37 insertions(+), 37 deletions(-)
+ bas.asm  | 22 +++++++++++-----------
+ disk.asm | 48 ++++++++++++++++++++++++------------------------
+ 2 files changed, 35 insertions(+), 35 deletions(-)
 
 diff --git a/bas.asm b/bas.asm
-index 4be64d8..efa1a92 100644
+index 64f5fa7..347dd67 100644
 --- a/bas.asm
 +++ b/bas.asm
 @@ -535,7 +535,7 @@ KEYIN           PSHS        B,X             ; SAVE REGISTERS
@@ -115,7 +113,7 @@ index 4be64d8..efa1a92 100644
                  STD         2,X             ; AND SAVE IN BYTES 2,3 OF DESCRIPTOR
                  LDA         #$FF            ; VARIABLE TYPE = STRING
 diff --git a/disk.asm b/disk.asm
-index 27acc19..52a7f18 100644
+index 7b13783..3a7fefc 100644
 --- a/disk.asm
 +++ b/disk.asm
 @@ -186,14 +186,14 @@ LC061           STU         ,X++            ; SET USR VECTOR TO 'FC' ERROR
@@ -148,7 +146,7 @@ index 27acc19..52a7f18 100644
 +                STA         <<FCBTYP,X      ; SAVE IT IN FCB
                  RTS
  LC4C7           ASL         ,S              ; SET FILE TYPE TO OUTPUT
-                 CMPB        #'O             ; FILE MODE = OUTPUT?
+                 CMPB        #'O'            ; FILE MODE = OUTPUT?
 @@ -847,7 +847,7 @@ LC586           CLR         ,X+             ; CLEAR BYTE
                  LDB         #11             ; 11 BYTES IN FILENAME AND EXTENSION
                  JSR         >LA59A          ; MOVE B BYTES FROM X TO U
@@ -315,26 +313,4 @@ index 27acc19..52a7f18 100644
                  LEAX        FCBLEN,X        ; GO TO NEXT FCB
                  INCB                        ;  INCREMENT FILE COUNTER
                  CMPB        FCBACT          ; CLOSE ALL ACTIVE BUFFERS AND SYSTEM FCB
-diff --git a/supbas.asm b/supbas.asm
-index 134cf22..543defe 100644
---- a/supbas.asm
-+++ b/supbas.asm
-@@ -548,7 +548,7 @@ INTIMAGE        FCB         $55             ; VALIDITY FLAG (INTERRUPT VECTORS V
-                 LBRA        (INTIMAGE+1)-(INT.JUMP)+SWIVEC
-                 LBRA        (INTIMAGE+1)-(INT.JUMP)+NMIVEC
- 
--ENDMOVE         =           *               ; THE END OF THE DATA THAT'S COPIED TO RAM
-+ENDMOVE                                     ; THE END OF THE DATA THAT'S COPIED TO RAM
- 
- 
- ; -----------------------------------------------------------------------------
-@@ -971,7 +971,7 @@ AUTHPIC         FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,
-                 FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-                 FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
- 
--ENDPIC          =           *               ; THE END OF THE AUTHOR'S PICTURE DATA
-+ENDPIC                                      ; THE END OF THE AUTHOR'S PICTURE DATA
- 
- ; -----------------------------------------------------------------------------
-                 if          COCOPAL<1
 -- 

@@ -437,7 +437,7 @@ DVEC22          PSHS        X,CC            ; SAVE X REG AND STATUS
                 LDX         $03,S           ; LOAD X WITH CALLING ADDRESS
                 CMPX        #L975F          ; COMING FROM EXBAS' GET/PUT?
                 BNE         LC2BF           ; NO
-                CMPA        #'#             ; NUMBER SIGN (GET#, PUT#)?
+                CMPA        #'#'            ; NUMBER SIGN (GET#, PUT#)?
                 BEQ         LC2C1           ; BRANCH IF GET OR PUT TO RANDOM FILE
 LC2BF           PULS        CC,X,PC         ; RESTORE X REG, STATUS AND RETURN
 
@@ -708,7 +708,7 @@ LC48D           PSHS        A               ; SAVE MODE ON STACK
                 PULS        B               ; GET MODE
                 LDA         #INPFIL         ; INPUT TYPE FILE
                 PSHS        A               ; SAVE FILE TYPE ON STACK
-                CMPB        #'I             ; INPUT MODE?
+                CMPB        #'I'            ; INPUT MODE?
                 BNE         LC4C7           ; BRANCH IF NOT
 ; OPEN A SEQUENTIAL FILE FOR INPUT
                 JSR         >LC6E5          ; CHECK TO SEE IF DIRECTORY MATCH IS FOUND
@@ -725,7 +725,7 @@ LC4BB           JSR         >LC755          ; POINT X TO PROPER FILE ALLOCATION 
                 STA         FCBTYP,X        ; SAVE IT IN FCB
                 RTS
 LC4C7           ASL         ,S              ; SET FILE TYPE TO OUTPUT
-                CMPB        #'O             ; FILE MODE = OUTPUT?
+                CMPB        #'O'            ; FILE MODE = OUTPUT?
                 BNE         LC4E8           ; BRANCH IF NOT
 
 ; OPEN A SEQUENTIAL FILE FOR OUTPUT
@@ -750,9 +750,9 @@ LC4E1           BSR         LC567           ; SET UP NEW DIRECTORY ENTRY ON DISK
 ; -----------------------------------------------------------------------------
                 BSR         LC538           ; INITIALIZE FILE BUFFER
                 BRA         LC4BB           ; FLAG AND MAP FCB AS BEING USED
-LC4E8           CMPB        #'R             ; FILE MODE = R (RANDOM)?
+LC4E8           CMPB        #'R'            ; FILE MODE = R (RANDOM)?
                 BEQ         LC4F2           ; BRANCH IF SO
-                CMPB        #'D             ; FILE MODE = D (DIRECT)?
+                CMPB        #'D'            ; FILE MODE = D (DIRECT)?
                 LBNE        LA616           ; 'BAD FILE MODE' ERROR IF NOT
 
 ; OPEN A RANDOM/DIRECT FILE
@@ -1275,11 +1275,11 @@ LC868           LDX         $04,S           ; GET CALLING ADDRESS FROM THE STACK
                 CMPX        #LB00C          ; RETURN UNLESS COMING FROM
                 BNE         LC866           ; BASIC'S 'INPUT' STATEMENT
                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR A COMMA
-                CMPA        #'"             ; CHECK FOR A DOUBLE QUOTE
+                CMPA        #'"'            ; CHECK FOR A DOUBLE QUOTE
                 BNE         LC881           ; RETURN TO BASIC'S 'INPUT' COMMAND
                 JSR         >LB244          ; STRIP PROMPT STRING FROM BASIC AND PUT IT ON THE STRING STACK
                 JSR         >LB657          ; PURGE THE STRING PUT ON THE STRING STACK
-                LDB         #';             ; SEMICOLON
+                LDB         #';'            ; SEMICOLON
                 JSR         >LB26F          ; DO A SYNTAX CHECK FOR SEMICOLON
 LC881           LDX         #LB01E          ; GET MODIFIED REENTRY POINT INTO BASIC
                 STX         $04,S           ; AND PUT IT INTO THE RETURN ADDRESS ON THE STACK
@@ -1338,7 +1338,7 @@ LC8C2           LDX         CHARAD          ; GET INPUT POINTER INTO X
                 STX         TINPTR          ; TEMP SAVE IT
                 LDA         ,X+             ; SEARCH FOR THE END OF CURRENT LINE
                 BEQ         LC8D1           ; BRANCH IF END OF LINE
-                CMPA        #':             ; CHECK FOR END OF SUB LINE, TOO
+                CMPA        #':'            ; CHECK FOR END OF SUB LINE, TOO
                 BEQ         LC8F3           ; BRANCH IF END OF SUB LINE
                 JMP         >LB277          ; 'SYNTAX' ERROR IF NOT END OF LINE
 LC8D1           LDA         ,X++            ; GET MS BYTE OF ADDRESS OF NEXT BASIC LINE
@@ -1350,11 +1350,11 @@ LC8DA           LDD         ,X+             ; GET LINE NUMBER OF THIS LINE AND
                 STX         CHARAD          ; RESET BASIC'S INPUT POINTER
                 LDA         TRCFLG          ; CHECK THE TRACE FLAG AND
                 BEQ         LC8F3           ; BRANCH IF TRACE OFF
-                LDA         #'[             ; [ LEFT DELIMITER OF TRON
+                LDA         #'['            ; [ LEFT DELIMITER OF TRON
                 JSR         PUTCHR          ; SEND CHARACTER TO CONSOLE OUT
                 LDA         CURLIN          ; GET NUMBER OF CURRENT LINE NUMBER
                 JSR         >LBDCC          ; CONVERT ACCD TO DECIMAL & PRINT IT ON SCREEN
-                LDA         #']             ; ] RIGHT DELIMITER OF TRON
+                LDA         #']'            ; ] RIGHT DELIMITER OF TRON
                 JSR         PUTCHR          ; SEND A CHARACTER TO CONSOLE OUT
 LC8F3           JSR         GETNCH          ; GET NEXT CHARACTER FROM BASIC
                 TFR         CC,B            ; SAVE STATUS REGISTER IN ACCB
@@ -1415,12 +1415,12 @@ LC945           STA         ,U+             ; STORE A BLANK IN FILE NAME
                 CMPB        #$02            ; CHECK LENGTH OF STRING AND
                 BLO         LC96A           ; BRANCH IF < 2
                 LDA         $01,U           ; GET 2ND CHARACTER IN STRING AND
-                CMPA        #':             ; = CHECK FOR COLON
+                CMPA        #':'            ; = CHECK FOR COLON
                 BNE         LC96A           ; BRANCH IF NO DRIVE NUMBER
                 LDA         ,U              ; GET 1ST CHARACTER
-                CMPA        #'0             ; IN STRING AND
+                CMPA        #'0'            ; IN STRING AND
                 BLO         LC96A           ; CHECK TO SEE
-                CMPA        #'3             ; IF IT IS IN
+                CMPA        #'3'            ; IF IT IS IN
                 BHI         LC96A           ; THE RANGE 0-3
                 BSR         LC99D           ; GET DRIVE NUMBER
 LC96A           LDX         #DNAMBF         ; POINT X TO FILE NAME BUFFER
@@ -1433,11 +1433,11 @@ LC973           CMPX        #DNAMBF         ; POINTER STILL AT START OF BUFFER?
 LC978           LDB         #2*31           ; 'BAD FILENAME' ERROR IF NULL FILENAME
                 JMP         >LAC46          ; ERROR HANDLER
 LC97D           LDA         ,U+             ; GET A CHARACTER FROM STRING
-                CMPA        #'.             ; LOOK FOR PERIOD?
+                CMPA        #'.'            ; LOOK FOR PERIOD?
                 BEQ         LC9B0           ; YES
-                CMPA        #'/             ; SLASH?
+                CMPA        #'/'            ; SLASH?
                 BEQ         LC9B0           ; YES
-                CMPA        #':             ; COLON?
+                CMPA        #':'            ; COLON?
                 BEQ         LC994           ; YES
                 CMPX        #DEXTBF         ; COMPARE POINTER TO END OF FILENAME BUFFER
                 BEQ         LC978           ; 'BAD FILENAME' ERROR - FILENAME TOO LONG
@@ -1453,7 +1453,7 @@ LC99D           COM         $02,S           ; TOGGLE DRIVE FLAG
                 BEQ         LC978           ; 'BAD FILENAME' ERROR IF DRIVE NUMBER DEFINED TWICE
                 LDA         ,U++            ; ASCII VALUE OF DRIVE NUMBER TO ACCA
                 SUBB        #$02            ; DECREMENT STRING LENGTH BY 2 FOR DRIVE (:X)
-                SUBA        #'0             ; SUBTRACT ASCII BIAS
+                SUBA        #'0'            ; SUBTRACT ASCII BIAS
                 BLO         LC978           ; DRIVE NUMBER TOO LOW - 'BAD FILENAME' ERROR
                 CMPA        #$03            ; MAX OF 4 DRIVES
                 BHI         LC978           ; DRIVE NUMBER TOO HIGH - 'BAD FILENAME' ERROR
@@ -1469,7 +1469,7 @@ LC9B7           STA         ,-X             ;
 LC9BE           DECB                        ;  DECREMENT STRING COUNTER
                 BEQ         LC99B           ; RETURN IF ZERO
                 LDA         ,U+             ; GET A CHARACTER FROM STRING
-                CMPA        #':             ; CHECK FOR DRIVE SEPARATOR
+                CMPA        #':'            ; CHECK FOR DRIVE SEPARATOR
                 BEQ         LC994           ;
                 CMPX        #DFLTYP         ; CHECK FOR END OF ESTENSION RAM BUFFER &
                 BEQ         LC978           ; 'BAD FILENAME' ERROR IF EXTENSION TOO LONG
@@ -1478,15 +1478,15 @@ LC9BE           DECB                        ;  DECREMENT STRING COUNTER
 ; INSERT CHARACTER INTO FILENAME OR EXTENSION
 LC9D0           STA         ,X+             ; STORE CHARACTER IN FILENAME BUFFER
                 BEQ         LC978           ; 'BAD FILENAME' ERROR; ZEROES ARE ILLEGAL
-                CMPA        #'.             ; PERIOD?
+                CMPA        #'.'            ; PERIOD?
                 BEQ         LC978           ; 'BAD FILENAME' ERROR IF PERIOD
-                CMPA        #'/             ; SLASH?
+                CMPA        #'/'            ; SLASH?
                 BEQ         LC978           ; 'BAD FILENAME' ERROR IF SLASH
                 INCA                        ;  CHECK FOR $FF
                 BEQ         LC978           ; 'BAD FILENAME' ERROR IF $FF
 LC9DF           RTS
 ; SAVE COMMAND
-SAVE            CMPA        #'M             ;
+SAVE            CMPA        #'M'            ;
                 LBEQ        LCF68           ; BRANCH IF SAVEM
                 BSR         LCA33           ; GO GET FILENAME, ETC. FROM BASIC
                 LDX         ZERO            ; ZERO OUT X REG
@@ -1494,7 +1494,7 @@ SAVE            CMPA        #'M             ;
                 JSR         GETCCH          ; GET CURRENT INPUT CHARACTER FROM BASIC
                 BEQ         LCA12           ; BRANCH IF END OF LINE
                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
-                LDB         #'A             ; ASCII FILE?
+                LDB         #'A'            ; ASCII FILE?
                 JSR         >LB26F          ; SYNTAX CHECK ON CONTENTS OF ACCB
                 BNE         LC9DF           ; RETURN IF NO MORE CHARACTERS ON LINE
                 COM         DASCFL          ; SET CRUNCHED/ASCII FLAG TO ASCII
@@ -1503,9 +1503,9 @@ SAVE            CMPA        #'M             ;
                 JMP         LIST            ; 'LIST' THE FILE TO CONSOLE OUT
 ; OPEN A SEQUENTIAL FILE FOR INPUT/OUTPUT - USE THE SYSTEM
 ; FCB LOCATED AT THE TOP OF FCBS
-LCA04           LDA         #'O             ; OUTPUT FILE TYPE
+LCA04           LDA         #'O'            ; OUTPUT FILE TYPE
 LCA06           FCB         $8C             ; SKIP TWO BYTES (THROWN AWAY CMPX INSTRUCTION)
-LCA07           LDA         #'I             ; INPUT FILE TYPE
+LCA07           LDA         #'I'            ; INPUT FILE TYPE
                 LDB         FCBACT          ; GET NUMBER OF RESERVED FILES CURRENTLY RESERVED
                 INCB                        ; ADD ONE - USE ONE ABOVE HIGHEST RESERVED FCB
                 STB         DEVNUM          ; SAVE IT IN DEVICE NUMBER
@@ -1533,12 +1533,12 @@ MERGE           CLRA                        ;  RUN FLAG (0 = DON'T RUN)
                 LDB         #$FF            ; MERGE FLAG ($FF = MERGE)
                 BRA         LCA50           ; GO LOAD THE FILE
 ; RUN RAM VECTOR
-DVEC18          CMPA        #'"             ; CHECK FOR FILENAME DELIMITER (DOUBLE QUOTE)
+DVEC18          CMPA        #'"'            ; CHECK FOR FILENAME DELIMITER (DOUBLE QUOTE)
                 LBNE        XVEC18          ; NONE - JUMP TO EXBAS RUN RAM HOOK
                 LDA         #$02            ; RUN FLAG - DON'T CLOSE ALL FILES BEFORE RUN
                 BRA         LCA4F           ; LOAD THE FILE
 ; LOAD COMMAND
-LOAD            CMPA        #'M             ;
+LOAD            CMPA        #'M'            ;
                 LBEQ        LCFC1           ; BRANCH IF LOADM
                 CLRA                        ;  RUN FLAG = ZERO (DON'T RUN)
 LCA4F           CLRB                        ;  CLEAR MERGE FLAG
@@ -1548,7 +1548,7 @@ LCA50           STA         DRUNFL          ; RUN FLAG (0 = DON'T RUN, 2 = RUN)
                 JSR         GETCCH          ; GET CURRENT INPUT CHAR
                 BEQ         LCA6C           ; BRANCH IF END OF LINE
                 JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
-                LDB         #'R             ;
+                LDB         #'R'            ;
                 JSR         >LB26F          ; IS NEXT CHAR 'R'? RUN AFTER LOAD
                 JSR         >LA5C7          ; SYNTAX ERROR IF ANY MORE CHARS ON LINE
                 LDA         #$03            ; SET FLAGS TO RUN AND CLOSE ALL FILES
@@ -1971,7 +1971,7 @@ LCCEB           CLRA                        ;  CLEAR MS BYTE OF ACCO
                 JSR         >LBDCC          ; PRINT ACCD IN DECIMAL TO CONSOLE OUT
                 BSR         LCD1B           ; SEND BLANK TO CONSOLE OUT
                 LDX         ,S              ; X NOW POINTS TO DIRECTORY ENTRY
-                LDA         #'A+1           ; ASCII BIAS
+                LDA         #'A'+1          ; ASCII BIAS
                 ADDA        DIRASC,X        ; ADD TO ASCII FLAG
                 BSR         LCD18           ; PRINT CHARACTER AND BLANK TO CONSOLE OUT
                 LDB         DIRGRN,X        ; GET FIRST GRANULE IN FILE
@@ -2011,7 +2011,7 @@ DVEC10          TST         DEVNUM          ; CHECK DEVICE NUMBER AND RETURN
                 LDX         #LB069          ; CHANGE THE RETURN ADDRESS ON THE STACK TO RE-ENTER BASIC'S INPUT
                 STX         ,S              ; ROUTINE AT A DIFFERENT PLACE THAN THE CALLING ROUTINE
                 LDX         #LINBUF+1       ; POINT X TO THE LINE INPUT BUFFER
-                LDB         #',             ; =
+                LDB         #','            ; =
                 STB         CHARAC          ; COMMA IS READ ITEM SEPARATOR (TEMPORARY STRING SEARCH FLAG)
                 LDA         VALTYP          ; GET VARIABLE TYPE AND BRANCH IF
                 BNE         LCD4B           ; IT IS A STRING
@@ -2019,14 +2019,14 @@ DVEC10          TST         DEVNUM          ; CHECK DEVICE NUMBER AND RETURN
 LCD4B           BSR         LCDBC           ; GET AN INPUT CHARACTER
                 CMPA        #SPACE          ; SPACE?
                 BEQ         LCD4B           ; YES - GET ANOTHER CHARACTER
-                CMPA        #'"             ; QUOTE?
+                CMPA        #'"'            ; QUOTE?
                 BNE         LCD5F           ; NO
-                CMPB        #',             ; SEARCH CHARACTER = COMMA?
+                CMPB        #','            ; SEARCH CHARACTER = COMMA?
                 BNE         LCD5F           ; NO - NUMERIC SEARCH
                 TFR         A,B             ; SAVE DOUBLE QUOTE AS
                 STB         CHARAC          ; THE SEARCH FLAG
                 BRA         LCD81           ; SAVE DOUBLE QUOTES AS FIRST ITEM IN BUFFER
-LCD5F           CMPB        #'"             ;
+LCD5F           CMPB        #'"'            ;
                 BEQ         LCD74           ; BRANCH IF INPUTTING A STRING VARIABLE
                 CMPA        #CR             ; IS THE INPUT CHARACTER A CARRIAGE RETURN
                 BNE         LCD74           ; NO
@@ -2055,7 +2055,7 @@ LCD92           CLR         ,X              ; PUT A ZERO AT END OF BUFFER WHEN D
                 LDX         #LINBUF         ; POINT (X) TO LINBUF - RESET POINTER
 LCD97           RTS
 ; CHECK FOR ITEM SEPARATOR OR TERMINATOR AND EXIT THE INPUT ROUTINE
-LCD98           CMPA        #'"             ; QUOTE?
+LCD98           CMPA        #'"'            ; QUOTE?
                 BEQ         LCDA0           ; YES
                 CMPA        #SPACE          ; SPACE?
                 BNE         LCD92           ; NO - EXIT ROUTINE
@@ -2063,7 +2063,7 @@ LCDA0           BSR         LCDD0           ; GET A CHARACTER FROM CONSOLE IN
                 BNE         LCD92           ; EXIT ROUTINE IF BUFFER EMPTY
                 CMPA        #SPACE          ; SPACE?
                 BEQ         LCDA0           ; YES - GET ANOTHER CHARACTER
-                CMPA        #',             ; COMMA (ITEM SEPARATOR)?
+                CMPA        #','            ; COMMA (ITEM SEPARATOR)?
                 BEQ         LCD92           ; YES - EXIT ROUTINE
 LCDAC           CMPA        #CR             ; CARRIAGE RETURN?
                 BNE         LCDB8           ; NO
@@ -2248,7 +2248,7 @@ DXCVEC          CMPA        #$CA            ; TOKEN FOR DLOAD?
                 LBNE        L813C           ; NO
 ; DISK BASIC MODIFIER FOR PMODE - ALLOWS FOR THE RAM THE DOS USES
                 JSR         GETNCH          ; GET NEXT CHARACTER FROM BASIC
-                CMPA        #',             ; CHECK FOR COMMA
+                CMPA        #','            ; CHECK FOR COMMA
                 LBEQ        L9650           ; BRANCH IF COMMA
                 JSR         EVALEXPB        ; EVALUATE EXPRESSION; RETURN VALUE IN ACCB
                 CMPB        #$04            ; CHECK FOR PMODE 4
@@ -2402,7 +2402,7 @@ WRITE           LBEQ        LB958           ; PRINT CARRIAGE RETURN TO CONSOLE O
                 BSR         LD06F           ; GO WRITE AN ITEM LIST
                 CLR         DEVNUM          ; SET DEVICE NUMBER TO SCREEN
 LD06E           RTS
-LD06F           CMPA        #'#             ; CHECK FOR DEVICE NUMBER FLAG
+LD06F           CMPA        #'#'            ; CHECK FOR DEVICE NUMBER FLAG
                 BNE         LD082           ; DEFAULT TO CURRENT DEVICE NUMBER IF NONE GIVEN
                 JSR         >LA5A5          ; SET DEVICE NUMBER; CHECK VALIDITY
                 JSR         >LA406          ; MAKE SURE SELECTED FILE IS AN OUTPUT FILE
@@ -2418,7 +2418,7 @@ LD082           JSR         >LB156          ; EVALUATE EXPRESSION
 ; PRINT ITEM SEPARATOR TO CONSOLE OUT
 LD092           JSR         GETCCH          ; GET CURRENT CHARACTER
                 LBEQ        LB958           ; PUT CR TO CONSOLE OUT IF END OF LINE
-                LDA         #',             ; COMMA: NON-CASSETTE SEPARATOR
+                LDA         #','            ; COMMA: NON-CASSETTE SEPARATOR
                 JSR         >LA35F          ; SET PRINT PARAMETERS
                 TST         PRTDEV          ; GET CONSOLE PRINT DEVICE AND
                 BEQ         LD0A3           ; BRANCH IF NOT CASSETTE
@@ -2434,7 +2434,7 @@ LD0A7           BSR         LD0B0           ; PRINT LEADING STRING DELIMITER (")
 LD0B0           JSR         >LA35F          ; SET PRINT PARAMETERS
                 TST         PRTDEV          ; GET CONSOLE PRINT DEVICE AND
                 BNE         LD06E           ; RETURN IF CASSETTE
-                LDA         #'"             ; QUOTE: NON-CASSETTE STRING DELIMITER
+                LDA         #'"'            ; QUOTE: NON-CASSETTE STRING DELIMITER
 LD0B9           JMP         PUTCHR          ; SEND TO CONSOLE OUT
 ; FIELD COMMAND
 FIELD           JSR         >LC82E          ; EVALUATE DEVICE NUMBER & VERIFY RANDOM FILE OPEN
@@ -2533,7 +2533,7 @@ FILES           JSR         >L95AC          ; RESET SAM DISPLAY PAGE AND VDG MOD
                 LDB         FCBACT          ; GET CURRENT NUMBER OF FCBS
                 PSHS        B               ; AND SAVE ON THE STACK (DEFAULT VALUE)
                 JSR         GETCCH          ; GET CURRENT INPUT CHAR
-                CMPA        #',             ; CHECK FOR COMMA
+                CMPA        #','            ; CHECK FOR COMMA
                 BEQ         LD181           ; BRANCH IF COMMA - NO BUFFER NUMBER PARAMETER GIVEN
                 JSR         EVALEXPB        ; EVALUATE EXPRESSION (BUFFER NUMBER)
                 CMPB        #15             ; 15 FCBS MAX
@@ -2953,7 +2953,7 @@ LD486           STA         VD8             ; SAVE THE 'GET'/'PUT' FLAG
                 STX         DFLTYP          ; THEM IN THE DISK RAM VARIABLES
                 LDX         #SECLEN         ; SAVE ONE SECTOR LENGTH IN
                 STX         DFFLEN          ; RAM RECORD LENGTH VARIABLE
-                LDA         #'R             ; RANDOM FILE TYPE FLAG
+                LDA         #'R'            ; RANDOM FILE TYPE FLAG
                 LDB         FCBACT          ; GET THE HIGHEST RESERVED FCB NUMBER, ADD ONE
                 INCB                        ;  AND OPEN A RANDOM FILE WHOSE FCB WILL BE ONE ABOVE
                 JSR         >LC48D          ; THE HIGHEST RESERVED FCB (THE SYSTEM FCB)

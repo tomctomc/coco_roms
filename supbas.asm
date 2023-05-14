@@ -211,9 +211,9 @@ SC10C           LDA         ,Y+             ; GET A BYTE
                 STA         INIT0
                 LDD         DOSBAS          ; GET THE FIRST TWO BYTES OF AN EXTERNAL ROM, IF ANY
 ; CHECK FOR A 'DK' AT $C000 (DISK BASIC) - THIS SHOULD BE CMPD
-                CMPA        #'D
+                CMPA        #'D'
                 BNE         SC137
-                CMPB        #'K
+                CMPB        #'K'
                 BNE         SC137
 ; COPY THE DISK BASIC ROM INTO RAM
                 LDX         #SUPERVAR       ; POINT TO THE END OF THE DISK BASIC ROM
@@ -548,7 +548,7 @@ INTIMAGE        FCB         $55             ; VALIDITY FLAG (INTERRUPT VECTORS V
                 LBRA        (INTIMAGE+1)-(INT.JUMP)+SWIVEC
                 LBRA        (INTIMAGE+1)-(INT.JUMP)+NMIVEC
 
-ENDMOVE         =           *               ; THE END OF THE DATA THAT'S COPIED TO RAM
+ENDMOVE         EQU         *               ; THE END OF THE DATA THAT'S COPIED TO RAM
 
 
 ; -----------------------------------------------------------------------------
@@ -971,7 +971,7 @@ AUTHPIC         FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,
                 FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
                 FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
-ENDPIC          =           *               ; THE END OF THE AUTHOR'S PICTURE DATA
+ENDPIC          EQU         *               ; THE END OF THE AUTHOR'S PICTURE DATA
 
 ; -----------------------------------------------------------------------------
                 if          COCOPAL<1
@@ -1569,7 +1569,7 @@ ALINK6A         LSL         $02,X           ;
                 LBCS        LBA92           ; 'OV' OVERFLOW ERROR ($BA92)
                 DECB                        ;  DECREMENT THE SHIFT COUNTER
                 BNE         ALINK6A         ; LOOP UNTIL DONE
-                SUBA        #'0             ; MASK OFF ASCII
+                SUBA        #'0'            ; MASK OFF ASCII
                 ADDA        $02,X           ; ADD DIGIT TO TEMPORARY
                 STA         $02,X           ; ACCUMULATOR AND SAVE IT
                 RTS
@@ -1940,7 +1940,7 @@ SE6E4           STB         ,X+             ; 'CLEAR' A BYTE
 SE6EF           LDB         #38*2           ; 'HR' ERROR
                 JMP         LAC46           ; JUMP TO THE ERROR HANDLER
 ; HCOLOR
-HCOLOR          CMPA        #',             ; CHECK FOR COMMA, FIRST ARGUMENT NOT GIVEN
+HCOLOR          CMPA        #','            ; CHECK FOR COMMA, FIRST ARGUMENT NOT GIVEN
                 LBRN        RAMLINK         ; RAM HOOK
                 BEQ         SE705           ; BRANCH IF FIRST ARGUMENT NOT GIVEN
                 BSR         SE70E           ; EVALUATE EXPRESSION, SYNTAX CHECK FOR EXPRESSION > 16
@@ -1958,10 +1958,10 @@ SE711           CMPB        #16             ; MAXIMUM OF 16 DIFFERENT COLORS
 SE718           JSR         >SE731          ; SET THE WORKING COLOR AND ALL PIXEL BYTES TO DEFAULT VALUES
                 JSR         GETCCH          ; GET BASIC'S CURRENT INPUT CHARACTER
                 BEQ         SE72F           ; BRANCH IF END OF LINE
-                CMPA        #') SYNTAX CHECK FOR ')'
+                CMPA        #')'            ; SYNTAX CHECK FOR ')'
                 BEQ         SE72F           ; EXIT IF ')'
                 JSR         >SYNCOMMA       ; DO A SYNTAX CHECK FOR A COMMA
-                CMPA        #',             ; SYNTAX CHECK FOR A COMMA
+                CMPA        #','            ; SYNTAX CHECK FOR A COMMA
                 BEQ         SE72F           ; USE DEFAULT COLORS IF TWO COMMAS
                 JSR         >SE70E          ; EVALUATE COLOR ARGUMENT
                 BSR         SE73B           ; SET THE WORKING AND ALL COLOR BYTES TO THE COLOR ARGUMENT
@@ -2149,11 +2149,11 @@ SE87B           JSR         LB4F3           ; CONVERT ACCB INTO A FLOATING POINT
 HLINE           TST         HRMODE          ; CHECK HI-RES GRAPHICS MODE
                 LBEQ        SE6EF           ; 'HR' ERROR IF NOT GRAPHICS
                 LBRN        RAMLINK         ; RAM HOOK
-                CMPA        #'( CHECK FOR '('
+                CMPA        #'('            ; CHECK FOR '('
                 BEQ         SE899           ; GO LOOK FOR START AND END POINTS
                 CMPA        #$AC            ; CHECK FOR MINUS SIGN TOKEN
                 BEQ         SE899           ; BRANCH IF NO STARTING POINTS GIVEN
-                LDB         #'@ CHECK FOR '@' ; SIGN
+                LDB         #'@'            ; CHECK FOR '@' SIGN
                 JSR         LB26F           ; GO DO A SYNTAX CHECK
 SE899           JSR         >SE9E1          ; GET STARTING AND ENDING COORDINATES
                 LDX         HOREND          ; GET ENDING HORIZONTAL COORDINATE
@@ -2177,7 +2177,7 @@ SE8B4           CLRB                        ;  PRESET FLAG
                 JSR         GETCCH          ; GET BASIC'S CURRENT INPUT CHARACTER
                 LBEQ        SE94E           ; BRANCH IF NO BOX TO BE DRAWN
                 JSR         >SYNCOMMA       ; DO A SYNTAX CHECK FOR A COMMA
-                LDB         #'B             ; DRAW A BOX?
+                LDB         #'B'            ; DRAW A BOX?
                 JSR         LB26F           ; GO DO A SYNTAX CHECK FOR A 'B'
                 BNE         SE8EB           ; FOUND A 'B' AND SOMETHING FOLLOWS
                 BSR         SE906           ; DRAW A HORIZONTAL LINE
@@ -2192,7 +2192,7 @@ SE8B4           CLRB                        ;  PRESET FLAG
                 LDX         VEREND          ; GET VERTICAL END COORDINATE
                 STX         VERBEG          ; PUT INTO START COORD
                 BRA         SE906           ; DRAW A HORIZONTAL LINE
-SE8EB           LDB         #'F             ; CHECK FOR FILL OPTION
+SE8EB           LDB         #'F'            ; CHECK FOR FILL OPTION
                 JSR         LB26F           ; GO DO A SYNTAX CHECK FOR AN 'F'
                 BRA         SE8F6           ; GO 'FILL' THE BOX
 SE8F2           LEAX        -01,X           ; MOVE VERTICAL COORD UP ONE
@@ -2393,7 +2393,7 @@ SEA45           LDB         HORBYT          ; GET NUMBER OF BYTES PER HORIZONTAL
 HCIRCLE         TST         HRMODE          ; CHECK HI-RES GRAPHICS MODE
                 LBEQ        SE6EF           ; BRANCH IF NOT HI-RES GRAPHICS
                 LBRN        RAMLINK         ; RAM HOOK
-                CMPA        #'@             ; CHECK FOR @ SIGN (HCIRCLE@ IS LEGAL SYNTAX)
+                CMPA        #'@'            ; CHECK FOR @ SIGN (HCIRCLE@ IS LEGAL SYNTAX)
                 BNE         SEA59           ; BRANCH IF NOT
                 JSR         GETNCH          ; GET THE NEXT CHARACTER FROM BASIC'S INPUT LINE
 SEA59           JSR         >SEB60          ; GET MAX HORIZONTAL & VERTICAL COORD VALUES AND PUT THEM IN VD3 & VD5
@@ -2610,7 +2610,7 @@ SEBEA           LDA         ,S              ;
 HPAINT          TST         HRMODE          ; CHECK HI-RES GRAPHICS MODE
                 LBEQ        SE6EF           ; 'HR' ERROR IF HI-RES GRAPHICS MODE NOT SET UP
                 LBRN        RAMLINK         ; RAM HOOK
-                CMPA        #'@             ; CHECK FOR @ SIGN
+                CMPA        #'@'            ; CHECK FOR @ SIGN
                 BNE         SEC05           ; BRANCH IF NOT
                 JSR         GETNCH          ; GET THE NEXT CHARACTER FROM BASIC'S INPUT LINE
 SEC05           JSR         >SEA04          ; SYNTAX CHECK FOR '(', TWO EXPRESSIONS, AND ')'
@@ -2884,7 +2884,7 @@ SEDF4           TST         HRMODE          ; IS THE HI-RES GRAPHICS MODE ENABLE
                 LBEQ        SE6EF           ; 'HR' ERROR IF NOT IN HI-RES MODE
                 LBRN        RAMLINK         ; RAM HOOK
                 STB         VD8             ; SAVE THE GET/PUT FLAG
-                CMPA        #'@             ; ALLOW HGET@, HPUT@ AS LEGAL SYNTAX
+                CMPA        #'@'            ; ALLOW HGET@, HPUT@ AS LEGAL SYNTAX
                 BNE         SEE06           ; BRANCH IF NOT @
                 JSR         GETNCH          ; GET THE NEXT CHARACTER FROM BASIC'S INPUT LINE IF @ WAS THERE
 SEE06           JSR         >SE9E1          ; EVALUATE THE RECTANGLE BOUNDS
@@ -3427,21 +3427,21 @@ SF3C5           STB         VD8             ; SET COMMAND LENGTH COUNTER
 SF3CF           TST         VD8             ; TEST COMMAND LENGTH COUNTER
                 BEQ         SF3C3           ; GET NEW LINE IF 0
                 JSR         >SF591          ; GET A COMMAND CHARACTER
-                CMPA        #';             ; CHECK FOR A SEMI-COLON
+                CMPA        #';'            ; CHECK FOR A SEMI-COLON
                 BEQ         SF3CF           ; IGNORE SEMI-COLONS
                 CMPA        #''             ; CHECK FOR APOSTROPHE
                 BEQ         SF3CF           ; IGNORE APOSTROPHE
-                CMPA        #'N             ; UPDATE CHECK?
+                CMPA        #'N'            ; UPDATE CHECK?
                 BNE         SF3E6           ; BRANCH IF NOT
                 COM         VD5             ; TOGGLE UPDATE FLAG; 0 = UPDATE, FF = NO UPDATE
                 BRA         SF3CF           ; GET NEXT COMMAND
-SF3E6           CMPA        #'B             ; CHECK DRAW FLAG?
+SF3E6           CMPA        #'B'            ; CHECK DRAW FLAG?
                 BNE         SF3EE           ; BRANCH IF NOT
                 COM         VD6             ; TOGGLE DRAW FLAG; 0 = DRAW LINE, FF = DON'T DRAW LINE
                 BRA         SF3CF           ; GET ENXT COMMAND
-SF3EE           CMPA        #'X             ; SUBSTRING?
+SF3EE           CMPA        #'X'            ; SUBSTRING?
                 LBEQ        SF4A1           ; GO EXECUTE A COMMAND SUBSTRING
-                CMPA        #'M             ; MOVE THE DRAW POSITION?
+                CMPA        #'M'            ; MOVE THE DRAW POSITION?
                 LBEQ        SF54C           ; BRANCH IF YES, GO MOVE IT
                 PSHS        A               ; SAVE CURRENT COMMAND
                 LDB         #$01            ; DEFAULT VALUE IF NO NUMBER FOLLOWS COMMAND
@@ -3457,21 +3457,21 @@ SF3EE           CMPA        #'X             ; SUBSTRING?
                 BCC         SF417           ; BRANCH IF NEXT COMMAND IS ALPHA
                 BSR         SF3BD           ; EVALUATE DECIMAL COMMAND LINE VALUE - RETURN VALUE IN ACCD & VD3
 SF417           PULS        A               ; GET CURRENT COMMAND BACK
-                CMPA        #'C             ; CHANGE COLOR?
+                CMPA        #'C'            ; CHANGE COLOR?
                 BEQ         SF445           ; BRANCH IF YES
-                CMPA        #'A             ; CHANGE ANGLE?
+                CMPA        #'A'            ; CHANGE ANGLE?
                 BEQ         SF451           ; BRANCH IF YES
-                CMPA        #'S             ; CHANGE SCALE?
+                CMPA        #'S'            ; CHANGE SCALE?
                 BEQ         SF45C           ; BRANCH IF YES
-                CMPA        #'U             ; GO UP?
+                CMPA        #'U'            ; GO UP?
                 BEQ         SF496           ; BRANCH IF YES
-                CMPA        #'D             ; GO DOWN?
+                CMPA        #'D'            ; GO DOWN?
                 BEQ         SF492           ; BRANCH IF YES
-                CMPA        #'L             ; GO LEFT?
+                CMPA        #'L'            ; GO LEFT?
                 BEQ         SF48C           ; BRANCH IF YES
-                CMPA        #'R             ; GO RIGHT?
+                CMPA        #'R'            ; GO RIGHT?
                 BEQ         SF485           ; BRANCH IF YES
-                SUBA        #'E             ; MASK OFF ASCII FOR LETTER E-H COMMAND CHECKS
+                SUBA        #'E'            ; MASK OFF ASCII FOR LETTER E-H COMMAND CHECKS
                 BEQ         SF473           ; BRANCH IF E (45 DEGREES)
                 DECA                        ;  CHECK FOR F
                 BEQ         SF46D           ; BRANCH IF F (135 DEGREES)
@@ -3625,22 +3625,22 @@ SF54C           JSR         >SF591          ; GET A CHAR FROM COMMAND LINE
                 JSR         >SF578          ; EVALUATE THE HORIZONTAL DIFFERENCE
                 PSHS        B,A             ; SAVE IT ON THE STACK
                 JSR         >SF591          ; GET A CHAR FROM COMMAND LINE
-                CMPA        #',             ; CHECK FOR COMMA
+                CMPA        #','            ; CHECK FOR COMMA
                 LBNE        LB44A           ; ILLEGAL FUCNTION CALL ERROR IF NO COMMA
                 JSR         >SF575          ; EVALUATE THE VERTICAL DIFFERENCE
                 TFR         D,X             ; SAVE VERTICAL DIFFERENCE IN X
                 PULS        U               ; GET HORIZONTAL DIFFERENCE IN U
                 PULS        A               ; GET FIRST COMMAND CHARACTER
-                CMPA        #'+             ; CHECK FOR PLUS
+                CMPA        #'+'            ; CHECK FOR PLUS
                 BEQ         SF570           ; TREAT VALUES IN X AND U AS DIFFERENCES AND MOVE POINTER
-                CMPA        #'-             ; CHECK FOR MINUS
+                CMPA        #'-'            ; CHECK FOR MINUS
                 BNE         SF507           ; IF NOT '+' OR '-', MOVE THE POINTER TO THE COORDINATES IN U AND ACCD
 SF570           TFR         U,D             ; PUT HORIZONTAL DIFFERENCE IN ACCD; X CONTAINS THE VERTICAL DIFFERENCE
                 JMP         >SF4D4          ; GOMOVE THE DRAW POSITION
 SF575           JSR         >SF591          ; GET A CHAR FROM COMMAND LINE
-SF578           CMPA        #'+             ; CHECK FOR LEADING + (RELATIVE MOTION)
+SF578           CMPA        #'+'            ; CHECK FOR LEADING + (RELATIVE MOTION)
                 BEQ         SF583           ; BRANCH IF RELATIVE
-                CMPA        #'-             ; DO THE SAME FOR THE MINUS SIGN
+                CMPA        #'-'            ; DO THE SAME FOR THE MINUS SIGN
                 BEQ         SF584           ; BRANCH IF RELATIVE
                 JSR         >SF5F2          ; MOVE COMMAND STRING BACK ONE IF NOT RELATIVE MOTION
 SF583           CLRA                        ;  IF ACCA=0, THEN '+' IF ACCA <> 0, THEN '-'
@@ -3663,7 +3663,7 @@ SF593           TST         VD8             ; CHECK COMMAND COUNTER
                 CMPA        #SPACE          ; CHECK FOR BLANK
                 BEQ         SF593           ; IGNORE BLANKS
                 PULS        X,PC            ; RESTORE X REGISTER AND RETURN
-SF5A7           CMPA        #'=             ; CHECK FOR A VARIABLE EQUATE
+SF5A7           CMPA        #'='            ; CHECK FOR A VARIABLE EQUATE
                 BNE         SF5B6           ; BRANCH IF NOT VARIABLE EQUATE
                 PSHS        U,Y             ; SAVE REGISTERS
                 BSR         SF611           ; INTERPRET THE VARIABLE IN THE COMMAND LINE
@@ -3675,7 +3675,7 @@ SF5B6           JSR         >SF608          ; CLEAR CARRY IF NUMERIC
                 CLR         VD3             ;
                 CLR         VD4             ; INITIALIZE THE SUBCOMMAND VALUE TO ZERO
 ; STRIP A DECIMAL ASCII VALUE FROM THE COMMAND STRING AND RETURN THE BINARY VALUE IN VD3
-SF5C1           SUBA        #'0             ; MASK OFF ASCII
+SF5C1           SUBA        #'0'            ; MASK OFF ASCII
                 STA         VD7             ; SAVE TEMPORARILY
                 LDD         VD3             ; GET THE CURRENT SUBCOMMAND VALUE
                 BSR         SF5FD           ; MULTIPLY ACCD BY 10
@@ -3713,10 +3713,10 @@ SF5FD           ASLB                        ;
                 ADDD        ,S++            ; ADD ACCD*2; THE RESULT IS NOW ACCD*10
                 RTS
 ; CLEAR THE CARRY FLAG IF ACCA CONTAINS A NUMERIC ASCII VALUE ($30-$39)
-SF608           CMPA        #'0
+SF608           CMPA        #'0'
                 BCS         SF610           ; RETURN IF LESS THAN ASCII ZERO
-                SUBA        #'9+1
-                SUBA        #-('9+1)        ; SET CARRY IF NOT 0-9
+                SUBA        #'9'+1
+                SUBA        #-('9'+1)       ; SET CARRY IF NOT 0-9
 SF610           RTS
 ; INTERPRET THE CURRENT COMMAND STRING AS IF IT WERE A BASIC VARIABLE
 SF611           LDX         VD9             ; GET THE COMMAND POINTER
@@ -3725,7 +3725,7 @@ SF611           LDX         VD9             ; GET THE COMMAND POINTER
                 JSR         LB3A2           ; SET CARRY IF NOT UPPER CASE ALPHA
                 LBCS        LB44A           ; ILLEGAL FUNCTION CALL ERROR IF NOT ALPHA - ILLEGAL VARIABLE NAME
 SF61F           JSR         >SF591          ; GET COMMAND STRING CHARACTER
-                CMPA        #';             ; CHECK FOR A SEMICOLON (SUBCOMMAND SEPARATOR)
+                CMPA        #';'            ; CHECK FOR A SEMICOLON (SUBCOMMAND SEPARATOR)
                 BNE         SF61F           ; LOOP UNTIL SEMICOLON FOUND
                 PULS        X               ; GET THE START OF THE VARIABLE NAME
                 LDU         CHARAD          ; GET THE CURRENT ADDRESS OF THE VARIABLE NAME
@@ -4151,14 +4151,14 @@ ATTR            JSR         EVALEXPB        ; EVALUATE EXPRESSION, RETURN VALUE 
                 JSR         GETCCH          ; GET THE CURRENT INPUT CHARACTER
 SF9E3           BEQ         SFA06           ; BRANCH IF END OF LINE
                 JSR         >SYNCOMMA       ; SYNTAX CHECK FOR A COMMA
-                CMPA        #'B             ; CHECK FOR THE BLINK ATTRIBUTE FLAG
+                CMPA        #'B'            ; CHECK FOR THE BLINK ATTRIBUTE FLAG
                 BNE         SF9F6           ; BRANCH IF NOR BLINK ATTRIBUTE FLAG
                 PULS        B
                 ORB         #$80            ; SET BIT 7 WHICH IS THE BLINK ATTRIBUTE BIT
                 PSHS        B
                 JSR         GETNCH          ; GET A CHARACTER FROM BASIC'S INPUT LINE
                 BRA         SF9E3           ; KEEP CHECKING FOR ATTRIBUTE FLAGS
-SF9F6           CMPA        #'U             ; CHECK FOR THE UNDERLINE ATTRIBUTE
+SF9F6           CMPA        #'U'            ; CHECK FOR THE UNDERLINE ATTRIBUTE
                 LBNE        LB44A           ; ILLEGAL FUNCION CALL ERROR
                 PULS        B
                 ORB         #$40            ; SET BIT 6 WHICH IS THE UNDERLINE ATTRIBUTE BIT

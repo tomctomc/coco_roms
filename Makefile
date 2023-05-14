@@ -26,6 +26,31 @@ AUTO_EXTBAS_BUILD= ${A09} -Bauto_tmp -Y$@       auto_symbols_bas.asm    extbas.a
   SUPBAS20P_BUILD= ${A09} -B$@ -L${@:.rom=.lst} auto_symbols_extbas.asm supbas.asm   -DCOCOPAL=1
 
 # =============================================================================
+# vasm assembler [oldstyle]
+# (available from http://sun.hasenbraten.de/vasm/)
+# =============================================================================
+
+#A09=./a09 -oNOW -oTXT -oEXP -oNCL
+#VASM=vasm6809_oldstyle
+
+#  AUTO_COCO_BUILD= ${A09} -Bauto_tmp -Y$@       cocodefs.asm
+#   AUTO_BAS_BUILD= ${A09} -Bauto_tmp -Y$@       auto_symbols_coco.asm   bas.asm      -DVERBAS=20
+#AUTO_EXTBAS_BUILD= ${A09} -Bauto_tmp -Y$@       auto_symbols_bas.asm    extbas.asm   -DVEREXTBAS=20
+
+#      BAS10_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} bas.asm      -DVERBAS=10
+#      BAS11_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} bas.asm      -DVERBAS=11
+#      BAS12_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} bas.asm      -DVERBAS=12
+#      BAS13_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} bas.asm      -DVERBAS=13
+#      BAS20_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} bas.asm      -DVERBAS=20
+#   EXTBAS10_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} extbas.asm   -DVEREXTBAS=10
+#   EXTBAS11_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} extbas.asm   -DVEREXTBAS=11
+#   EXTBAS20_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} extbas.asm   -DVEREXTBAS=20
+#     DISK10_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} disk.asm     -DVERDISK=10
+#     DISK11_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} disk.asm     -DVERDISK=11
+#   SUPBAS20_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} supbas.asm   -DCOCOPAL=0
+#  SUPBAS20P_BUILD= ${VASM} -Fbin -o $@ -L ${@:.rom=.lst} supbas.asm   -DCOCOPAL=1
+
+# =============================================================================
 # asm6809 assembler
 # (available from https://www.6809.org.uk/asm6809/)
 # =============================================================================

@@ -17,10 +17,14 @@ Most of this has been collected from internet sources.  Of particular note is th
 | extbas.asm   | assembly source for Exended Color Basic  | (can build versions 1.0, 1.1, and 2.0)                               |
 | disk.asm     | assembly source for Disk Basic           | (can build versions 1.0 and 1.1)                                     |
 | supbas.asm   | assembly source for Super Color Basic    | (can build version 2.0)                                              |
+| non-standard-changes-for-asm6809.patch | ROM asm changes for [asm6809](https://www.6809.org.uk/asm6809/) assembler      | To build using the asm6809 assembler, apply patch and edit makefile |
+| non-standard-changes-for-lwasm.patch   | ROM asm changes for [lwasm](http://lwtools.projects.l-w.ca) assembler          | To build using the lwasm assembler, apply patch and edit makefile   |
+| non-standard-changes-for-mamou.patch   | ROM asm changes for [mamou](http://toolshed.sourceforge.net) assembler         | To build using the mamou assembler, apply patch and edit makefile   |
+| non-standard-changes-for-vasm.patch    | ROM asm changes for [vasm](http://sun.hasenbraten.de/vasm/) oldstyle assembler | To build using the vasm assembler, apply patch and edit makefile    |
 | README.md    | this README file                         | you are here.                                                        |
 
 
-This was all put together under linux, but it should be straightforward enough to build everything on other platforms.  For windows, [msys](http://www.mamedev.org/tools/), [cygwin](http://www.cygwin.com), or [wsl](http://www.microsoft.com/en-us/p/ubuntu/9nblggh4msv6) may be helpful.
+This was all put together under linux, but it should be straightforward enough to build everything on other platforms.  For windows, [msys2](http://www.mamedev.org/tools/), [cygwin](http://www.cygwin.com), or [wsl](http://www.microsoft.com/en-us/p/ubuntu/9nblggh4msv6) may be helpful.
 
 When you run `make` the a09 assembler is compiled and is then used to build the rom files.  Afterwards, you should have all of the following files (named as specified for use with [mame](http://www.mamedev.org)).  The Makefile includes expected SHA-1 hashes for the roms and compares them all (via "sha1sum") after assembling to ensure they match bit-for-bit the original contents of the machine ROMs.
 
@@ -46,6 +50,5 @@ When you run `make` the a09 assembler is compiled and is then used to build the 
 | \*.lst               | assembly listings                        | full listings for each assembled rom (for information only)          |
 | auto\_\*             | preprocessed files                       | (just used during assembly - you can delete them)                    |
 | a09                  | the compiled 6809 assembler itself       |                                                                      |
-
 
 Running `make clean` will remove all the built files.
