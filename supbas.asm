@@ -548,7 +548,7 @@ INTIMAGE        FCB         $55             ; VALIDITY FLAG (INTERRUPT VECTORS V
                 LBRA        (INTIMAGE+1)-(INT.JUMP)+SWIVEC
                 LBRA        (INTIMAGE+1)-(INT.JUMP)+NMIVEC
 
-ENDMOVE         =           *               ; THE END OF THE DATA THAT'S COPIED TO RAM
+ENDMOVE         EQU         *               ; THE END OF THE DATA THAT'S COPIED TO RAM
 
 
 ; -----------------------------------------------------------------------------
@@ -971,7 +971,7 @@ AUTHPIC         FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,
                 FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
                 FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
 
-ENDPIC          =           *               ; THE END OF THE AUTHOR'S PICTURE DATA
+ENDPIC          EQU         *               ; THE END OF THE AUTHOR'S PICTURE DATA
 
 ; -----------------------------------------------------------------------------
                 if          COCOPAL<1

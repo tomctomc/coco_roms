@@ -1,15 +1,13 @@
-From 7e8251fe87e1789e890f64a937e1761903e2745e Mon Sep 17 00:00:00 2001
+From ebd8ad00077849fac5dd9a2de17df5ef0db8620f Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Wed, 10 May 2023 14:53:35 -0400
 Subject: Non-standard changes for asm6809
 
 Use "<<" to force 5-bit offset mode with asm6809
-And, revert mamou build fixes
 ---
- bas.asm    | 22 +++++++++++-----------
- disk.asm   | 48 ++++++++++++++++++++++++------------------------
- supbas.asm |  4 ++--
- 3 files changed, 37 insertions(+), 37 deletions(-)
+ bas.asm  | 22 +++++++++++-----------
+ disk.asm | 48 ++++++++++++++++++++++++------------------------
+ 2 files changed, 35 insertions(+), 35 deletions(-)
 
 diff --git a/bas.asm b/bas.asm
 index 64f5fa7..347dd67 100644
@@ -315,26 +313,4 @@ index 7b13783..3a7fefc 100644
                  LEAX        FCBLEN,X        ; GO TO NEXT FCB
                  INCB                        ;  INCREMENT FILE COUNTER
                  CMPB        FCBACT          ; CLOSE ALL ACTIVE BUFFERS AND SYSTEM FCB
-diff --git a/supbas.asm b/supbas.asm
-index ea8d934..4417e83 100644
---- a/supbas.asm
-+++ b/supbas.asm
-@@ -548,7 +548,7 @@ INTIMAGE        FCB         $55             ; VALIDITY FLAG (INTERRUPT VECTORS V
-                 LBRA        (INTIMAGE+1)-(INT.JUMP)+SWIVEC
-                 LBRA        (INTIMAGE+1)-(INT.JUMP)+NMIVEC
- 
--ENDMOVE         =           *               ; THE END OF THE DATA THAT'S COPIED TO RAM
-+ENDMOVE                                     ; THE END OF THE DATA THAT'S COPIED TO RAM
- 
- 
- ; -----------------------------------------------------------------------------
-@@ -971,7 +971,7 @@ AUTHPIC         FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,
-                 FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
-                 FCB         $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
- 
--ENDPIC          =           *               ; THE END OF THE AUTHOR'S PICTURE DATA
-+ENDPIC                                      ; THE END OF THE AUTHOR'S PICTURE DATA
- 
- ; -----------------------------------------------------------------------------
-                 if          COCOPAL<1
 -- 
