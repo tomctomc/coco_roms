@@ -6,19 +6,6 @@
 ; Copied from the PDF version of Color BASIC Unravelled.
 ; Fixed up to assemble in Mamou
 
-; Revision History
-
-; 04/19/2013 added conditional assembly for many versions:
-; VERBAS=10 ; for Color Basic 1.0
-; VERBAS=11 ; for Color Basic 1.1
-; VERBAS=12 ; for Color Basic 1.2
-; VERBAS=13 ; for Color Basic 1.3
-; VERBAS=20 ; for Color Basic 2.0 (coco3 basic - labeled as "1.2" in code)
-;
-; 04/04/2009 r21 Color BASIC 1.3 (match ROM)
-; 04/03/2009 r18 Color BASIC 1.2 (match ROM)
-
-; $Id: $
 
                 ORG         $A000
 POLCAT          FDB         KEYIN           ; GET A KEYSTROKE
@@ -40,169 +27,6 @@ LA00E           LDS         #LINBUF+LBUFMX+1 ; SET STACK TO TOP OF LINE INPUT BU
                 CMPA        #$12            ; IS IT NOP?
                 BNE         BACDST          ; NO - DO A COLD START
                 JMP         ,X              ; YES, G0 THERE
-; -----------------------------------------------------------------------------
-                if          VERBAS<11
-; -----------------------------------------------------------------------------
-RESVEC          LDU         #LA00E          ; BASIC WARM START ENTRY (RESET)
-LA02A           CLRB                        ;
-                TFR         B,DP            ; USE PAGE 0 AS DIRECT PAGE
-                LDX         #PIA0           ; POINT X TO PIA0
-                CLR         $1,X            ; CLEAR CONTROL REGISTER A ON PIA0(U8)
-                CLR         $3,X            ; CLEAR CONTROL REGISTER B
-                CLR         ,X              ; A SIDE IS INPUT
-                LDD         #$FF34
-                STA         $2,X            ; B SIDE IS OUTPUT
-                STB         $1,X            ; ENABLE PERIPHERAL REGISTERS
-                STB         $3,X            ; AND CA2, CB2 AS OUTPUTS
-                LDX         #PIA1           ; POINT X TO PIA1
-                CLR         $1,X            ; CLEAR CONTROL REGISTER A ON PIA1(U4)
-                CLR         $3,X            ; CLEAR CONTROL REGISTER B
-                DECA                        ;  A - REG NOW HAS $FE
-                STA         ,X              ; BITS 1-7 ARE OUTPUTS, BIT 0 IS INPUT ON SIDE A
-                LDA         #$F8
-                STA         $2,X            ; BITS 0-2 ARE INPUTS, BITS 3-7 ARE OUTPUTS ON B SIDE
-                STB         $1,X            ; ENABLE PERIPHERAL REGISTERS
-                STB         $3,X            ; AND CA2, CB2 AS OUTPUTS
-                CLR         $2,X            ; ZEROS TO 6847
-                LDA         #$02
-                STA         ,X              ; MAKE SERIAL OUTPUT MARKING
-                LDA         $2,X            ; READ PORT B OF U4 (TO GET RAM SIZE)
-                LDX         #SAMREG         ; SAM CONTROL REGISTER ADDR
-                LDB         #16             ; 16 SAM CONTROL REGISTER BITS
-LA05E           STA         ,X++            ; ZERO OUT SAM CONTROL REGISTER (CLEAR BITS)
-                DECB                        ;  DECREMENT REGISTER COUNTER
-                BNE         LA05E           ; BRANCH IF NOT DONE
-                STA         SAMREG+9        ; SET DISPLAY PAGE AT $400
-                ANDA        #$04            ; MASK OFF ALL BUT RAM SIZE BIT
-                BEQ         LA06C           ; BRANCH IF 4K RAM
-                STA         -$5,X           ; SET FOR 16K DYNAMIC
-LA06C           JMP         ,U              ; GO DO A WARM START
-
-
-BACDST          LDX         #0              ; POINT X TO TOP OF DIRECT PAGE
-LA071           CLR         ,X+             ; CLEAR FIRST 1K OF RAM
-                CMPX        #VIDRAM         ; COMPARE TO TOP OF DISPLAY (1K)
-                BNE         LA071           ; BRANCH IF NOT DONE
-                JSR         >CLRSCRN        ; CLEAR SCREEN
-                LDX         #LA10D          ; POINT X TO ROM IMAGE OF DIRECT PAGE VARS
-                LDU         #CMPMID         ; POINT U TO RAM DESTINATION
-                LDB         #28             ; 28 BYTES
-                JSR         >LA59A          ; MOVE (B) BYTES FROM (X) TO (U)
-                LDU         #IRQVEC         ; POINT U TO NON-DIRECT PAGE VARIABLES
-                LDB         #30             ; 30 BYTES
-                JSR         >LA59A          ; MOVE (B) BYTES FROM (X) TO (U)
-                LDX         #LB277          ; ADDR OF SYNTAX ERROR ROUTINE
-                STX         $3,U            ; SET EXBAS PRIMARY AND SECONDARY COMMAND INTERPRETATION TABLES TO
-                STX         $8,U            ; SYNTAX ERROR (U POINTS TO $12A AT THIS POINT)
-                LDX         #RVEC0          ; POINT X TO RAM VECTORS
-                LDA         #$39            ; OP CODE OF RTS
-LA09A           STA         ,X+             ; PUT RTS'S IN THE RAM VECTORS
-                CMPX        #RVEC0+25*3     ; END OF RAM VECTORS?
-                BNE         LA09A           ; NO KEEP INSERTING RTS
-                STA         LINHDR-1        ; PUT RTS IN $2D9
-                LDX         #VIDRAM+$200    ; POINT TO COLOR BASIC'S START OF PROGRAM
-                CLR         ,X+             ; PUT A ZERO AT THE START OF BASIC
-                STX         TXTTAB          ; BEGINNING OF BASIC PROGRAM
-LA0AB           LDA         $2,X            ; LOOK FOR END OF PROGRAM
-                COMA                        ;
-                STA         $2,X            ; STORE IN RAM
-                CMPA        $2,X            ; IS VALUE IN MEMORY THE SAME AS WHAT WAS JUST PUT THERE?
-                BNE         $A0BA           ; IF NOT, THEN IT IS NOT RAM OR THE RAM IS BAD
-                LEAX        $1,X            ; MOVE TO NEXT RAM LOCATION
-LA0B6           COM         $1,X            ; RESTORE VALUE OF MEMORY JUST CHANGED
-                BRA         LA0AB           ; KEEP CHECKING RAM
-LA0BA           STX         TOPRAM          ; SET TOP OF RAM POINTER
-                STX         MEMSIZ          ; TOP OF STRING SPACE
-                STX         STRTAB          ; START OF STRING VARIABLES
-                LEAX        -200,X          ; CLEAR 200 BYTES ON A COLD START -
-                STX         FRETOP          ; SAVE NEW TOP OF FREE RAM
-                TFR         X,S             ; PUT STACK THERE (AT MEMEND-200)
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
-; -----------------------------------------------------------------------------
-                if          VERBAS<20
-; -----------------------------------------------------------------------------
-RESVEC          LEAY        <LA00E,PCR      ; POINT Y TO WARM START CHECK CODE
-LA02A           LDX         #PIA1           ; POINT X TO PIA1
-                CLR         -3,X            ; CLEAR PIA0 CONTROL REGISTER A
-                CLR         -1,X            ; CLEAR PIA0 CONTROL REGISTER B
-                CLR         -4,X            ; SET PIA0 SIDE A TO INPUT
-                LDD         #$FF34
-                STA         -2,X            ; SET PIA0 SIDE B TO OUTPUT
-                STB         -3,X            ; ENABLE PIA0 PERIPHERAL REGISTERS, DISABLE
-                STB         -1,X            ; MPU INTERRUPTS, SET CA2, CA1 TO OUTPUTS
-
-
-
-                CLR         1,X             ; CLEAR CONTROL REGISTER A ON PIA1
-                CLR         3,X             ; CLEAR CONTROL REGISTER B ON PIA1
-                DECA                        ;  A REG NOW HAS $FE
-                STA         ,X              ; BITS 1-7 ARE OUTPUTS, BIT 0 IS INPUT ON PIA1
-                LDA         #$F8
-                STA         2,X             ; BITS 0-2 ARE INPUTS, BITS 3-7 ARE OUTPUTS
-                STB         1,X             ; ENABLE PERIPHERAL REGISTERS, DISABLE PIA1
-                STB         3,X             ; INTERRUPTS AND SET CA2, CB2 AS OUTPUTS
-                CLR         2,X             ; SET 6847 MODE TO ALPHA-NUMERIC
-                LDB         #$02
-                STB         ,X              ; MAKE RS232 OUTPUT MARKING
-
-
-
-                LDU         #SAMREG         ; SAM CONTROL REGISTER ADDR
-                LDB         #16             ; 16 SAM CONTROL REGISTER BITS
-LA056           STA         ,U++            ; ZERO OUT SAM CONTROL REGISTER BIT
-                DECB                        ;  DECREMENT COUNTER AND
-                BNE         LA056           ; BRANCH IF NOT DONE
-                STA         SAMREG+9        ; SET DISPLAY PAGE AT $400
-LA05E           TFR         B,DP            ; SET DIRECT PAGE TO ZERO
-                LDB         #$04            ; USE AS A MASK TO CHECK RAMSZ INPUT
-; -----------------------------------------------------------------------------
-                if          VERBAS<13
-; -----------------------------------------------------------------------------
-                STA         -2,X            ; SET RAMSZ STROBE HIGH
-                BITB        2,X             ; CHECK RAMSZ INPUT
-                BEQ         LA072           ; BRANCH IF JUMPER SET FOR 4K RAMS
-                CLR         -2,X            ; SET RAMSZ STROBE LOW
-                BITB        2,X             ; CHECK RAMSZ INPUT
-                BEQ         LA070           ; BRANCH IF JUMPER SET FOR 64K RAMS
-                LEAU        -2,U            ; ADJUST POINTER TO SET SAM FOR 16K RAMS
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
-                CLR         -2,X
-                BITB        2,X
-                BEQ         LA06E
-                STA         -5,U
-                STA         -11,U
-                BRA         LA072
-LA06E           NOP                         ;
-                NOP                         ;
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-LA070           STA         -3,U            ; PROGRAM SAM FOR 16K OR 64K RAMS
-LA072           JMP         ,Y              ; GO DO A WARM OR COLD START
-; COLD START ENTRY
-BACDST          LDX         #VIDRAM+1       ; POINT X TO CLEAR 1ST 1K OF RAM
-LA077           CLR         ,--X            ; MOVE POINTER DOWN TWO-CLEAR BYTE
-                LEAX        1,X             ; ADVANCE POINTER ONE
-                BNE         LA077           ; KEEP GOING IF NOT AT BOTTOM OF PAGE 0
-                JSR         >CLRSCRN        ; CLEAR SCREEN
-                CLR         ,X+             ; CLEAR 1ST BYTE OF BASIC PROGRAM
-                STX         TXTTAB          ; BEGINNING OF BASIC PROGRAM
-LA084           LDA         2,X             ; LOOK FOR END OF MEMORY
-                COMA                        ;  COMPLEMENT IT AND PUT IT BACK
-                STA         2,X             ; INTO SYSTEM MEMORY
-                CMPA        2,X             ; IS IT RAM?
-                BNE         LA093           ; BRANCH IF NOT (ROM, BAD RAM OR NO RAM)
-                LEAX        1,X             ; MOVE POINTER UP ONE
-                COM         1,X             ; RE-COMPLEMENT TO RESTORE BYTE
-                BRA         LA084           ; KEEP LOOKING FOR END OF RAM
-
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 RESVEC          LEAY        <LA00E,PCR      ; POINT Y TO WARM START CHECK CODE
 LA02A           LDA         #$3A
                 STA         >MMUREG+2
@@ -258,10 +82,6 @@ LA077           CLR         ,--X            ; MOVE POINTER DOWN TWO-CLEAR BYTE
                 NOP                         ;
                 NOP                         ;
                 NOP                         ;
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
 LA093           STX         TOPRAM          ; SAVE ABSOLUTE TOP OF RAM
                 STX         MEMSIZ          ; SAVE TOP OF STRING SPACE
                 STX         STRTAB          ; SAVE START OF STRING VARIABLES
@@ -284,27 +104,10 @@ LA0C0           STA         ,X+             ; FILL THE RAM VECTORS WITH RTS
                 DECB                        ;  DECREMENT COUNTER AND
                 BNE         LA0C0           ; BRANCH IF NOT DONE
                 STA         LINHDR-1        ; PUT RTS IN LINHDR-1
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
 
 
                 JSR         >LAD19          ; G0 DO A NEW
 
-; -----------------------------------------------------------------------------
-                if          VERBAS<20
-; -----------------------------------------------------------------------------
-                LDX         #$4558          ; ASCII EX (FIRST TWO LETTERS OF EXTENDED)
-LA0CE           CMPX        EXBAS           ; SEE IF EXTENDED ROM IS THERE
-                LBEQ        EXBAS+2         ; IF IT IS, BRANCH TO IT
-                ANDCC       #$AF            ; ENABLE IRQ, FIRQ
-                LDX         #LA147-1        ; POINT X TO COLOR BASIC COPYRIGHT MESSAGE
-                JSR         >LB99C          ; PRINT COLOR BASIC
-                LDX         #BAWMST         ; WARM START ADDRESS
-                STX         RSTVEC          ; SAVE IT
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
                 JMP         >$8002          ; CPYROM copy rom to ram (coco3)
                 PSHS        X,B
                 TST         HRWIDTH
@@ -314,10 +117,6 @@ LA0D6           JSR         >LA199
                 BEQ         LA0D6
                 JMP         >LA1B9
                 FCB         $72
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
 
 LA0E2           LDA         #$55            ; WARM START FLAG
                 STA         RSTFLG          ; SAVE IT
@@ -326,21 +125,7 @@ BAWMST          NOP                         ;  NOP REQD FOR WARM START
                 CLR         DEVNUM          ; SET DEVICE NUMBER TO SCREEN
                 JSR         >LAD33          ; DO PART OF A NEW
                 ANDCC       #$AF            ; ENABLE IRQ,FIRQ
-
-
-
-; -----------------------------------------------------------------------------
-                if          VERBAS<20
-; -----------------------------------------------------------------------------
-                JSR         >CLRSCRN        ; CLEAR SCREEN
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
                 JSR         >CLS            ; CLEAR SCREEN
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
 
 
 LA0F3           JMP         >LAC73          ; GO TO MAIN LOOP OF BASIC
@@ -351,35 +136,14 @@ BFRQSV          TST         PIA1+3          ; CARTRIDGE INTERRUPT?
                 RTI
 
 
-; -----------------------------------------------------------------------------
-                if          VERBAS<20
-; -----------------------------------------------------------------------------
-LA0FC           JSR         >LA7D1          ; KEEP DELAYING
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 LA0FC           JSR         >$8C28          ; ?
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
 
 
                 JSR         >LA7D1          ; KEEP DELAYING
 
 
 
-; -----------------------------------------------------------------------------
-                if          VERBAS<11
-; -----------------------------------------------------------------------------
-LA102           LDU         #LA108
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 LA102           LEAY        <LA108,PCR      ; Y = ROM-PAK START UP VECTOR
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
                 JMP         >LA02A          ; GO DO INITIALIZATION
 LA108           CLR         RSTFLG          ; CLEAR WARM START FLAG
                 JMP         >ROMPAK         ; JUMP TO EXTERNAL ROM PACK
@@ -390,17 +154,7 @@ LA10D           FCB         18              ; MID BAND PARTITION OF 1200/2400 HE
                 FCB         10              ; UPPER LIMIT OF 2400 HERTZ PERIOD
                 FDB         128             ; NUMBER OF 55S TO CASSETTE LEADER
                 FCB         11              ; CURSOR BLINK DELAY
-; -----------------------------------------------------------------------------
-                if          VERBAS<12
-; -----------------------------------------------------------------------------
-                FDB         $57             ; LINE PRINTER BAUD RATE
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
                 FDB         $58             ; CONSTANT FOR 600 BAUD VER 1.2 & UP
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
                 FDB         1               ; PRINTER CARRIAGE RETURN DELAY
                 FCB         16              ; TAB FIELD WIDTH
                 FCB         112             ; LAST TAB ZONE
@@ -433,49 +187,10 @@ LA143           FDB         LAB1A           ; POINTS TO SECONDARY FUNCTION RESER
 LA145           FDB         LAA29           ; POINTS TO SECONDARY FUNCTION JUMP TABLE
 ; COPYRIGHT MESSAGES
 LA147           FCC         "COLOR BASIC "
-; -----------------------------------------------------------------------------
-                if          VERBAS<11
-; -----------------------------------------------------------------------------
-                FCC         "1.0"
-; -----------------------------------------------------------------------------
-                else
-                if          VERBAS<12
-; -----------------------------------------------------------------------------
-                FCC         "1.1"
-; -----------------------------------------------------------------------------
-                else
-                if          VERBAS<13
-; -----------------------------------------------------------------------------
-                FCC         "1.2"
-; -----------------------------------------------------------------------------
-                else
-                if          VERBAS<20
-; -----------------------------------------------------------------------------
-                FCC         "1.3"
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
-                FCC         "1.2"           ; for some reason, coco3 has "1.2" in there ;
-; but we are still calling it VERBAS=20 for our conditional assemble
-; -----------------------------------------------------------------------------
-                endif
-                endif
-                endif
-                endif
-; -----------------------------------------------------------------------------
+                FCC         "1.2"           ; for some reason, coco3 has "1.2" in there
 LA156           FCB         CR
 LA157           FCC         "(C) 198"
-; -----------------------------------------------------------------------------
-                if          VERBAS<12
-; -----------------------------------------------------------------------------
-                FCC         "0"
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
                 FCC         "2"
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
                 FCC         " TANDY"
 LA165           FCB         $00
 LA166           FCC         "MICROSOFT"
@@ -525,234 +240,6 @@ LA1BF           PULS        B,X,PC
 
 ; THIS ROUTINE GETS A KEYSTROKE FROM THE KEYBOARD IF A KEY
 ; IS DOWN. IT RETURNS ZERO TRUE IF THERE WAS NO KEY DOWN.
-; -----------------------------------------------------------------------------
-                if          VERBAS<11
-; -----------------------------------------------------------------------------
-KEYIN1          EQU         *               ; needed symbol
-KEYIN           PSHS        B,X             ; SAVE REGISTERS
-                BSR         LA1C8           ; GET KEYSTROKE
-                TSTA                        ;  SET FLAGS
-                PULS        B,X,PC          ; RESTORE REGISTERS
-LA1C8           LEAS        -3,S            ; ALLOCATE 3 STORAGE BYTES ON STACK
-                LDX         #KEYBUF         ; KEYBOARD MEMORY BUFFER
-                CLR         0,S             ; RESET COLUMN COUNTER
-                LDB         #$FE            ; COLUMN STROBE DATA, CHECK BIT 0 FIRST
-; A COLUMN IS BEING CHECKED IF THE CORRESPONDING BUT IN THE COLUMN
-; STROBE REGISTER ($FF02) HAS A ZERO IN IT.
-                STB         PIA0+2          ; STORE IN COLUMN STROBE REGISTER
-LA1D4           BSR         LA238           ; GET KEY DATA
-                STA         1,S             ; TEMP STORE KEY DATA
-                EORA        ,X              ; COMPARE WITH KEY MEMORY DATA
-                ANDA        ,X              ; ACCA=0 IF THIS KEY WAS DOWN LAST TIME, TOO
-                LDB         1,S             ; GET NEW KEY DATA
-                STB         ,X+             ; STORE IT IN KEY MEMORY
-                TSTA                        ;  WAS NEW KEY DOWN?
-                BNE         LA1ED           ; YES
-                INC         0,S             ; NO, INCREMENT COLUMN COUNTER
-                COMB                        ;  SET CARRY FLAG
-                ROL         PIA0+2          ; ROTATE COLUMN STROBE DATA LEFT ONE BIT
-                BCS         LA1D4           ; ALL COLUMNS CHECKED WHEN ZERO IN THE COLUMN STROBE DATA IS ROTATED INTO THE CARRY FLAG
-                PULS        B,X,PC          ; RESTORE REGISTERS AND RETURN
-LA1ED           LDB         PIA0+2          ; GET COLUMN STROBE DATA
-
-; THIS ROUTINE CONVERTS THE KEY DEPRESSION INTO A NUMBER
-; FROM 0-50 IN ACCB CORRESPONDING TO THE KEY THAT WAS DOWN
-                STB         2,S             ; TEMP STORE IT
-                LDB         #$F8            ; TO MAKE SURE ACCB=0 AFTER FIRST ADDB #8
-
-
-LA1F4           ADDB        #8              ; ADD 8 FOR EACH ROW OF KEYBOARD
-                LSRA                        ;  ACCA CONTAINS THE ROW NUMBER OF THIS KEY
-                BCC         LA1F4           ; GO ON UNTIL A ZERO APPEARS IN THE CARRY
-                ADDB        0,S             ; ADD IN THE COLUMN NUMBER
-
-; NOW CONVERT THE VALUE IN ACCB INTO ASCII
-                BEQ         LA245           ; THE 'AT SIGN' KEY WAS DOWN
-                CMPB        #26             ; WAS IT A LETTER?
-                BHI         LA247           ; NO
-                ORB         #$40            ; YES, CONVERT TO UPPER CASE ASCII
-                BSR         LA22D           ; CHECK FOR THE SHIFT KEY
-                BEQ         LA20E           ; IT WAS DOWN
-                LDA         CASFLG          ; NOT DOWN, CHECK THE UPPER/LOWER CASE FLAG
-                BNE         LA20E           ; UPPER CASE
-                ORB         #$20            ; CONVERT TO LOWER CASE
-LA20E           STB         0,S             ; TEMP STORE ASCII VALUE
-                LDX         DEBVAL          ; GET KEYBOARD DEBOUNCE
-                JSR         >LA7D3          ; GO WAIT A WHILE
-                LDB         2,S             ; GET COLUMN STROBE DATA
-                STB         PIA0+2          ; STORE IT
-                BSR         LA238           ; READ A KEY
-                CMPA        1,S             ; IS IT THE SAME KEY AS BEFORE DEBOUNCE?
-                PULS        A               ; PUT THE ASCII VALUE OF KEY BACK IN ACCA
-                BNE         LA22A           ; NOT THE SAME KEY
-                CMPA        #$12            ; IS SHIFT ZERO DOWN?
-                BNE         LA22B           ; NO
-                COM         CASFLG          ; YES, TOGGLE UPPER/LOWER CASE FLAG
-LA22A           CLRA                        ;  SET ZERO FLAG TO INDICATE NO NEW KEY DOWN
-LA22B           PULS        X,PC            ; REMOVE TEMP STORAGE SLOTS FROM STACK AND RETURN
-
-; TEST FOR THE SHIFT KEY
-LA22D           LDA         #$7F            ; COLUMN STROBE
-                STA         PIA0+2          ; STORE TO PIA
-                LDA         PIA0            ; READ KEY DATA
-                ANDA        #$40            ; CHECK FOR SHIFT KEY, SET ZERO FLAG IF DOWN
-                RTS                         ; RETURN
-
-; READ THE KEYBOARD
-LA238           LDA         PIA0            ; READ PIA0, PORT A TO SEE IF KEY IS DOWN
-; A BIT WILL BE ZERO IF ONE IS
-                ORA         #$80            ; MASK OFF THE JOYSTICK COMPARATOR INPUT
-                TST         PIA0+2          ; ARE WE STROBING COLUMN 7
-                BMI         LA244           ; NO
-                ORA         #$C0            ; YES, FORCE ROW 6 TO BE HIGH -THIS WILL CAUSE THE SHIFT KEY TO BE IGNORED
-LA244           RTS                         ; RETURN
-
-LA245           LDB         #51             ; CODE FOR 'AT SIGN'
-LA247           LDX         #CONTAB-$36     ; POINT X TO CONTROL CODE TABLE
-                CMPB        #33             ; KEY NUMBER <33?
-                BLO         LA264           ; YES (ARROW KEYS, SPACE BAR, ZERO)
-                LDX         #CONTAB-$54     ; POINT X TO MIDDLE OF CONTROL TABLE
-                CMPB        #48             ; KEY NUMBER > 48?
-                BHS         LA264           ; YES (ENTER, CLEAR, BREAK, AT SIGN)
-                BSR         LA22D           ; CHECK SHIFT KEY (ACCA WILL CONTAIN STATUS)
-                CMPB        #43             ; IS KEY A NUMBER, COLON OR SEMICOLON?
-                BLS         LA25D           ; YES
-                EORA        #$40            ; TOGGLE BIT 6 OF ACCA WHICH CONTAINS THE SHIFT DATA ONLY FOR SLASH, HYPHEN, PERIOD, COMMA
-LA25D           TSTA                        ;  SHIFT KEY DOWN?
-                BEQ         LA20E           ; YES
-                ADDB        #$10            ; NO, ADD IN ASCII OFFSET CORRECTION
-                BRA         LA20E           ; GO CHECK FOR DEBOUNCE
-LA264           ASLB                        ;  MULT ACCB BY 2 - THERE ARE 2 ENTRIES IN CONTROL TABLE FOR EACH KEY - ONE SHIFTED, ONE NOT
-                BSR         LA22D           ; CHECK SHIFT KEY
-                BNE         LA26A           ; NOT DOWN
-                INCB                        ;  ADD ONE TO GET THE SHIFTED VALUE
-LA26A           LDB         B,X             ; GET ASCII CODE FROM CONTROL TABLE
-                BRA         LA20E           ; GO CHECK DEBOUNCE
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
-; -----------------------------------------------------------------------------
-                if          VERBAS<12
-; -----------------------------------------------------------------------------
-KEYIN1          EQU         *               ; needed symbol
-KEYIN           PSHS        B,X,U           ; SAVE REGISTERS
-                BSR         LA1C8           ; GET KEYSTROKE
-                TSTA                        ;  SET FLAGS
-                PULS        B,X,U,PC        ; RESTORE REGISTERS
-LA1C8           LDU         #PIA0           ; POINT TO PIA0
-                LDX         #KEYBUF         ; KEYBOARD MEMORY BUFFER
-                CLRA                        ;  CLEAR CARRY FLAG, SET COLUMN COUNTER
-                DECA                        ;  (ACCA) TO $FF
-                PSHS        X,A             ; SAVE COLUMN CTR & 2 BLANK (X REG) ON STACK
-                STA         2,U             ; INITIALIZE COLUMN STROBE TO $FF
-                FCB         SKP1            ; SKIP ONE BYTE
-LA1D5           COMB                        ;  SET CARRY FLAG
-                ROL         2,U             ; ROTATE COLUMN STROBE DATA LEFT 1 BIT,
-                BCC         LA1BF           ; CARRY INTO BIT 0-RETURN IF 8 BITS DONE
-                INC         0,S             ; INCREMENT COLUMN POINTER
-                BSR         LA239           ; READ KEYBOARD DATA ROW
-                STA         1,S             ; TEMP STORE KEY DATA
-                EORA        ,X              ; SET ANY BIT WHERE A KEY HAS MOVED
-                ANDA        ,X              ; ACCA=0 IF NO NEW KEY DOWN, <70 IF KEY WAS RELEASED
-                LDB         1,S             ; GET NEW KEY DATA
-                STB         ,X+             ; STORE IT IN KEY MEMORY
-                TSTA                        ;  WAS A NEW KEY DOWN?
-                BEQ         LA1D5           ; NO-CHECK ANOTHER COLUMN
-                LDB         2,U             ; GET COLUMN STROBE DATA AND
-                STB         2,S             ; TEMP STORE IT ON THE STACK
-
-; THIS ROUTINE CONVERTS THE KEY DEPRESSION INTO A NUMBER
-; FROM 0-50 IN ACCB CORRESPONDING TO THE KEY THAT WAS DOWN
-                LDB         #$F8            ; TO MAKE SURE ACCB=0 AFTER FIRST ADDB #8
-LA1F1           ADDB        #8              ; ADD 8 FOR EACH ROW OF KEYBOARD
-                LSRA                        ;  ACCA CONTAINS THE ROW NUMBER OF THIS KEY
-; ADD 8 FOR EACH ROW
-                BCC         LA1F1           ; GO ON UNTIL A ZERO APPEARS IN THE CARRY
-                ADDB        0,S             ; ADD IN THE COLUMN NUMBER
-
-; NOW CONVERT THE VALUE IN ACCB INTO ASCII
-                BEQ         LA244           ; THE 'AT SIGN' KEY WAS DOWN
-                CMPB        #26             ; WAS IT A LETTER?
-                BHI         LA246           ; NO
-                ORB         #$40            ; YES, CONVERT TO UPPER CASE ASCII
-                BSR         LA22E           ; CHECK FOR THE SHIFT KEY
-                BEQ         LA20B           ; IT WAS DOWN
-                LDA         CASFLG          ; NOT DOWN, CHECK THE UPPER/LOWER CASE FLAG
-                BNE         LA20B           ; UPPER CASE
-                ORB         #$20            ; CONVERT TO LOWER CASE
-LA20B           STB         0,S             ; TEMP STORE ASCII VALUE
-                LDX         DEBVAL          ; GET KEYBOARD DEBOUNCE
-                JSR         >LA7D3          ; GO WAIT A WHILE
-                LDB         #$FF            ; SET COLUMN STROBE TO ALL ONES (NO
-                BSR         LA237           ; STROBE) AND READ KEYBOARD
-                INCA                        ;  INCR ROW DATA, ACCA NOW 0 IF NO JOYSTK
-                BNE         LA220           ; BUTTON DOWN. BRANCH IF JOYSTK BUTTON DN
-LA21A           LDB         2,S             ; GET COLUMN STROBE DATA
-                BSR         LA237           ; READ A KEY
-                CMPA        1,S             ; IS IT THE SAME KEY AS BEFORE DEBOUNCE?
-LA220           PULS        A               ; PUT THE ASCII VALUE OF KEY BACK IN ACCA
-                BNE         LA22B           ; NOT THE SAME KEY
-                CMPA        #$12            ; IS SHIFT ZERO DOWN?
-                BNE         LA22C           ; NO
-                COM         CASFLG          ; YES, TOGGLE UPPER/LOWER CASE FLAG
-LA22B           CLRA                        ;  SET ZERO FLAG TO INDICATE NO NEW KEY DOWN
-LA22C           PULS        X,PC            ; REMOVE TEMP STORAGE SLOTS FROM STACK AND RETURN
-; TEST FOR THE SHIFT KEY
-LA22E           LDA         #$7F            ; COLUMN STROBE
-                STA         2,U             ; STORE TO PIA
-                LDA         ,U              ; READ KEY DATA
-                ANDA        #$40            ; CHECK FOR SHIFT KEY, SET ZERO FLAG IF DOWN
-                RTS                         ; RETURN
-; READ THE KEYBOARD
-LA237           STB         2,U             ; SAVE NEW COLUMN STROBE VALUE
-LA239           LDA         ,U              ; READ PIA0, PORT A TO SEE IF KEY IS DOWN
-; A BIT WILL BE ZERO IF ONE IS
-                ORA         #$80            ; MASK OFF THE JOYSTICK COMPARATOR INPUT
-                TST         2,U             ; ARE WE STROBING COLUMN 7
-                BMI         LA243           ; NO
-                ORA         #$C0            ; YES, FORCE ROW 6 TO BE HIGH -THIS WILL
-; CAUSE THE SHIFT KEY TO BE IGNORED
-LA243           RTS                         ; RETURN
-LA244           LDB         #$33            ; CODE FOR 'AT SIGN'
-LA246           LDX         #CONTAB-$36     ; POINT X TO CONTROL CODE TABLE
-                CMPB        #33             ; KEY NUMBER <33?
-                BLO         LA263           ; YES (ARROW KEYS, SPACE BAR, ZERO)
-                LDX         #CONTAB-$54     ; POINT X TO MIDDLE OF CONTROL TABLE
-                CMPB        #48             ; KEY NUMBER > 48?
-                BHS         LA263           ; YES (ENTER, CLEAR, BREAK, AT SIGN)
-                BSR         LA22E           ; CHECK SHIFT KEY (ACCA WILL CONTAIN STATUS)
-                CMPB        #43             ; IS KEY A NUMBER, COLON OR SEMICOLON?
-                BLS         LA25C           ; YES
-                EORA        #$40            ; TOGGLE BIT 6 OF ACCA WHICH CONTAINS THE SHIFT DATA ONLY FOR SLASH, HYPHEN, PERIOD, COMMA
-LA25C           TSTA                        ;  SHIFT KEY DOWN?
-                BEQ         LA20B           ; YES
-                ADDB        #$10            ; NO, ADD IN ASCII OFFSET CORRECTION
-                BRA         LA20B           ; GO CHECK FOR DEBOUNCE
-LA263           ASLB                        ;  MULT ACCB BY 2 - THERE ARE 2 ENTRIES IN CONTROL TABLE FOR EACH KEY - ONE SHIFTED, ONE NOT
-                BSR         LA22E           ; CHECK SHIFT KEY
-                BNE         LA269           ; NOT DOWN
-                INCB                        ;  ADD ONE TO GET THE SHIFTED VALUE
-LA269           LDB         B,X             ; GET ASCII CODE FROM CONTROL TABLE
-                BRA         LA20B           ; GO CHECK DEBOUNCE
-                FCB         0               ; WASTED SPACE IN VERSION 1.1
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
-
-
-
-
-; -----------------------------------------------------------------------------
-                if          VERBAS<20
-; -----------------------------------------------------------------------------
-KEYIN1          CLR         PIA0+2          ; CLEAR COLUMN STROBE
-                LDA         PIA0            ; READ KEY ROWS
-                COMA                        ;  COMPLEMENT ROW DATA
-                ASLA                        ;  SHIFT OFF JOYSTICK DATA
-                BEQ         LA244           ; RETURN IF NO KEYS OR FIRE BUTTONS DOWN
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 ; THIS ROUTINE GETS A KEYSTROKE FROM THE KEYBOARD IF A KEY
 ; IS DOWN. IT RETURNS ZERO TRUE IF THERE WAS NO KEY DOWN.
 
@@ -764,11 +251,6 @@ KEYIN1          JMP         >KEYIN
                 RTS
                 RTS
                 RTS
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
-
 
 KEYIN           PSHS        U,X,B           ; SAVE REGISTERS
                 LDU         #PIA0           ; POINT U TO PIA0
@@ -864,12 +346,6 @@ LA264           ASLB                        ;  MULT ACCB BY 2 - THERE ARE 2 ENTR
                 INCB                        ;  ADD ONE TO GET THE SHIFTED VALUE
 LA26A           LDB         B,X             ; GET ASCII CODE FROM CONTROL TABLE
                 BRA         LA20C           ; GO CHECK DEBOUNCE
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
 
 ; CONTROL TABLE UNSHIFTED, SHIFTED VALUES
 CONTAB          FCB         $5E,$5F         ; UP ARROW
@@ -918,79 +394,6 @@ LA2AA           STB         BLKTYP          ; BLOCK NUMBER
 ; SOFTWARE UART TO L1NE PRINTER
 LA2BF           PSHS        X,B,A,CC        ; SAVE REGISTERS AND INTERRUPT STATUS
                 ORCC        #$50            ; DISABLE IRQ,FIRQ
-; -----------------------------------------------------------------------------
-                if          VERBAS<11
-; -----------------------------------------------------------------------------
-                BSR         LA2FB           ; SET OUTPUT TO MARKING
-                ASLA                        ;  SEND 7 BITS AND ONE STOP BIT (BIT 7=0)
-                LDB         #$08            ; SEND 8 BITS
-LA2C8           PSHS        B               ; SAVE BIT COUNTER
-                CLRB                        ;  CLEAR DA IMAGE 1 ZEROS TO DA WHEN SENDING RS-232 DATA
-                LSRA                        ;  ROTATE NEXT BIT OF OUTPUT CHARACTER TO CARRY FLAG
-                ROLB                        ;  ROTATE CARRY FLAG INTO BIT ONE
-                ROLB                        ;  AND ALL OTHER BITS SET TO ZERO
-                STB         DA              ; STORE IT TO DA CONVERTER
-                BSR         LA302           ; GO WAIT A WHILE
-                NOP                         ;
-                NOP                         ;
-                NOP                         ;
-                BSR         LA302           ; GO WAIT SOME MORE
-                PULS        B               ; GET BIT COUNTER
-                DECB                        ;  SENT ALL 8 BITS?
-                BNE         LA2C8           ; NO
-                BSR         LA2FB           ; SEND STOP BIT (ACCB=0)
-                PULS        CC,A            ; RESTORE OUTPUT CHARACTER & INTERRUPT STATS
-                CMPA        #CR             ; IS IT A CARRIAGE RETURN?
-                BEQ         LA2ED           ; YES
-                INC         LPTPOS          ; INCREMENT CHARACTER COUNTER
-                LDB         LPTPOS          ; CHECK FOR END OF LINE PRINTER LINE
-                CMPB        LPTWID          ; AT END OF LINE PRINTER LINE?
-                BLO         $A2F3           ; NO
-LA2ED           CLR         LPTPOS          ; RESET CHARACTER COUNTER
-                BSR         LA305
-                BSR         LA305           ; DELAY FOR CARRIAGE RETURN
-LA2F3           LDB         PIA1+2          ; WAIT FOR HANDSHAKE
-                LSRB                        ;  CHECK FOR RS232 STATUS
-                BCS         LA2F3           ; NOT YET READY
-                PULS        B,X,PC          ; RESTORE REGISTERS
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
-; -----------------------------------------------------------------------------
-                if          VERBAS<12
-; -----------------------------------------------------------------------------
-                BSR         LA2FB           ; SET OUTPUT TO MARKING
-                CLRB                        ;
-                BSR         LA2FD           ; TRANSMIT ONE START BIT
-                LDB         #$08            ; SEND 8 BITS
-LA2CA           PSHS        B               ; SAVE BIT COUNTER
-                CLRB                        ;  CLEAR DA IMAGE 1 ZEROS TO DA WHEN SENDING RS-232 DATA
-                LSRA                        ;  ROTATE NEXT BIT OF OUTPUT CHARACTER TO CARRY FLAG
-                ROLB                        ;  ROTATE CARRY FLAG INTO BIT ONE
-                ASLB                        ;  AND ALL OTHER BITS SET TO ZERO
-                BSR         LA2FD           ; TRANSMIT DATA BYTE
-                PULS        B               ; GET BIT COUNTER
-                DECB                        ;  SENT ALL 8 BITS?
-                BNE         LA2CA           ; NO
-                BSR         LA2FB           ; SEND STOP BIT (ACCB=0)
-                PULS        CC,A            ; RESTORE OUTPUT CHARACTER & INTERRUPT STATS
-                CMPA        #CR             ; IS IT A CARRIAGE RETURN?
-                BEQ         LA2E7           ; YES
-                INC         LPTPOS          ; INCREMENT CHARACTER COUNTER
-                LDB         LPTPOS          ; CHECK FOR END OF LINE PRINTER LINE
-                CMPB        LPTWID          ; AT END OF LINE PRINTER LINE?
-                BLO         $A2ED           ; NO
-LA2E7           CLR         LPTPOS          ; RESET CHARACTER COUNTER
-                BSR         LA305
-                BSR         LA305           ; DELAY FOR CARRIAGE RETURN
-LA2ED           LDB         PIA1+2          ; WAIT FOR HANDSHAKE
-                LSRB                        ;  CHECK FOR RS232 STATUS
-                BCS         LA2ED           ; NOT YET READY
-LA2F3           PULS        B,X,PC          ; RESTORE REGISTERS
-                FDB         0,0,0           ; WASTED SPACE IN VERSION 1.1
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 LA2C3           LDB         PIA1+2          ; GET RS 232 STATUS
                 LSRB                        ;  SHIFT RS 232 STATUS BIT INTO CARRY
                 BCS         LA2C3           ; LOOP UNTIL READY
@@ -1022,13 +425,6 @@ LA2F3           LDB         PIA1+2          ; WAIT FOR HANDSHAKE
                 LSRB                        ;  CHECK FOR R5232 STATUS?
                 BCS         LA2F3           ; NOT YET READY
                 PULS        B,X,PC          ; RESTORE REGISTERS
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
 LA2FB           LDB         #2              ; SET RS232 OUTPUT HIGH (MARKING)
 LA2FD           STB         DA              ; STORE TO THE D/A CONVERTER REGISTER
                 BSR         LA302           ; GO WAIT A WHILE
@@ -1202,17 +598,7 @@ LA42D           JSR         >RVEC8          ; HOOK INTO RAM
                 CMPA        #2              ; IS IT OUTPUT MODE
                 BNE         LA449           ; NO
                 LDA         CINCTR          ; GET CHARACTER BUFFER CTR
-; -----------------------------------------------------------------------------
-                if          VERBAS<11
-; -----------------------------------------------------------------------------
-                BEQ         LA449
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
                 BEQ         LA444           ; WRITE END OF PROG BLOCK IF BUFFER EMPTY
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
                 JSR         >LA2A8          ; WRITE A BLOCK TO TAPE
 LA444           LDB         #$FF            ; END OF FILE TYPE BLOCK NUMBER
                 JSR         >LA2AA          ; WRITE END OF FILE TYPE BLOCK
@@ -1566,18 +952,8 @@ LA6DF           BSR         LA701           ; READ ONE BLOCK FROM TAPE
 LA6E5           BNE         LA6ED           ; GOT AN ERROR ON READING IN BLOCK
                 LDA         BLKTYP          ; GET BLOCK NUMBER
                 NEGA                        ;  CHECK FOR LAST BLOCK
-; -----------------------------------------------------------------------------
-                if          VERBAS<11
-; -----------------------------------------------------------------------------
-                BMI         LA6F3           ; RETURN IF NOT AN END OF PROGRAM BLOCK
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 ; make cursor in upper left blink
                 BMI         LA700           ; RETURN IF NOT AN END OF PROGRAM BLOCK
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
                 DECA                        ;  IF BLOCK NUMBER WAS $FF, ACCA IS NOW ZERO - THIS WILL
 ; CAUSE CLOAD TO IGNORE ERRORS IN THE
 ; BLOCKS WHICH IT IS SKIPPING WHILE
@@ -3154,17 +2530,7 @@ LB22F           JSR         >LB3A2          ; SET CARRY IF NOT ALPHA
                 CMPA        #$AC            ; MINUS TOKEN
                 BEQ         LB27C           ; YES - GO PROCESS THE MINUS OPERATOR
                 CMPA        #$AB            ; PLUS TOKEN
-; -----------------------------------------------------------------------------
-                if          VERBAS<12
-; -----------------------------------------------------------------------------
-                BEQ         LB228           ; YES - GET ANOTHER CHARACTER
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
                 BEQ         LB223           ; YES - GET ANOTHER CHARACTER
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
                 CMPA        #'"'            ; STRING DELIMITER?
                 BNE         LB24E           ; NO
 LB244           LDX         CHARAD          ; CURRENT BASIC POINTER TO X
@@ -3411,44 +2777,6 @@ LB3E4           JSR         GETNCH          ; GET AN INPUT CHARACTER FROM BASIC
 LB3E6           JSR         >LB141          ; GO EVALUATE NUMERIC EXPRESSION
 LB3E9           LDA         FP0SGN          ; GET FPA0 MANTISSA SIGN
                 BMI         LB44A           ; FC ERROR IF NEGATIVE NUMBER
-; -----------------------------------------------------------------------------
-                if          VERBAS<12
-; -----------------------------------------------------------------------------
-INTCNV          LDA         FP0EXP          ; GET FPA0 EXPONENT
-                CMPA        #$90            ; COMPARE TO 32768 - LARGEST INTEGER
-                BCS         LB3FB           ; EXPONENT AND BRANCH IF FPA0 < 32768
-                LDX         #LB3DF          ; POINT X TO FP VALUE OF -32768
-                JSR         >LBC96          ; COMPARE -32768 TO FPA0
-                BNE         LB44A           ; 'FC' ERROR IF NOT =
-LB3FB           JSR         >LBCC8          ; CONVERT FPA0 TO A TWO BYTE INTEGER
-                LDD         FPA0+2          ; GET THE INTEGER
-                RTS                         ; RETURN
-
-; EVALUATE AN ARRAY VARIABLE
-LEVARYV         LDB         DIMFLG          ; GET ARRAY FLAG
-                LDA         VALTYP          ; GET VARIABLE TYPE
-                PSHS        B,A             ; SAVE THEM ON THE STACK
-                CLRB                        ;  RESET DIMENSION COUNTER
-LB408           LDX         VARNAM          ; GET VARIABLE NAME
-                PSHS        B,X             ; SAVE VARIABLE NAME AND DIMENSION COUNTER
-                BSR         LB3E4           ; EVALUATE EXPRESSION (DIMENSION LENGTH)
-                PULS        B,X,Y           ; PULL OFF VARIABLE NAME, DIMENSION COUNTER
-; ARRAY FLAG
-                STX         VARNAM          ; SAVE VARIABLE NAME AND VARIABLE TYPE
-                LDU         FPA0+2          ; GET DIMENSION LENGTH
-                PSHS        Y,U             ; SAVE DIMENSION LENGTH, ARRAY FLAG,VARIABLE TYPE
-                INCB                        ;  INCREASE DIMENSION COUNTER
-                JSR         GETCCH          ; GET CURRENT INPUT CHARACTER
-                CMPA        #','            ; CHECK FOR ANOTHER DIMENSION
-                BEQ         LB408           ; BRANCH IF MORE
-                STB         TMPLOC          ; SAVE DIMENSION COUNTER
-                JSR         >LB267          ; SYNTAX CHECK FOR A ")"
-                PULS        A,B             ; RESTORE VARIABLE TYPE AND ARRAY
-                STA         VALTYP          ; FLAG - LEAVE DIMENSION LENGTH ON STACK
-                STB         DIMFLG
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 ; CONVERT FPA0 TO A SIGNED TWO BYTE INTEGER; RETURN VALUE IN ACCD
 INTCNV          JSR         >LB143          ; TM ERROR IF STRING VARIABLE
                 LDA         FP0EXP          ; GET FPA0 EXPONENT
@@ -3481,9 +2809,6 @@ LB40A           LDX         VARNAM          ; GET VARIABLE NAME
                 JSR         >LB267          ; SYNTAX CHECK FOR A )
                 PULS        A,B             ; RESTORE VARIABLE TYPE AND ARRAY
                 STD         DIMFLG          ; FLAG - LEAVE DIMENSION LENGTH ON STACK
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
                 LDX         ARYTAB          ; GET START OF ARRAYS
 LB42A           CMPX        ARYEND          ; COMPARE TO END OF ARRAYS
                 BEQ         LB44F           ; BRANCH IF NO MATCH FOUND
@@ -4312,17 +3637,7 @@ LB9CD           TFR         A,B             ; PUT EXPONENT OF FPA1 INTO ACCB
                 BEQ         LBA3E           ; RETURN IF EXPONENT = 0 (ADDING 0 TO FPA0)
                 SUBB        FP0EXP          ; SUBTRACT EXPONENT OF FPA0 FROM EXPONENT OF FPA1
                 BEQ         LBA3F           ; BRANCH IF EXPONENTS ARE EQUAL
-; -----------------------------------------------------------------------------
-                if          VERBAS<12
-; -----------------------------------------------------------------------------
-                BMI         LB9E2           ; BRANCH IF EXPONENT FPA0 > FPA1
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
                 BCS         LB9E2           ; BRANCH IF EXPONENT FPA0 > FPA1
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
                 STA         FP0EXP          ; REPLACE FPA0 EXPONENT WITH FPA1 EXPONENT
                 LDA         FP1SGN          ; REPLACE FPA0 MANTISSA SIGN
                 STA         FP0SGN          ; WITH FPA1 MANTISSA SIGN
@@ -5234,19 +4549,6 @@ LBFE6           FCB         $a1             ; '! ^ $80
 ; INTERRUPT VECTORS
 LBFF0           FDB         LA681           ; RESERVED
 
-; -----------------------------------------------------------------------------
-                if          VERBAS<20
-; -----------------------------------------------------------------------------
-LBFF2           FDB         SW3VEC          ; SWI3
-LBFF4           FDB         SW2VEC          ; SWI2
-LBFF6           FDB         FRQVEC          ; FIRQ
-LBFF8           FDB         IRQVEC          ; IRQ
-LBFFA           FDB         SWIVEC          ; SWI
-LBFFC           FDB         NMIVEC          ; NMI
-LBFFE           FDB         RESVEC          ; RESET
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
                 FDB         $FEEE           ; INT.SWI3
                 FDB         $FEF1           ; INT.SWI2
                 FDB         $FEF4           ; INT.FIRQ
@@ -5254,8 +4556,5 @@ LBFFE           FDB         RESVEC          ; RESET
                 FDB         $FEFA           ; INT.SWI
                 FDB         $FEFD           ; INT.NMI
                 FDB         $8C1B           ; DLDBUG
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
 
                 END

@@ -2,16 +2,6 @@
 ; Copied from the PDF version of Extended Color BASIC Unravelled.
 ; Fixed up to assemble in Mamou
 
-; Revision History
-; 04/19/2013 added conditional assembly of any version:
-; VEREXTBAS=10 ; for Extended Color Basic 1.0
-; VEREXTBAS=11 ; for Extended Color Basic 1.1
-; VEREXTBAS=20 ; for Extended Color Basic 2.0 (default)
-;
-; 04/05/2009 r23 Extended Color BASIC 1.1 (Match ROM)
-
-; $Id: $
-
                 ORG         $8000
 MAGIC           FCC         "EX"
 
@@ -87,17 +77,7 @@ L80B8           LDX         #XBWMST         ; GET EXBAS WARM START (RESET) VECTO
                 STX         RSTVEC          ; SAVE IT
                 JMP         >LA0E2          ; SET WARM START FLAG, ENTER BASIC
 ; EXBAS WARM START ENTRY POINT
-; -----------------------------------------------------------------------------
-                if          VEREXTBAS<20
-; -----------------------------------------------------------------------------
-XBWMST          NOP                         ;  WARM START ENABLE
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 XBWMST          FCB         $ff
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
 
                 CLR         PLYTMR
                 CLR         PLYTMR+1        ; CLEAR PLAY TIMER
@@ -108,19 +88,6 @@ XBWMST          FCB         $ff
 
 
 
-; -----------------------------------------------------------------------------
-                if          VEREXTBAS<11
-; -----------------------------------------------------------------------------
-; THIS CODE IS NOT USED BY ANY OF THE BASICS
-L80D0           LDA         PIA1+2          ; READ PIA PORT B
-                BITA        #2              ; CHECK MEM SIZE JUMPER
-                BNE         L80DA           ; BRANCH IF HIGH
-                STA         SAMREG+29       ; SET SAM CNTL REG MEM SIZE TO 64K
-L80DA           JMP         ,X              ; JUMP TO ADDRESS IN X REG
-                FCB         $00,$00         ; DEAD SPACE
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 ; THIS CODE IS A PATCH TO FIX THE PCLEAR BUG
 L80D0           LDA         CURLIN          ; GET THE CURRENT LINE NUMBER
                 INCA                        ;  TEST FOR DIRECT MODE
@@ -130,9 +97,6 @@ L80D0           LDA         CURLIN          ; GET THE CURRENT LINE NUMBER
                 ADDD        CHARAD          ; ADD THE CURRENT BASIC INPUT POINTER
                 STD         CHARAD          ; SAVE NEW BASIC INPUT POINTER
 L80DD           RTS
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
 
 
 
@@ -143,51 +107,9 @@ L80E3           FCB         14              ; 14 EXBAS SECONDARY COMMANDS
 L80E4           FDB         L821E           ; EXBAS SECONDARY RESERVED WORD TABLE
 L80E6           FDB         L8168           ; EXBAS SECONDARY RESERVED WORD HANDLER
 L80E8           FCC         "EXTENDED COLOR BASIC "
-
-
-
-; -----------------------------------------------------------------------------
-                if          VEREXTBAS<11
-; -----------------------------------------------------------------------------
-                FCC         "1.0"           ; MINOR VERSION NUMBER
-; -----------------------------------------------------------------------------
-                else
-                if          VEREXTBAS<20
-; -----------------------------------------------------------------------------
-                FCC         "1.1"           ; MINOR VERSION NUMBER
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
                 FCC         "2.0"           ; MINOR VERSION NUMBER
-; -----------------------------------------------------------------------------
-                endif
-                endif
-; -----------------------------------------------------------------------------
-
-
-
 L8100           FCB         CR
-
-; -----------------------------------------------------------------------------
-                if          VEREXTBAS<11
-; -----------------------------------------------------------------------------
-L8101           FCC         "COPYRIGHT (C) 1981 BY TANDY" ; COPYRIGHT YEAR
-; -----------------------------------------------------------------------------
-                else
-                if          VEREXTBAS<20
-; -----------------------------------------------------------------------------
-L8101           FCC         "COPYRIGHT (C) 1982 BY TANDY" ; COPYRIGHT YEAR
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 L8101           FCC         "COPR. 1982, 1986 BY TANDY  " ; COPYRIGHT YEAR
-; -----------------------------------------------------------------------------
-                endif
-                endif
-; -----------------------------------------------------------------------------
-
-
-
 L811C           FCB         CR
 L811D           FCC         "UNDER LICENSE FROM MICROSOFT"
 L8139           FCB         CR,CR,0
@@ -1508,79 +1430,6 @@ DLOAD           JSR         >LA429          ; CLOSE FILES
 
 
 
-; -----------------------------------------------------------------------------
-                if          VEREXTBAS<20
-; -----------------------------------------------------------------------------
-
-
-
-; -----------------------------------------------------------------------------
-                if          VEREXTBAS<11
-; -----------------------------------------------------------------------------
-; the DLOAD bug. the code in version 1.0 did not allow for the fact
-; that the current basic input character was not in ACCA following the
-; CLOSEing of cassette files (JSR LA429).
-
-DLDBUG          CLR         ,-S             ; SAVE DEFAULT TOKEN (NON DLOADM) ON STACK
-                CMPA        #'M'            ; IS IT DLOADM?
-                BNE         L8C25           ; NO
-                STA         ,S              ; SAVE THE M ON THE STACK
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
-; patch to fix the DLOAD bug.
-
-DLDBUG          JSR         GETCCH          ; GET THE CURRENT INPUT CHARACTER
-                SUBA        #'M'            ; CHECK FOR DLOADM
-                PSHS        A               ; SAVE DLOADM (=0), OLOAD (<>0) FLAG
-                BNE         L8C25           ; BRANCH IF OLOAD
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
-                JSR         GETNCH          ; GET AN INPUT CHAR FROM BASIC
-L8C25           JSR         >LA578          ; GET THE NAME OF FILE FROM BASIC
-                JSR         GETCCH          ; GET CURRENT INPUT CHAR FROM BASIC
-                BEQ         L8C44           ; BRANCH IF END OF LINE
-                JSR         SYNCOMMA        ; SYNTAX CHECK FOR COMMA
-                CMPA        #','            ; CHECK FOR TWO CONSECUTIVE COMMAS
-                BEQ         L8C44           ; BRANCH IF,, - IF THIS CASE IS SELECTED
-; THE BAUD DELAY MUST HAVE BEEN PREVIOUSLY STORED IN DIBAUD
-                JSR         EVALEXPB        ; EVAL EXPR, RETURN VALUE IN ACCB
-L8C36           LDA         #44*4           ; DELAY VALUE FOR 300 BAUD
-                TSTB                        ;  WAS ARGUMENT = 0?
-                BEQ         L8C42           ; YES - 300 BAUD
-                LDA         #44             ; DELAY VALUE FOR 1200 BAUD
-                DECB                        ;  CHECK FOR ARGUMENT OF 1
-                LBNE        LB44A           ; FC ERROR IF NOT ZERO OR ONE OR COMMA
-L8C42           STA         DLBAUD          ; SAVE DELAY VALUE
-L8C44           JSR         >L8CD0          ; TRANSMIT FILE NAME AND READ IN FILE STATUS
-                PSHS        A               ; SAVE ACCA
-                LDA         #-3             ; DLOAD DEVICE NUMBER TO -3
-                STA         DEVNUM          ; SET DEVICE NUMBER TO DLOAD
-                PULS        A               ; RESTORE ACCA
-                TST         ,S+             ; DLOAD OR DLOADM?
-
-
-; -----------------------------------------------------------------------------
-                if          VEREXTBAS<11
-; -----------------------------------------------------------------------------
-                BNE         L8C85           ; DLOADM
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
-; BNE became BEQ as necessitated by the previous fix to DLOAD
-                BEQ         L8C85           ; DLOADM
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
-; READ IN A DLOAD FILE
-                JSR         >LA5C7          ; CHECK FOR END OF LINE - SYNTAX ERROR IF NOT
-
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 ; Version 2.0 (see coco3.asm)
 DLDBUG          ORCC        #$50            ; DISABLE INTERRUPTS
                 LDA         #$0A
@@ -1607,11 +1456,6 @@ L8C4F           PULS        CC
                 JMP         >LA913
                 NOP                         ;
                 FCB         $C7
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
-
                 TSTB                        ;  CHECK ASCII FLAG
                 BEQ         L8C5F           ; FM ERROR IF NOT ASCII
                 JSR         >LAD19          ; GO DO A NEW
@@ -2323,26 +2167,11 @@ L916F           STA         $01,U           ; PUT SIGN OF EXPONENT IN STRING BUF
 L9177           INCA                        ;  ADD ONE TO TENS DIGIT COUNTER
 
 
-; -----------------------------------------------------------------------------
-                if          VEREXTBAS<11
-; -----------------------------------------------------------------------------
-                SUBB        #12             ; SUBTRACT 12 FROM EXPONENT AND ADD ONE TO TENS
-                BCC         L9177           ; DIGIT IF NO CARRY. TENS DIGIT DONE IF THERE IS A CARRY
-                ADDB        #'9'+3          ; ADD ASCII BIAS TO UNITS DIGIT
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 ; fix minor bug in the ascii to floating point conversion in PRINT USING
 
                 SUBB        #10             ; SUBTRACT 10 FROM EXPONENT AND ADD ONE TO TENS
                 BCC         L9177           ; DIGIT IF NO CARRY. TENS DIGIT DONE IF THERE IS A CARRY
                 ADDB        #'9'+1          ; ADD ASCII BIAS TO UNITS DIGIT
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
-
-
                 STD         ,U++            ; SAVE EXPONENT IN BUFFER
                 CLR         ,U              ; CLEAR FINAL BYTE IN BUFFER - PRINT TERMINATOR
                 JMP         >L9054          ; INSERT ASTERISK PADDING, FLOATING DOLLAR SIGN, ETC.
@@ -3049,24 +2878,7 @@ PMODETOK        CMPA        #','            ; CHECK FOR COMMA - FIRST ARGUMENT M
                 BCC         L966D           ; YES, ILLEGAL FUNCTION CALL
 
 
-; -----------------------------------------------------------------------------
-                if          VEREXTBAS<11
-; -----------------------------------------------------------------------------
-; supposed to be start of graphic ram. patched later to not be hardcoded value
-;
-; NOTE "extended basic unravelled" suggested this should be "lda #6", but
-; changing it to direct mode addressing instead of immediate makes it match
-; the mess rom dump sha1. i don't have coco hardware here to confirm this though.
-
-                LDA         6               ; hardcoded start of graphic ram $600
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
                 LDA         GRPRAM          ; GET THE START OF GRAPHIC RAM
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
 
 
 L962E           STA         BEGGRP          ; SET START GRAPHIC PAGE
@@ -3134,20 +2946,6 @@ PCLEAR          JSR         EVALEXPB        ; EVALUATE EXPRESSION, RETURN VALUE 
 
 
 
-; -----------------------------------------------------------------------------
-                if          VEREXTBAS<11
-; -----------------------------------------------------------------------------
-; THIS CODE REFLECTS THE INFAMOUS PCLEAR BUG
-                LBLO        LB44A           ; IF TRYING TO CLEAR LESS THAN END OF CURRENT PAGE = 'ILLEGAL FUNCTION CALL'
-                SUBD        TXTTAB          ; SUBTRACT START OF RAM
-                ADDD        VARTAB          ; ADD END OF BASIC PROGRAM
-                TFR         D,X             ; X=TOP OF PCLEARED SPACE + SIZE OF BASIC PROGRAM
-                ADDD        #200            ; ADD 200 - LEAVE SOME ROOM FOR STACK
-                SUBD        FRETOP          ; SUBTRACT OUT TOP OF CLEARED SPACE
-                BCC         L966D           ; NO ROOM LEFT - 'ILLEGAL FUNCTION CALL'
-; -----------------------------------------------------------------------------
-                else
-; -----------------------------------------------------------------------------
 ; THIS CODE REFLECTS THE INFAMOUS PCLEAR BUG
                 BLO         L966D           ; FC ERROR IF TRYING TO CLEAR < END OF GRAPHIC RAM
                 SUBD        TXTTAB          ; SUBTRACT START OF BASIC PROGRAM
@@ -3158,12 +2956,6 @@ PCLEAR          JSR         EVALEXPB        ; EVALUATE EXPRESSION, RETURN VALUE 
                 BCC         L966D           ; FC ERROR - NO ROOM LEFT
                 JSR         >L80D0          ; ADJUST BASICS INPUT POINTER
                 NOP                         ;  SPACE FILLER FOR EXBAS 1.1
-; -----------------------------------------------------------------------------
-                endif
-; -----------------------------------------------------------------------------
-
-
-
                 LDU         VARTAB          ; GET END OF BASIC PROGRAM
                 STX         VARTAB          ; STORE NEW END OF BASIC PROGRAM
                 CMPU        VARTAB          ; COMPARE OLD END TO NEW END
