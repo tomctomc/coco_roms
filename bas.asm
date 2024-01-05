@@ -281,7 +281,7 @@ LA1F4           ADDB        #$08            ; ADD 8 FOR EACH ROW OF KEYBOARD
                 ADDB        0,S             ; ADD IN THE COLUMN NUMBER
 ; NOW CONVERT THE VALUE IN ACCB INTO ASCII
                 BEQ         LA245           ; THE AT SIGN KEY WAS DOWN
-                CMPB        #26             ; WAS IT A LETTER?
+                CMPB        #26             ; WAS IT < 26 (A LETTER)?
                 BHI         LA247           ; NO
                 ORB         #$40            ; YES, CONVERT TO UPPER CASE ASCII
                 BSR         LA22E           ; CHECK FOR THE SHIFT KEY
@@ -325,14 +325,14 @@ LA23A           LDA         ,U              ; READ PIA0, PORT A TO SEE IF KEY IS
 LA244           RTS                         ; RETURN
 LA245           LDB         #51             ; CODE FOR AT SIGN
 LA247           LDX         #CONTAB-$36     ; POINT X TO CONTROL CODE TABLE
-                CMPB        #33             ; KEY NUMBER <33?
+                CMPB        #33             ; IS KEY < 33?
                 BLO         LA264           ; YES (ARROW KEYS, SPACE BAR, ZERO)
                 LDX         #CONTAB-$54     ; POINT X TO MIDDLE OF CONTROL TABLE
-                CMPB        #48             ; KEY NUMBER >48?
+                CMPB        #48             ; IS KEY >= 48?
                 BHS         LA264           ; YES (ENTER,CLEAR,BREAK,AT SIGN)
                 BSR         LA22E           ; CHECK SHIFT KEY (ACCA WILL CONTAIN STATUS)
-                CMPB        #43             ; IS KEY A NUMBER, COLON OR SEMICOLON?
-                BLS         LA25D           ; YES
+                CMPB        #43             ; IS KEY <= 43?
+                BLS         LA25D           ; YES (A NUMBER, COLON OR SEMICOLON)
                 EORA        #$40            ; TOGGLE BIT 6 OF ACCA WHICH CONTAINS THE SHIFT DATA
 ; ONLY FOR SLASH,HYPHEN,PERIOD,COMMA
 LA25D           TSTA                        ;  SHIFT KEY DOWN?
