@@ -108,5 +108,7 @@ verify: $(BUILD_DIR)/disk11.rom $(BUILD_DIR)/coco3.rom # $(BUILD_DIR)/coco3p.rom
 	@sha1sum $(BUILD_DIR)/supbas20.rom    | grep "9a05652fd80ab87219102800fe6a44a4ecacd8c3" >/dev/null && echo "supbas20.rom:  OK" || echo "supbas20.rom:  ***** BAD SHA1 *****"
 # @sha1sum $(BUILD_DIR)/supbas20p.rom   | grep "1953f7c33f0588ac975212d8ec3c6faee4ebad39" >/dev/null && echo "supbas20p.rom: OK" || echo "supbas20p.rom: ***** BAD SHA1 *****"
 
+install: $(BUILD_DIR)/coco3.rom
+	cp $< $(HOME)/Library/XRoar/roms
 
 
