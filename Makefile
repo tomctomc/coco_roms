@@ -33,6 +33,6 @@ install: $(BUILD_DIR)/coco3.rom
 	cp $< $(HOME)/Library/XRoar/roms
 
 run: install
-	xroar -machine coco3
+	xroar -machine coco3 -force-crc-match &
 
 
