@@ -3,7 +3,7 @@
 ; Copied from the PDF version of Extended Color BASIC Unravelled.
 ; Fixed up to assemble in Mamou
 
-                ORG         $8000
+                ORG         EXBAS
 MAGIC           FCC         "EX"
 
 ; MOVE EXTENDED BASIC'S COMMAND INTERPRETATION TABLE FROM ROM TO RAM
@@ -4250,7 +4250,7 @@ L9FF8           TFR         B,A             ; SAVE VALUE IN ACCA ALSO
 ; Fixed up to assemble in Mamou
 
 
-                ORG         $A000
+                ORG         BASIC
 POLCAT          FDB         KEYIN           ; GET A KEYSTROKE
 CHROUT          FDB         PUTCHR          ; OUTPUT A CHARACTER
 CSRDON          FDB         CASON           ; TURN ON CASSETTE MOTOR, START READING
