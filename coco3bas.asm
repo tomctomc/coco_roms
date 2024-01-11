@@ -4542,7 +4542,7 @@ LA21A           LDB         2,S             ; GET COLUMN STROBE DATA
                 BSR         LA238           ; READ A KEY
                 CMPA        1,S             ; IS IT THE SAME KEY AS BEFORE DEBOUNCE?
 LA220           PULS        A,X             ; REMOVE TEMP SLOTS FROM THE STACK AND RECOVER
-; THE ASCII VALUE OF THE KEY
+                                            ; THE ASCII VALUE OF THE KEY
                 BNE         LA22B           ; NOT THE SAME KEY OR JOYSTICK BUTTON
                 CMPA        #$12            ; IS SHIFT ZERO DOWN?
                 BNE         LA22C           ; NO
@@ -4559,12 +4559,12 @@ LA22E           LDA         #$7F            ; COLUMN STROBE
 ; READ THE KEYBOARD
 LA238           STB         2,U             ; SAVE NEW COLUMN STROBE VALUE
 LA23A           LDA         ,U              ; READ PIA0, PORT A TO SEE IF KEY IS DOWN
-; A BIT WILL BE ZERO IF ONE IS
+                                            ; A BIT WILL BE ZERO IF ONE IS
                 ORA         #$80            ; MASK OFF THE JOYSTICK COMPARATOR INPUT
                 TST         $02,U           ; ARE WE STROBING COLUMN 7?
                 BMI         LA244           ; NO
                 ORA         #$C0            ; YES, FORCE ROW 6 TO BE HIGH - THIS WILL CAUSE
-; THE SHIFT KEY TO BE IGNORED
+                                            ; THE SHIFT KEY TO BE IGNORED
 LA244           RTS                         ; RETURN
 LA245           LDB         #51             ; CODE FOR AT SIGN
 LA247           LDX         #CONTAB-$36     ; POINT X TO CONTROL CODE TABLE
@@ -4577,13 +4577,13 @@ LA247           LDX         #CONTAB-$36     ; POINT X TO CONTROL CODE TABLE
                 CMPB        #43             ; IS KEY <= 43?
                 BLS         LA25D           ; YES (A NUMBER, COLON OR SEMICOLON)
                 EORA        #$40            ; TOGGLE BIT 6 OF ACCA WHICH CONTAINS THE SHIFT DATA
-; ONLY FOR SLASH,HYPHEN,PERIOD,COMMA
+                                            ; ONLY FOR SLASH,HYPHEN,PERIOD,COMMA
 LA25D           TSTA                        ;  SHIFT KEY DOWN?
                 BNE         LA20C           ; YES
                 ADDB        #$10            ; NO, ADD IN ASCII OFFSET CORRECTION
                 BRA         LA20C           ; GO CHECK FOR DEBOUNCE
 LA264           ASLB                        ;  MULT ACCB BY 2 - THERE ARE 2 ENTRIES IN CONTROL
-; TABLE FOR EACH KEY - ONE SHIFTED, ONE NOT
+                                            ; TABLE FOR EACH KEY - ONE SHIFTED, ONE NOT
                 BSR         LA22E           ; CHECK SHIFT KEY
                 BEQ         LA26A           ; NOT DOWN
                 INCB                        ;  ADD ONE TO GET THE SHIFTED VALUE
@@ -13038,11 +13038,163 @@ KEYMAP          FCB         $40,$40,$40,$40
                 FCB         $46,$3E,$56,$76
                 FCB         $47,$3F,$5A,$7A
 
-NEWKEYIN        LDA         #$40 ; act like stuck @ key
-                RTS
+COUNTDOWNX = LA1AE
 
-; UNUSED GARBAGE BYTES?
-                FILL        $39,797
+; INPUT: none
+; OUTPUT: ASCII value of new keypress in A
+NEWKEYIN        PSHS        U,X,B           ; 2 | save registers
+                LDU         #PIA0           ; 3 | point U to PIA0
+                LDX         #KEYBUF         ; 3 | point X to keyboard memory buffer
+                CLRA                        ; 1 |  clear carry flag, set column counter (ACCA)
+                DECA                        ; 1 |  to $FF
+                PSHS        X,A             ; 2 | save column ctr & 2 blank (X reg) on stack
+                STA         2,U             ; 2 | initialize column strobe to $FF
+
+; INPUT: user stack 2,U = column strobe data
+; OUTPUT: fallthrough ACCA = key row number, stack 2,S = columns strobe data
+; LA1D9
+SCANKEYS        ROL         2,U             ; 2 | rotate column strobe data left 1 bit, carry into bit 0
+                BCC         FINISHNEWKEYIN  ; 2 | exit loop if 8 shifts done
+                INC         0,S             ; 2 | increment column counter
+                BSR         READROW         ; 2 | read keyboard row data
+                STA         1,S             ; 2 | temp store key data
+                EORA        ,X              ; 2 | set any bit where a key has moved
+                ANDA        ,X              ; 2 | ACCA=0 if no new key down, <70 if key was released
+                LDB         1,S             ; 2 | get new key data
+                STB         ,X+             ; 2 | store it in key memory
+                TSTA                        ; 1 |  was a new key down?
+                BEQ         SCANKEYS        ; 2 | no. loop to check another column
+                LDB         2,U             ; 2 | get column strobe data and
+                STB         2,S             ; 2 | temp store it on the stack
+
+; INPUT: ACCA = key row number
+; OUTPUT: fallthrough ACCB = index of key (row * 8) + column
+                LDB         #$F8            ; 2 | F8 = 0 - 8, so ACCB will be 0 after first ADDB #8
+; LA1F4
+GETKEYINDEX     ADDB        #8              ; 2 | add 8 for each row
+                LSRA                        ; 1 | ACCA has the key's row number. Shift right ...
+                BCC         GETKEYINDEX     ; 2 | ... until a zero appears in the carry flag
+                ADDB        0,S             ; 2 | add in the column number
+
+;------------------------------------------------------------------------------------------
+
+; Here we supposedly convert the key index in ACCB to ASCII
+
+; But reading through the code it also handles debouncing and some joystick stuff.
+; Why should debouncing happen during key to ASCII conversion?
+
+; NOW CONVERT THE VALUE IN ACCB INTO ASCII
+; INPUT: ACCB = key index
+; OUTPUT: ACCA = ASCII code
+                BEQ         AT2ASCII        ; 2 | the @ key was down
+                CMPB        #26             ; 2 | was it < 26 (a letter)?
+                BHI         CCLOOKUP        ; 2 | no, lookup in control table (CONTAB)
+                ORB         #$40            ; 2 | yes, convert to upper case ASCII
+                BSR         TESTSHIFTKEY    ; 2 | check for the shift key
+                ORA         CASFLG          ; 2 | or in the case flag & branch if in upper case
+                BNE         DEBOUNCE        ; 2 | branch if in upper case mode or shift key down
+                ORB         #$20            ; 2 | convert to lower case
+; LA20C
+DEBOUNCE        STB         0,S             ; 2 | temp store ASCII value
+                LDX         DEBVAL          ; 2 | get keyboard debounce
+                LBSR        COUNTDOWNX      ; 3 | debounce delay
+                LDB         #$FF            ; 2 | set column strobe to all ones (no strobe) and ...
+                BSR         READKEY         ; 2 | ... read keyboard
+                INCA                        ; 2 | incr row data. ACCA now 0 if no joystick button down.
+                BNE         FINISHNEWKEYIN  ; 2 | Finish if joystick button down
+; LA21A
+                LDB         2,S             ; 2 | get column strobe data
+                BSR         READKEY         ; 2 | read a key
+                CMPA        1,S             ; 2 | is it the same key as before debounce?
+
+; INPUT: CC.Z = 0 if no new key or joystick button is down
+; LA220
+FINISHNEWKEYIN  PULS        A,X             ; 2 | remove temp slots from the stack and recover
+                                            ;   |   the ASCII value of the key
+                BNE         NONEWKEY        ; 2 | not the same key or joystick button
+                CMPA        #$12            ; 2 | is shift zero down?
+                BNE         ENDNEWKEYIN     ; 2 | no
+                COM         CASFLG          ; 2 | yes, toggle upper case/lower case flag
+; LA22B
+NONEWKEY        CLRA                        ; 1 | set zero flag to indicate no new key down
+
+; LA22C
+ENDNEWKEYIN     PULS        B,X,U,PC        ; 2 | restore registers and return
+
+;================================
+; INPUT: U = #PIA0
+; OUTPUT: ACCA = 0b01000000 (0x40) if shift key is down
+; LA22E
+TESTSHIFTKEY    LDA         #$7F            ; 2 | column strobe
+                STA         2,U             ; 2 | store to P1A
+                LDA         ,U              ; 2 | read key data
+                COMA                        ; 2 | flip all bits
+                ANDA        #$40            ; 2 | set bit 6 if shift key down
+                RTS                         ; 1 | return
+;================================
+
+;================================
+; INPUT: none
+; OUTPUT: ACCA = row data
+; LA238
+READKEY         STB         2,U             ; 2 | save new column strobe data
+
+;--------------------------------
+; INPUT: ACCB = column strobe data
+; OUTPUT: ACCA = row data
+; LA23A
+READROW         LDA         ,U              ; 2 | read PIA0, port A to see if key is down (any 0 bit)
+                ORA         #$80            ; 2 | mask off the joystick comparator input
+                TST         2,U             ; 2 | are we strobing column 7?
+                BMI         ENDREADROW      ; 2 | no
+                ORA         #$C0            ; 2 | yes, force row 6 to be high - this will cause
+                                            ;   | the shift key to be ignored
+; LA244
+ENDREADROW      RTS                         ; 1 | return
+;--------------------------------
+
+;================================
+
+; LA245
+AT2ASCII        LDB         #51             ; 2 | code for at sign
+
+; INPUT: ACCB = key index
+; OUTPUT: ACCA = ASCII code
+; LA247
+CCLOOKUP        LDX         #CONTAB-$36     ; 2 | point X to control code table
+                CMPB        #33             ; 2 | is key < 33?
+                BLO         CCLOOKUP2       ; 2 | yes (arrow keys, space bar, zero)
+                LDX         #CONTAB-$54     ; 2 | point x to middle of control table
+                CMPB        #48             ; 2 | is key >= 48?
+                BHS         CCLOOKUP2       ; 2 | yes (enter,clear,break,at sign)
+                BSR         TESTSHIFTKEY    ; 2 | check shift key (ACCA will contain status)
+                CMPB        #43             ; 2 | is key <= 43?
+                BLS         CCLOOKUP1       ; 2 | yes (a number, colon or semicolon)
+                EORA        #$40            ; 2 | toggle bit 6 of ACCA which contains the shift data only for slash,hyphen,period,comma
+; LA25D
+CCLOOKUP1       TSTA                        ; 1 | shift key down?
+                BNE         DEBOUNCE        ; 2 | yes
+                ADDB        #$10            ; 2 | no, add in ASCII offset correction
+                BRA         DEBOUNCE        ; 2 | go check for debounce
+
+; LA264
+CCLOOKUP2       ASLB                        ; 2 | mult ACCB by 2 - there are 2 entries in control
+                                            ;   | table for each key - one shifted, one not
+                BSR         TESTSHIFTKEY    ; 2 | check shift key
+                BEQ         CCLOOKUP3       ; 2 | not down
+                INCB                        ; 1 | add one to get the shifted value
+; LA26A
+CCLOOKUP3       LDB         B,X             ; 2 | get ASCII code from control table
+                BRA         DEBOUNCE        ; 2 | go check debounce
+
+;------------------------------------------------------------------------------------------
+
+
+                                            ; 162
+
+; UNUSED GARBAGE BYTES? Total of 798 bytes, so every byte of the NEWKEYIN routine should be
+; sutracted from 796 and that value used to fill the remaining bytes in the garbage block.
+                FILL        $39,798-162
 
 ; START OF ADDITIONAL VARIABLES USED BY SUPER EXTENDED BASIC
 ;
