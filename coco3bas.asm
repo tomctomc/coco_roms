@@ -4551,7 +4551,7 @@ LA22B           CLRA                        ;  SET ZERO FLAG TO INDICATE NO NEW 
 LA22C           PULS        B,X,U,PC        ; RESTORE REGISTERS
 ; TEST FOR THE SHIFT KEY
 LA22E           LDA         #$7F            ; COLUMN STROBE
-                STA         2,U             ; STORE TO PlA
+                STA         2,U             ; STORE TO P1A
                 LDA         ,U              ; READ KEY DATA
                 COMA                        ;
                 ANDA        #$40            ; SET BIT 6 IF SHIFT KEY DOWN
