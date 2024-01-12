@@ -12987,14 +12987,18 @@ SFA06           PULS        B               ; GET THE NEW ATTRIBUTE BYTE FROM TH
                 endif
 ; -----------------------------------------------------------------------------
 
+QWERTY = 0
+DVORAK = 2
+WHICHMAP = DVORAK
+
 ;                          |qwerty |dvorak |
 ;                          | n   s | n   s |  (n = normal, s = shifted)
-KEYMAP          FCB         $40,$40,$40,$40
+KEYMAP          FCB         $40,$13,$40,$13
                 FCB         $41,$61,$41,$61
                 FCB         $42,$62,$58,$78
                 FCB         $43,$63,$4A,$6A
                 FCB         $44,$64,$45,$65
-                FCB         $45,$65,$46,$3E
+                FCB         $45,$65,$2E,$3E
                 FCB         $46,$66,$55,$75
                 FCB         $47,$67,$49,$69
                 FCB         $48,$68,$44,$64
@@ -13002,26 +13006,26 @@ KEYMAP          FCB         $40,$40,$40,$40
                 FCB         $4A,$6A,$48,$68
                 FCB         $4B,$6B,$54,$74
                 FCB         $4C,$6C,$4E,$6E
-                FCB         $4D,$6D,$4E,$6E
+                FCB         $4D,$6D,$4D,$6D
                 FCB         $4E,$6E,$42,$62
                 FCB         $4F,$6F,$52,$72
                 FCB         $50,$70,$4C,$6C
-                FCB         $51,$71,$47,$3F
+                FCB         $51,$71,$2F,$3F
                 FCB         $52,$72,$50,$70
                 FCB         $53,$73,$4F,$6F
                 FCB         $54,$74,$59,$79
                 FCB         $55,$75,$47,$67
                 FCB         $56,$76,$4B,$6B
-                FCB         $57,$77,$44,$3C
+                FCB         $57,$77,$2C,$3C
                 FCB         $58,$78,$51,$71
                 FCB         $59,$79,$46,$66
                 FCB         $5A,$7A,$3B,$2B
                 FCB         $5E,$5F,$5E,$5F
                 FCB         $0A,$5B,$0A,$5B
+                FCB         $08,$15,$08,$15
                 FCB         $09,$5D,$09,$5D
-                FCB         $08,$0F,$08,$0F
                 FCB         $20,$20,$20,$20
-                FCB         $30,$30,$30,$30
+                FCB         $30,$12,$30,$12
                 FCB         $31,$21,$31,$21
                 FCB         $32,$22,$32,$22
                 FCB         $33,$23,$33,$23
@@ -13033,10 +13037,19 @@ KEYMAP          FCB         $40,$40,$40,$40
                 FCB         $39,$29,$39,$29
                 FCB         $3A,$2A,$3A,$2A
                 FCB         $3B,$2B,$53,$73
-                FCB         $44,$3C,$57,$77
-                FCB         $45,$3D,$45,$3D
-                FCB         $46,$3E,$56,$76
-                FCB         $47,$3F,$5A,$7A
+                FCB         $2C,$3C,$57,$77
+                FCB         $2D,$3D,$2D,$3D
+                FCB         $2E,$3E,$56,$76
+                FCB         $2F,$3F,$5A,$7A
+                FCB         $0D,$0D,$0D,$0D
+                FCB         $0C,$5C,$0C,$5C
+                FCB         $03,$1B,$03,$1B
+                FCB         $00,$00,$00,$00
+                FCB         $00,$00,$00,$00
+                FCB         $04,$06,$04,$06
+                FCB         $05,$07,$05,$07
+
+                                            ; DC (220) bytes (4*55)
 
 COUNTDOWNX = LA1AE
 
@@ -13083,6 +13096,8 @@ GETKEYINDEX     ADDB        #8              ; 2 | add 8 for each row
 ; But reading through the code it also handles debouncing and some joystick stuff.
 ; Why should debouncing happen during key to ASCII conversion?
 
+                BRA         KEYMAPLOOKUP    ; 2 |
+
 ; NOW CONVERT THE VALUE IN ACCB INTO ASCII
 ; INPUT: ACCB = key index
 ; OUTPUT: ACCA = ASCII code
@@ -13091,16 +13106,16 @@ GETKEYINDEX     ADDB        #8              ; 2 | add 8 for each row
                 BHI         CCLOOKUP        ; 2 | no, lookup in control table (CONTAB)
                 ORB         #$40            ; 2 | yes, convert to upper case ASCII
                 BSR         TESTSHIFTKEY    ; 2 | check for the shift key
-                ORA         CASFLG          ; 2 | or in the case flag & branch if in upper case
+                ORA         CASFLG          ; 3 | or in the case flag & branch if in upper case
                 BNE         DEBOUNCE        ; 2 | branch if in upper case mode or shift key down
                 ORB         #$20            ; 2 | convert to lower case
 ; LA20C
 DEBOUNCE        STB         0,S             ; 2 | temp store ASCII value
-                LDX         DEBVAL          ; 2 | get keyboard debounce
+                LDX         DEBVAL          ; 3 | get keyboard debounce
                 LBSR        COUNTDOWNX      ; 3 | debounce delay
                 LDB         #$FF            ; 2 | set column strobe to all ones (no strobe) and ...
                 BSR         READKEY         ; 2 | ... read keyboard
-                INCA                        ; 2 | incr row data. ACCA now 0 if no joystick button down.
+                INCA                        ; 1 | incr row data. ACCA now 0 if no joystick button down.
                 BNE         FINISHNEWKEYIN  ; 2 | Finish if joystick button down
 ; LA21A
                 LDB         2,S             ; 2 | get column strobe data
@@ -13114,7 +13129,7 @@ FINISHNEWKEYIN  PULS        A,X             ; 2 | remove temp slots from the sta
                 BNE         NONEWKEY        ; 2 | not the same key or joystick button
                 CMPA        #$12            ; 2 | is shift zero down?
                 BNE         ENDNEWKEYIN     ; 2 | no
-                COM         CASFLG          ; 2 | yes, toggle upper case/lower case flag
+                COM         CASFLG          ; 3 | yes, toggle upper case/lower case flag
 ; LA22B
 NONEWKEY        CLRA                        ; 1 | set zero flag to indicate no new key down
 
@@ -13128,7 +13143,7 @@ ENDNEWKEYIN     PULS        B,X,U,PC        ; 2 | restore registers and return
 TESTSHIFTKEY    LDA         #$7F            ; 2 | column strobe
                 STA         2,U             ; 2 | store to P1A
                 LDA         ,U              ; 2 | read key data
-                COMA                        ; 2 | flip all bits
+                COMA                        ; 1 | flip all bits
                 ANDA        #$40            ; 2 | set bit 6 if shift key down
                 RTS                         ; 1 | return
 ;================================
@@ -13155,16 +13170,31 @@ ENDREADROW      RTS                         ; 1 | return
 
 ;================================
 
+; INPUT: ACCB = key index
+; OUTPUT: ACCA = ASCII code
+; offset = keyindex*4 + (WHICHMAP * 2) + shifted
+KEYMAPLOOKUP    LDX         #KEYMAP         ; 3 | point X to keymap
+                LSLB                        ; 1 | multiply key index by 4
+                LSLB                        ; 1 |
+                ADDB        #WHICHMAP       ; 2 | add selected map offset
+                BSR         TESTSHIFTKEY    ; 2 | is shift key down?
+                BEQ         DOLOOKUP        ; 2 | no, do lookup
+                INCB                        ; 1 | add one to get shifted value
+DOLOOKUP        ABX                         ; 1 | offset x to correct position in table
+                LDB         ,X              ; 2 | get ASCII code from keymap
+                BRA         DEBOUNCE        ; 2 | go check for debounce
+
+
 ; LA245
 AT2ASCII        LDB         #51             ; 2 | code for at sign
 
 ; INPUT: ACCB = key index
 ; OUTPUT: ACCA = ASCII code
 ; LA247
-CCLOOKUP        LDX         #CONTAB-$36     ; 2 | point X to control code table
+CCLOOKUP        LDX         #CONTAB-$36     ; 3 | point X to control code table
                 CMPB        #33             ; 2 | is key < 33?
                 BLO         CCLOOKUP2       ; 2 | yes (arrow keys, space bar, zero)
-                LDX         #CONTAB-$54     ; 2 | point x to middle of control table
+                LDX         #CONTAB-$54     ; 3 | point x to middle of control table
                 CMPB        #48             ; 2 | is key >= 48?
                 BHS         CCLOOKUP2       ; 2 | yes (enter,clear,break,at sign)
                 BSR         TESTSHIFTKEY    ; 2 | check shift key (ACCA will contain status)
@@ -13178,7 +13208,7 @@ CCLOOKUP1       TSTA                        ; 1 | shift key down?
                 BRA         DEBOUNCE        ; 2 | go check for debounce
 
 ; LA264
-CCLOOKUP2       ASLB                        ; 2 | mult ACCB by 2 - there are 2 entries in control
+CCLOOKUP2       ASLB                        ; 1 | mult ACCB by 2 - there are 2 entries in control
                                             ;   | table for each key - one shifted, one not
                 BSR         TESTSHIFTKEY    ; 2 | check shift key
                 BEQ         CCLOOKUP3       ; 2 | not down
@@ -13190,11 +13220,18 @@ CCLOOKUP3       LDB         B,X             ; 2 | get ASCII code from control ta
 ;------------------------------------------------------------------------------------------
 
 
-                                            ; 162
+                                            ; B7 (183) bytes
 
 ; UNUSED GARBAGE BYTES? Total of 798 bytes, so every byte of the NEWKEYIN routine should be
 ; sutracted from 796 and that value used to fill the remaining bytes in the garbage block.
-                FILL        $39,798-162
+; Next address should be FDF0
+
+THISGARBAGESIZE = $03E0 ; 992
+KEYMAPSIZE = $DC        ; 220
+KEYMAPPERSIZE = $B7     ; 183
+
+                FILL        $39,THISGARBAGESIZE-KEYMAPSIZE-KEYMAPPERSIZE
+
 
 ; START OF ADDITIONAL VARIABLES USED BY SUPER EXTENDED BASIC
 ;

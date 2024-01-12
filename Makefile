@@ -28,6 +28,7 @@ install: $(BUILD_DIR)/coco3.rom
 	cp $< $(HOME)/Library/XRoar/roms
 
 run: install
-	xroar -machine coco3 -force-crc-match &
+	nohup xroar -machine coco3 -force-crc-match &
 
-
+debug: install
+	nohup xroar -machine coco3 -force-crc-match -gdb &
