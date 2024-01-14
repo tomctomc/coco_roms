@@ -6,11 +6,10 @@ This repo is more of an 8-bit assembly playground for me. I doubt these mods wil
 
 ### Modifications so far
 
-- Custom keymapping! You can switch between QWERTY and Dvorak by poking a 0 (QWERTY) or a 2 (DVORAK) to address `0xFB6F`. For example:
+- Custom keymapping! You can switch between QWERTY and Dvorak by poking a 0 (QWERTY) or a 2 (DVORAK) to address `0xA201`. For example:
 
 ```text
-POKE &HFB6F,2 ' switch to Dvorak
-POKE &HFB6F,0 ' switch to QWERTY
+POKE &HA201,2 ' switch to Dvorak
+POKE &HA201,0 ' switch to QWERTY
 ```
 
-This address will change as I clean up the code. I've duplicated much of the original key input logic in this first pass, and I'll be clearing that out at some point.
