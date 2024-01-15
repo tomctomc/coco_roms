@@ -12996,7 +12996,7 @@ SFA06           PULS        B               ; GET THE NEW ATTRIBUTE BYTE FROM TH
 
 QWERTY = 0
 DVORAK = 2
-WHICHMAP = DVORAK
+WHICHMAP = QWERTY
 
 ;                          |qwerty |dvorak |
 ;                          | n   s | n   s |  (n = normal, s = shifted)
