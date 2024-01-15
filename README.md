@@ -6,7 +6,7 @@ This repo is more of an 8-bit assembly playground for me. I doubt these mods wil
 
 ## Modifications so far
 
-### Custom keymapping! 
+### Custom keymapping!
 
 You can switch between QWERTY and Dvorak by poking a 0 (QWERTY) or a 2 (DVORAK) to address `0xA201`. For example:
 
@@ -758,3 +758,5 @@ POKE &HA201,0 ' switch to QWERTY
     </tr>
   </tbody>
 </table>
+
+You can also apply any arbitrary keymap from BASIC. See [colmak.bas](/colmak.bas) for an example.
