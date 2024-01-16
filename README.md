@@ -1,3 +1,5 @@
+TEST
+
 # Custom Tandy Color Computer 3 ROM source code
 
 Originally forked from [tomctomc/coco_roms](https://github.com/tomctomc/coco_roms), all non-coco3 code has been stripped and the sources modified to be compatible with [LWASM](http://www.lwtools.ca/manual/manual.html#AEN62).
