@@ -2110,7 +2110,7 @@ LAA51           FCB         $79
 LAA66           FCS         "FOR"           ; 80
                 FCS         "GO"            ; 81
                 FCS         "REM"           ; 82
-                FCB         ''+$80          ; 83
+                FCB         $80+APOSTROPHE  ; 83
                 FCS         "ELSE"          ; 84
                 FCS         "IF"            ; 85
                 FCS         "DATA"          ; 86
@@ -4117,7 +4117,7 @@ LB86B           CMPA        #'?'            ; CHECK FOR "?" - PRINT ABBREVIATION
                 BNE         LB873           ; BRANCH IF NOT PRINT ABBREVIATION
                 LDA         #$87            ; GET THE PRINT TOKEN AND SAVE IT
                 BRA         LB852           ; IN BUFFER
-LB873           CMPA        #'''            ; APOSTROPHE IS SAME AS REM
+LB873           CMPA        #APOSTROPHE     ; APOSTROPHE IS SAME AS REM
                 BNE         LB88A           ; BRANCH IF NOT REMARK
                 LDD         #$3A83          ; COLON, REM TOKEN
                 STD         ,U++            ; SAVE IN BUFFER

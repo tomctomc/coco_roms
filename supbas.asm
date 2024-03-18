@@ -3429,7 +3429,7 @@ SF3CF           TST         VD8             ; TEST COMMAND LENGTH COUNTER
                 JSR         >SF591          ; GET A COMMAND CHARACTER
                 CMPA        #';'            ; CHECK FOR A SEMI-COLON
                 BEQ         SF3CF           ; IGNORE SEMI-COLONS
-                CMPA        #''             ; CHECK FOR APOSTROPHE
+                CMPA        #APOSTROPHE     ; CHECK FOR APOSTROPHE
                 BEQ         SF3CF           ; IGNORE APOSTROPHE
                 CMPA        #'N'            ; UPDATE CHECK?
                 BNE         SF3E6           ; BRANCH IF NOT
