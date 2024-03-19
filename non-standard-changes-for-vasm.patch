@@ -1,185 +1,72 @@
-From 9a2360d09bf0af71f9bf0c6974c2756023e5a407 Mon Sep 17 00:00:00 2001
+From 4e2dff447085759386e9f509585fa8c949c3c336 Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
-Date: Tue, 9 May 2023 23:26:43 -0400
+Date: Wed, 17 May 2023 14:16:57 -0400
 Subject: code: non-standard fixes for vasm
 
 ---
- bas.asm    | 48 +++++++++++++++++++++++++++++++++++++-----------
- disk.asm   |  3 +++
- extbas.asm | 12 ++++++++++++
- supbas.asm |  7 +++++++
- 4 files changed, 59 insertions(+), 11 deletions(-)
+ bas.asm    | 4 ++++
+ disk.asm   | 4 ++++
+ extbas.asm | 4 ++++
+ supbas.asm | 3 +++
+ 4 files changed, 15 insertions(+)
 
 diff --git a/bas.asm b/bas.asm
-index 64f5fa7..f8223e3 100644
+index 9bca905..4433e35 100644
 --- a/bas.asm
 +++ b/bas.asm
 @@ -20,6 +20,10 @@
  
  ; $Id: $
  
-+                IFD __VASM
-+                include     auto_symbols_coco.asm
++                ifd __VASM
++                include     "auto_symbols_coco.asm"
 +                endif
 +
                  ORG         $A000
  POLCAT          FDB         KEYIN           ; GET A KEYSTROKE
  CHROUT          FDB         PUTCHR          ; OUTPUT A CHARACTER
-@@ -468,11 +472,11 @@ LA157           FCC         "(C) 198"
- ; -----------------------------------------------------------------------------
-                 if          VERBAS<12
- ; -----------------------------------------------------------------------------
--                FCC         "0"
-+                FCB         "0"
- ; -----------------------------------------------------------------------------
-                 else
- ; -----------------------------------------------------------------------------
--                FCC         "2"
-+                FCB         "2"
- ; -----------------------------------------------------------------------------
-                 endif
- ; -----------------------------------------------------------------------------
-@@ -2110,7 +2114,11 @@ LAA51           FCB         $79
- LAA66           FCS         "FOR"           ; 80
-                 FCS         "GO"            ; 81
-                 FCS         "REM"           ; 82
--                FCB         ''+$80          ; 83
-+                IFD __VASM
-+                FCB         "'"+$80         ; 83
-+                ELSE
-+                FCS         "'"             ; 83
-+                ENDIF
-                 FCS         "ELSE"          ; 84
-                 FCS         "IF"            ; 85
-                 FCS         "DATA"          ; 86
-@@ -2150,16 +2158,30 @@ LAA66           FCS         "FOR"           ; 80
-                 FCS         "NOT"           ; A8
-                 FCS         "STEP"          ; A9
-                 FCS         "OFF"           ; AA
--                FCS         '+'             ; AB
--                FCS         '-'             ; AC
--                FCS         '*'             ; AD
--                FCS         '/'             ; AE
--                FCS         '^'             ; AF
-+                IFD __VASM
-+                FCB         "+"+$80         ; AB
-+                FCB         "-"+$80         ; AC
-+                FCB         "*"+$80         ; AD
-+                FCB         "/"+$80         ; AE
-+                FCB         "^"+$80         ; AF
-+                ELSE
-+                FCS         "+"             ; AB
-+                FCS         "-"             ; AC
-+                FCS         "*"             ; AD
-+                FCS         "/"             ; AE
-+                FCS         "^"             ; AF
-+                ENDIF
-                 FCS         "AND"           ; B0
-                 FCS         "OR"            ; B1
--                FCS         '>'             ; B2
--                FCS         '='             ; B3
--                FCS         '<'             ; B4
-+                IFD __VASM
-+                FCB         ">"+$80         ; B2
-+                FCB         "="+$80         ; B3
-+                FCB         "<"+$80         ; B4
-+                ELSE
-+                FCS         ">"             ; B2
-+                FCS         "="             ; B3
-+                FCS         "<"             ; B4
-+                ENDIF
- 
- ; TOKENS FOR THE SECONDARY FUNCTIONS ARE PRECEEDED BY $FF
- ; TOKEN #
-@@ -4117,7 +4139,11 @@ LB86B           CMPA        #'?'            ; CHECK FOR "?" - PRINT ABBREVIATION
-                 BNE         LB873           ; BRANCH IF NOT PRINT ABBREVIATION
-                 LDA         #$87            ; GET THE PRINT TOKEN AND SAVE IT
-                 BRA         LB852           ; IN BUFFER
-+                IFD __VASM
-+LB873           CMPA        #"'"            ; APOSTROPHE IS SAME AS REM
-+                ELSE
- LB873           CMPA        #'''            ; APOSTROPHE IS SAME AS REM
-+                ENDIF
-                 BNE         LB88A           ; BRANCH IF NOT REMARK
-                 LDD         #$3A83          ; COLON, REM TOKEN
-                 STD         ,U++            ; SAVE IN BUFFER
 diff --git a/disk.asm b/disk.asm
-index 7b13783..ef8624e 100644
+index 7b13783..3124d7e 100644
 --- a/disk.asm
 +++ b/disk.asm
-@@ -20,6 +20,9 @@ CYEAR           EQU         '1
-                 endif
- ; -----------------------------------------------------------------------------
+@@ -6,6 +6,10 @@
  
-+                IFD __VASM
-+                include     auto_symbols_extbas.asm
+ ; $Id: $
+ 
++                ifd __VASM
++                include     "auto_symbols_extbas.asm"
 +                endif
- 
- 
- 
++
+ ; -----------------------------------------------------------------------------
+                 if          VERDISK>10
+ ; -----------------------------------------------------------------------------
 diff --git a/extbas.asm b/extbas.asm
-index e06ad21..6d22c57 100644
+index 1ef702b..28b6b0f 100644
 --- a/extbas.asm
 +++ b/extbas.asm
 @@ -12,6 +12,10 @@
  
  ; $Id: $
  
-+                IFD __VASM
-+                include     auto_symbols_bas.asm
++                ifd __VASM
++                include     "auto_symbols_bas.asm"
 +                endif
 +
                  ORG         $8000
  MAGIC           FCC         "EX"
  
-@@ -3672,7 +3676,11 @@ L9A43           TST         VD8             ; SEE IF LENGTH OF STRING = 0
-                 JSR         >L9B98          ; GET A COMMAND CHARACTER IF NOT
-                 CMPA        #';'            ; SUB COMMAND TERMINATED
-                 BEQ         L9A43           ; IGNORE SEMICOLONS
-+                IFD __VASM
-+                CMPA        #"'"            ; CHECK FOR APOSTROPHE
-+                ELSE
-                 CMPA        #''             ; CHECK FOR APOSTROPHE
-+                ENDIF
-                 BEQ         L9A43           ; IGNORE THEM TOO
-                 CMPA        #'X'            ; CHECK FOR AN EXECUTABLE SUBSTRING
-                 LBEQ        L9C0A           ; GO PROCESS SUB COMMAND
-@@ -4022,7 +4030,11 @@ L9CDD           TST         VD8             ; TEST COMMAND LENGTH CTR
-                 JSR         >L9B98          ; GET A COMMAND CHAR
-                 CMPA        #';'            ; CHECK FOR SEMICOLON
-                 BEQ         L9CDD           ; IGNORE SEMICOLONS
-+                IFD __VASM
-+                CMPA        #"'"            ; CHECK FOR APOSTROPHE
-+                ELSE
-                 CMPA        #''             ; CHECK FOR APOSTROPHES
-+                ENDIF
-                 BEQ         L9CDD           ; IGNORE APOSTROPHES
-                 CMPA        #'N'            ; UPDATE CHECK?
-                 BNE         L9CF4           ; NO
 diff --git a/supbas.asm b/supbas.asm
-index ea8d934..c2d4339 100644
+index 56ffc64..c257afb 100644
 --- a/supbas.asm
 +++ b/supbas.asm
 @@ -7,6 +7,9 @@
  
  ; $Id: $
  
-+                IFD __VASM
-+                include     auto_symbols_extbas.asm
++                ifd __VASM
++                include     "auto_symbols_extbas.asm"
 +                endif
  
  ; up when disk basic is merged:
  DC0DC           EQU         $C0DC
-@@ -3429,7 +3432,11 @@ SF3CF           TST         VD8             ; TEST COMMAND LENGTH COUNTER
-                 JSR         >SF591          ; GET A COMMAND CHARACTER
-                 CMPA        #';'            ; CHECK FOR A SEMI-COLON
-                 BEQ         SF3CF           ; IGNORE SEMI-COLONS
-+                IFD __VASM
-+                CMPA        #"'"            ; CHECK FOR APOSTROPHE
-+                ELSE
-                 CMPA        #''             ; CHECK FOR APOSTROPHE
-+                ENDIF
-                 BEQ         SF3CF           ; IGNORE APOSTROPHE
-                 CMPA        #'N'            ; UPDATE CHECK?
-                 BNE         SF3E6           ; BRANCH IF NOT
 -- 
