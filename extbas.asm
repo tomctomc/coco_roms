@@ -3672,7 +3672,7 @@ L9A43           TST         VD8             ; SEE IF LENGTH OF STRING = 0
                 JSR         >L9B98          ; GET A COMMAND CHARACTER IF NOT
                 CMPA        #';'            ; SUB COMMAND TERMINATED
                 BEQ         L9A43           ; IGNORE SEMICOLONS
-                CMPA        #''             ; CHECK FOR APOSTROPHE
+                CMPA        #APOSTROPHE     ; CHECK FOR APOSTROPHE
                 BEQ         L9A43           ; IGNORE THEM TOO
                 CMPA        #'X'            ; CHECK FOR AN EXECUTABLE SUBSTRING
                 LBEQ        L9C0A           ; GO PROCESS SUB COMMAND
@@ -4022,7 +4022,7 @@ L9CDD           TST         VD8             ; TEST COMMAND LENGTH CTR
                 JSR         >L9B98          ; GET A COMMAND CHAR
                 CMPA        #';'            ; CHECK FOR SEMICOLON
                 BEQ         L9CDD           ; IGNORE SEMICOLONS
-                CMPA        #''             ; CHECK FOR APOSTROPHES
+                CMPA        #APOSTROPHE     ; CHECK FOR APOSTROPHES
                 BEQ         L9CDD           ; IGNORE APOSTROPHES
                 CMPA        #'N'            ; UPDATE CHECK?
                 BNE         L9CF4           ; NO

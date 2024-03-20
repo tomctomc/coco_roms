@@ -7,6 +7,7 @@
 ; =============================================================================
 ; EQUATES (CONSTANTS)
 ; =============================================================================
+APOSTROPHE      EQU         39              ; APOSTROPHE
 BS              EQU         $08             ; BACKSPACE
 CR              EQU         $0D             ; ENTER KEY
 ESC             EQU         $1B             ; ESCAPE CODE

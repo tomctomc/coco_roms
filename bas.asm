@@ -468,11 +468,11 @@ LA157           FCC         "(C) 198"
 ; -----------------------------------------------------------------------------
                 if          VERBAS<12
 ; -----------------------------------------------------------------------------
-                FCC         "0"
+                FCB         '0'
 ; -----------------------------------------------------------------------------
                 else
 ; -----------------------------------------------------------------------------
-                FCC         "2"
+                FCB         '2'
 ; -----------------------------------------------------------------------------
                 endif
 ; -----------------------------------------------------------------------------
@@ -2110,7 +2110,7 @@ LAA51           FCB         $79
 LAA66           FCS         "FOR"           ; 80
                 FCS         "GO"            ; 81
                 FCS         "REM"           ; 82
-                FCB         ''+$80          ; 83
+                FCB         $80+APOSTROPHE  ; 83
                 FCS         "ELSE"          ; 84
                 FCS         "IF"            ; 85
                 FCS         "DATA"          ; 86
@@ -2150,16 +2150,16 @@ LAA66           FCS         "FOR"           ; 80
                 FCS         "NOT"           ; A8
                 FCS         "STEP"          ; A9
                 FCS         "OFF"           ; AA
-                FCS         '+'             ; AB
-                FCS         '-'             ; AC
-                FCS         '*'             ; AD
-                FCS         '/'             ; AE
-                FCS         '^'             ; AF
+                FCB         $80+'+'         ; AB
+                FCB         $80+'-'         ; AC
+                FCB         $80+'*'         ; AD
+                FCB         $80+'/'         ; AE
+                FCB         $80+'^'         ; AF
                 FCS         "AND"           ; B0
                 FCS         "OR"            ; B1
-                FCS         '>'             ; B2
-                FCS         '='             ; B3
-                FCS         '<'             ; B4
+                FCB         $80+'>'         ; B2
+                FCB         $80+'='         ; B3
+                FCB         $80+'<'         ; B4
 
 ; TOKENS FOR THE SECONDARY FUNCTIONS ARE PRECEEDED BY $FF
 ; TOKEN #
@@ -4117,7 +4117,7 @@ LB86B           CMPA        #'?'            ; CHECK FOR "?" - PRINT ABBREVIATION
                 BNE         LB873           ; BRANCH IF NOT PRINT ABBREVIATION
                 LDA         #$87            ; GET THE PRINT TOKEN AND SAVE IT
                 BRA         LB852           ; IN BUFFER
-LB873           CMPA        #'''            ; APOSTROPHE IS SAME AS REM
+LB873           CMPA        #APOSTROPHE     ; APOSTROPHE IS SAME AS REM
                 BNE         LB88A           ; BRANCH IF NOT REMARK
                 LDD         #$3A83          ; COLON, REM TOKEN
                 STD         ,U++            ; SAVE IN BUFFER

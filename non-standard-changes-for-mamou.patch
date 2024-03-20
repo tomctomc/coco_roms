@@ -367,7 +367,7 @@ index 64f5fa7..4be64d8 100644
                  BEQ         LB829           ; AND RESET FLAGS IF END OF SUBLINE
  LB85A           BRA         LB82D           ; GO GET ANOTHER CHARACTER
  LB85C           CLR         ,U+             ; DOUBLE ZERO AT END OF LINE
-@@ -4113,11 +4113,11 @@ LB85C           CLR         ,U+             ; DOUBLE ZERO AT END OF LINE
+@@ -4113,7 +4113,7 @@ LB85C           CLR         ,U+             ; DOUBLE ZERO AT END OF LINE
                  LDX         #LINBUF-1       ; SET THE INPUT POINTER TO ONE BEFORE
                  STX         CHARAD          ; THE START OF THE CRUNCHED LINE
                  RTS                         ; EXIT 'CRUNCH'
@@ -376,11 +376,6 @@ index 64f5fa7..4be64d8 100644
                  BNE         LB873           ; BRANCH IF NOT PRINT ABBREVIATION
                  LDA         #$87            ; GET THE PRINT TOKEN AND SAVE IT
                  BRA         LB852           ; IN BUFFER
--LB873           CMPA        #'''            ; APOSTROPHE IS SAME AS REM
-+LB873           CMPA        #''             ; APOSTROPHE IS SAME AS REM
-                 BNE         LB88A           ; BRANCH IF NOT REMARK
-                 LDD         #$3A83          ; COLON, REM TOKEN
-                 STD         ,U++            ; SAVE IN BUFFER
 @@ -4128,9 +4128,9 @@ LB87E           LDA         ,X+             ; SCAN TILL WE MATCH [V42]
                  BEQ         LB852           ; BRANCH OUT IF SO
  LB886           STA         ,U+             ; DONT CRUNCH REMARKS OR STRINGS
@@ -1587,7 +1582,7 @@ index e06ad21..9804ab0 100644
 -                CMPA        #';'            ; SUB COMMAND TERMINATED
 +                CMPA        #';             ; SUB COMMAND TERMINATED
                  BEQ         L9A43           ; IGNORE SEMICOLONS
-                 CMPA        #''             ; CHECK FOR APOSTROPHE
+                 CMPA        #APOSTROPHE     ; CHECK FOR APOSTROPHE
                  BEQ         L9A43           ; IGNORE THEM TOO
 -                CMPA        #'X'            ; CHECK FOR AN EXECUTABLE SUBSTRING
 +                CMPA        #'X             ; CHECK FOR AN EXECUTABLE SUBSTRING
@@ -1728,7 +1723,7 @@ index e06ad21..9804ab0 100644
 -                CMPA        #';'            ; CHECK FOR SEMICOLON
 +                CMPA        #';             ; CHECK FOR SEMICOLON
                  BEQ         L9CDD           ; IGNORE SEMICOLONS
-                 CMPA        #''             ; CHECK FOR APOSTROPHES
+                 CMPA        #APOSTROPHE     ; CHECK FOR APOSTROPHES
                  BEQ         L9CDD           ; IGNORE APOSTROPHES
 -                CMPA        #'N'            ; UPDATE CHECK?
 +                CMPA        #'N             ; UPDATE CHECK?
@@ -1928,7 +1923,7 @@ index ea8d934..134cf22 100644
 -                CMPA        #';'            ; CHECK FOR A SEMI-COLON
 +                CMPA        #';             ; CHECK FOR A SEMI-COLON
                  BEQ         SF3CF           ; IGNORE SEMI-COLONS
-                 CMPA        #''             ; CHECK FOR APOSTROPHE
+                 CMPA        #APOSTROPHE     ; CHECK FOR APOSTROPHE
                  BEQ         SF3CF           ; IGNORE APOSTROPHE
 -                CMPA        #'N'            ; UPDATE CHECK?
 +                CMPA        #'N             ; UPDATE CHECK?
